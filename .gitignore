@@ -1,0 +1,7 @@
+# Nested group project repo — versioned separately at its own origin
+/G16-shyam/
+
+# OS / editor cruft
+Thumbs.db
+.DS_Store
+*~

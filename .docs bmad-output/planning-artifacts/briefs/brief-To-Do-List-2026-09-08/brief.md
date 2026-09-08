@@ -1,15 +1,15 @@
 ---
-title: "Product Brief: TagFlow"
+title: "Product Brief: To-Do-List"
 status: done
 created: 2026-09-08
 updated: 2026-09-08
 ---
 
-# Product Brief: TagFlow
+# Product Brief: To-Do-List
 
 ## Executive Summary
 
-TagFlow is an AI-assisted task manager for people who juggle many tasks across
+To-Do-List is an AI-assisted task manager for people who juggle many tasks across
 different parts of their life — students, classmates, and individuals with school,
 work, and personal commitments competing for the same attention. It does the
 ordinary work of a to-do list (create, read, update, delete tasks) and adds one
@@ -24,7 +24,7 @@ local storage, the app works offline, and there is no backend to pay for or
 secure. An account and basic cloud sync are optional, opt-in features for people
 who want their tasks on more than one device or want to share a list.
 
-TagFlow is the solo project for IBE160 (Programmering med KI) at Høgskolen i
+To-Do-List is the solo project for IBE160 (Programmering med KI) at Høgskolen i
 Molde, due at the end of November 2026. It is deliberately scoped as a "Simple"
 difficulty build: enough CRUD and data modelling to be a real application, with
 the graded emphasis on a practical, honest use of a basic AI model.
@@ -43,7 +43,7 @@ overhead of just remembering things — which is exactly when things get dropped
 
 ## The Solution
 
-TagFlow keeps task capture as fast as typing a sentence, then offloads the
+To-Do-List keeps task capture as fast as typing a sentence, then offloads the
 organizing to an AI assistant:
 
 - **Create / Read / Update / Delete** tasks with the fields that matter: task
@@ -66,7 +66,7 @@ Point*).
 
 ## What Makes This Different
 
-This is a course project, and the brief should be honest about that: TagFlow is
+This is a course project, and the brief should be honest about that: To-Do-List is
 not trying to out-feature Todoist or TickTick, both of which now ship AI tagging.
 Its point of difference is scoped and real:
 
@@ -85,7 +85,7 @@ Its point of difference is scoped and real:
 **Primary — the multi-context juggler.** A student or early-career person with
 tasks spanning school, a group project, a part-time job, and personal life. They
 capture tasks in a hurry, rarely tag or prioritize them by hand, and want a list
-they can trust at a glance. Success for them: they open TagFlow and immediately
+they can trust at a glance. Success for them: they open To-Do-List and immediately
 see what matters today without having done any filing.
 
 **Secondary — small informal groups (classmates).** People who want to share a
@@ -157,7 +157,7 @@ One choice is deferred to the PRD / architecture stage:
 
 ## Vision
 
-If it succeeds as a course project and the maker keeps going: TagFlow grows into
+If it succeeds as a course project and the maker keeps going: To-Do-List grows into
 a genuinely local-first personal task manager where AI handles all the
 organizing overhead — tagging, prioritizing, summarizing, grouping, and surfacing
 what matters now — while the user never loses the sense that it is *their* list.

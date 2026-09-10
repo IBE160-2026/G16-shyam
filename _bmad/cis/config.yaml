@@ -10,4 +10,4 @@ user_name: Shyam
 project_name: To-Do-List
 communication_language: English
 document_output_language: English
-output_folder: "{project-root}/.docs bmad-output"
+output_folder: "{project-root}/.docs"

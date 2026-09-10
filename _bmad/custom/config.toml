@@ -5,3 +5,12 @@
 #
 # [agents.bmad-agent-pm]
 # description = "Prefers short, bulleted PRDs over narrative drafts."
+
+# Output folder was renamed on disk from ".docs bmad-output" to ".docs".
+# Pinned here so the installer can't revert it on the base config.toml.
+[core]
+output_folder = "{project-root}/.docs"
+
+[modules.bmm]
+planning_artifacts = "{project-root}/.docs/planning-artifacts"
+implementation_artifacts = "{project-root}/.docs/implementation-artifacts"

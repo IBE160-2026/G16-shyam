@@ -2,7 +2,7 @@
 title: "Product Brief: To-Do-List"
 status: done
 created: 2026-09-08
-updated: 2026-09-08
+updated: 2026-09-10
 ---
 
 # Product Brief: To-Do-List
@@ -20,9 +20,10 @@ user is always the decision-maker: the AI suggests, the user accepts, edits, or
 rejects each suggestion.
 
 The product is local-first and requires no account. Tasks live in the device's
-local storage, the app works offline, and there is no backend to pay for or
-secure. An account and basic cloud sync are optional, opt-in features for people
-who want their tasks on more than one device or want to share a list.
+local storage and the app works offline, so the core experience needs no backend
+to pay for or secure. An account and basic cloud sync are optional, opt-in
+features — with a minimal backend behind them — for people who want their tasks
+on more than one device or want to share a list.
 
 To-Do-List is the solo project for IBE160 (Programmering med KI) at Høgskolen i
 Molde, due at the end of November 2026. It is deliberately scoped as a "Simple"
@@ -34,12 +35,13 @@ the graded emphasis on a practical, honest use of a basic AI model.
 People managing tasks across several life contexts spend real effort on
 organizing rather than doing. A task like "email the group about Thursday's
 meeting" has to be manually tagged (school? group project?), manually prioritized,
-and manually filed into the right list. Most people skip this, so their task list
-becomes a flat, undifferentiated pile that is hard to trust and easy to abandon.
-Existing task apps either leave all of this manual work to the user or hide
-automation behind paid tiers. For a student with a dozen small obligations a
-week, the overhead of keeping a task list well-organized often exceeds the
-overhead of just remembering things — which is exactly when things get dropped.
+and manually filed into the right list. In practice this rarely happens — the
+maker's own task lists included — so the list becomes a flat, undifferentiated
+pile that is hard to trust and easy to abandon. Some task apps now automate the
+tagging, but usually behind a paid tier; the free path still leaves the sorting
+to the user. For a student with a dozen small obligations a week, the overhead of
+keeping a task list well-organized often exceeds the overhead of just remembering
+things — which is exactly when things get dropped.
 
 ## The Solution
 
@@ -60,9 +62,10 @@ organizing to an AI assistant:
   network. Optional account creation unlocks basic sync and list sharing.
 
 The suggestion engine starts as a local rule-based / keyword classifier — cheap,
-private, offline, and predictable. A stronger cloud or local AI model is a
-possible upgrade; whether one ships in v1 is still open (see *Open Decision
-Point*).
+private, offline, and predictable. Whether v1 also ships a real AI model (cloud
+or a small local one) is still open, and it matters more than a normal upgrade
+question: the course grade weights the AI feature heavily, so a rules-only
+classifier may not clear that bar on its own (see *Open Decision Point*).
 
 ## What Makes This Different
 
@@ -74,9 +77,10 @@ Its point of difference is scoped and real:
   "AI proposes, human disposes" — every AI output is a reviewable draft, never a
   silent change. This is a defensible product stance (users keep trust in their
   list) and a good fit for a project graded on a *thoughtful* application of AI.
-- **Local-first with zero backend.** No auth complexity, no server cost, works
-  offline. The baseline AI runs locally too. Sync and cloud AI are opt-in
-  add-ons, not prerequisites.
+- **Local-first by default.** The core app needs no account, no network, and no
+  server — task data and the baseline AI both run on the device. Sync, list
+  sharing, and cloud AI are opt-in add-ons; they do add a minimal backend, but
+  nothing about the primary experience depends on it.
 - **Deliberately small AI surface.** Three suggestion types and smart lists —
   narrow enough to implement well and evaluate honestly within the timeframe.
 
@@ -109,8 +113,6 @@ same list, updated within a reasonable delay.
 
 - A new task can be captured in under ~10 seconds including reviewing AI
   suggestions.
-- Most AI suggestions are accepted or lightly edited rather than rejected
-  outright.
 - The default smart lists are the ones users actually open.
 
 ## Scope
@@ -126,14 +128,15 @@ same list, updated within a reasonable delay.
   priority, by tag).
 - Local device storage in a single responsive web app (PWA); no login required;
   works offline.
-- Optional account creation, basic cloud sync (last-write-wins or similar simple
-  strategy), and list sharing.
+- Optional account creation, basic cloud sync (last-write-wins on conflicting
+  edits, no merge UI), and list sharing.
 - Archiving of completed tasks: 30-day default, user-configurable.
 - Runs as one responsive app across web, desktop, mobile, and tablet.
 
 **Explicitly out of v1:**
 
-- Real-time multi-device sync and conflict resolution.
+- Real-time multi-device sync, and any merge or conflict-resolution UI beyond
+  last-write-wins.
 - Real-time multi-user collaboration on a shared list.
 - Online purchase / payment features.
 - Notifications and reminders.
@@ -151,9 +154,11 @@ default local suggestion engine never sends data anywhere.
 One choice is deferred to the PRD / architecture stage:
 
 - **Which suggestion engine ships in v1.** The local rule-based classifier is the
-  committed baseline. Whether v1 also ships a cloud AI option (OpenAI / Claude)
-  or a small local model — and the added cost, network dependency, and privacy
-  handling that implies — is not yet decided.
+  committed baseline. Whether v1 also ships a real AI model — a cloud option
+  (OpenAI / Claude) or a small local one — is not yet decided, along with the
+  cost, network dependency, and privacy handling that implies. Resolve this
+  first in the PRD: the course grade leans on the AI feature, and the rule-based
+  baseline on its own may not clear that bar.
 
 ## Vision
 

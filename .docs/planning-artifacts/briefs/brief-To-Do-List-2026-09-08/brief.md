@@ -2,7 +2,7 @@
 title: "Product Brief: To-Do-List"
 status: done
 created: 2026-09-08
-updated: 2026-09-10
+updated: 2026-10-16
 ---
 
 # Product Brief: To-Do-List
@@ -20,10 +20,9 @@ user is always the decision-maker: the AI suggests, the user accepts, edits, or
 rejects each suggestion.
 
 The product is local-first and requires no account. Tasks live in the device's
-local storage and the app works offline, so the core experience needs no backend
-to pay for or secure. An account and basic cloud sync are optional, opt-in
-features — with a minimal backend behind them — for people who want their tasks
-on more than one device or want to share a list.
+local storage and the app works offline, so v1 needs no backend to pay for or
+secure. An account, cloud sync, and list sharing are a planned later phase, not
+v1 — see *Vision*.
 
 To-Do-List is the solo project for IBE160 (Programmering med KI) at Høgskolen i
 Molde, due at the end of November 2026. It is deliberately scoped as a "Simple"
@@ -59,7 +58,7 @@ organizing to an AI assistant:
   "high priority", or by tag) from the task data and AI metadata, so the user
   gets structure without building it.
 - **Local-first:** everything works on a single device with no login and no
-  network. Optional account creation unlocks basic sync and list sharing.
+  network. v1 has no account system; sync and list sharing are a later phase.
 
 The suggestion engine starts as a local rule-based / keyword classifier — cheap,
 private, offline, and predictable. Whether v1 also ships a real AI model (cloud
@@ -77,10 +76,9 @@ Its point of difference is scoped and real:
   "AI proposes, human disposes" — every AI output is a reviewable draft, never a
   silent change. This is a defensible product stance (users keep trust in their
   list) and a good fit for a project graded on a *thoughtful* application of AI.
-- **Local-first by default.** The core app needs no account, no network, and no
-  server — task data and the baseline AI both run on the device. Sync, list
-  sharing, and cloud AI are opt-in add-ons; they do add a minimal backend, but
-  nothing about the primary experience depends on it.
+- **Local-first by default.** v1 needs no account, no network, and no server —
+  task data and the baseline AI both run on the device. Sync, list sharing, and
+  cloud AI are a later-phase add-on (see *Vision*), not something v1 depends on.
 - **Deliberately small AI surface.** Three suggestion types and smart lists —
   narrow enough to implement well and evaluate honestly within the timeframe.
 
@@ -92,10 +90,9 @@ capture tasks in a hurry, rarely tag or prioritize them by hand, and want a list
 they can trust at a glance. Success for them: they open To-Do-List and immediately
 see what matters today without having done any filing.
 
-**Secondary — small informal groups (classmates).** People who want to share a
-task list for a group assignment. They need optional accounts and basic sync;
-they do not need real-time collaboration. Success for them: everyone sees the
-same list, updated within a reasonable delay.
+v1 targets this primary user only. A secondary audience — small informal
+groups (classmates) who want to share a list for a group assignment — is
+deferred to a later phase once accounts and sync exist; see *Vision*.
 
 ## Success Criteria
 
@@ -109,11 +106,13 @@ same list, updated within a reasonable delay.
   rationale, and the privacy trade-offs considered.
 - Submitted by end of November 2026.
 
-**User success signals:**
+**User success signals (testable):**
 
-- A new task can be captured in under ~10 seconds including reviewing AI
-  suggestions.
-- The default smart lists are the ones users actually open.
+- A fixed set of 10–15 example tasks, each with a documented expected tag,
+  priority, and smart-list placement, is maintained as a test fixture — e.g.
+  the task "Submit assignment in IBE160 Friday" is expected to get the tag
+  `school` and `high` priority. The suggestion engine and smart lists are
+  tested against this set.
 
 ## Scope
 
@@ -128,26 +127,26 @@ same list, updated within a reasonable delay.
   priority, by tag).
 - Local device storage in a single responsive web app (PWA); no login required;
   works offline.
-- Optional account creation, basic cloud sync (last-write-wins on conflicting
-  edits, no merge UI), and list sharing.
 - Archiving of completed tasks: 30-day default, user-configurable.
 - Runs as one responsive app across web, desktop, mobile, and tablet.
 
 **Explicitly out of v1:**
 
-- Real-time multi-device sync, and any merge or conflict-resolution UI beyond
-  last-write-wins.
-- Real-time multi-user collaboration on a shared list.
+- Accounts, cloud sync, and list sharing (and with them, any merge or
+  conflict-resolution UI, and real-time multi-user collaboration) — the whole
+  local app is a single-device, no-login experience in v1; this is deferred to
+  a later phase (see *Vision*), not built as an opt-in add-on alongside v1.
 - Online purchase / payment features.
 - Notifications and reminders.
 - Native mobile or desktop app packaging.
 
 ## Privacy Posture
 
-Task data stays on the device by default. Nothing is uploaded unless the user
-opts into sync or list sharing, which requires creating an account. If a cloud AI
-model is offered, sending task text to it is opt-in on the same basis; the
-default local suggestion engine never sends data anywhere.
+Task data stays on the device; v1 has no account and nothing is ever uploaded.
+If a cloud AI model is offered, sending task text to it is opt-in; the
+default local suggestion engine never sends data anywhere. A later
+phase may add optional sync/sharing (see *Vision*), which would require an
+account and introduce its own opt-in upload of task data.
 
 ## Open Decision Point
 
@@ -158,7 +157,10 @@ One choice is deferred to the PRD / architecture stage:
   (OpenAI / Claude) or a small local one — is not yet decided, along with the
   cost, network dependency, and privacy handling that implies. Resolve this
   first in the PRD: the course grade leans on the AI feature, and the rule-based
-  baseline on its own may not clear that bar.
+  baseline on its own may not clear that bar. Whatever is decided, the app must
+  run end-to-end for a grader with no API key of their own: if a
+  cloud model is added, the rule-based engine is the automatic fallback
+  whenever a key is missing or the call fails, not an optional mode.
 
 ## Vision
 
@@ -166,6 +168,10 @@ If it succeeds as a course project and the maker keeps going: To-Do-List grows i
 a genuinely local-first personal task manager where AI handles all the
 organizing overhead — tagging, prioritizing, summarizing, grouping, and surfacing
 what matters now — while the user never loses the sense that it is *their* list.
-Sync becomes seamless across devices without a heavyweight account, and the
-suggestion-review model extends to more of the workflow (suggested due dates,
-suggested next actions) — always as drafts the user can wave through or override.
+An optional account unlocks basic cloud sync (last-write-wins on conflicting
+edits, no merge UI) and list sharing, opening the app to a secondary audience —
+small informal groups like classmates sharing a list for a group assignment, who
+need everyone to see the same list within a reasonable delay but not real-time
+collaboration. The suggestion-review model also extends to more of the workflow
+(suggested due dates, suggested next actions) — always as drafts the user can
+wave through or override.

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suggestion engine selection — technical research</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --text: #1c1c1a;
+    --text-muted: #5a5a54;
+    --border: #e2e0da;
+    --accent: #6b5a3f;
+    --accent-soft: #f1ead9;
+    --high: #1f7a3d;
+    --high-bg: #e7f5ec;
+    --medium: #9a6b00;
+    --medium-bg: #fdf2dc;
+    --low: #b23b3b;
+    --low-bg: #fbe9e9;
+    --unverified-bg: #f0eef0;
+    --unverified-text: #5b4b7a;
+    --code-bg: #f1efe8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171613;
+      --surface: #201f1b;
+      --text: #ece9e2;
+      --text-muted: #b2ada0;
+      --border: #39362e;
+      --accent: #d8c49a;
+      --accent-soft: #332c1f;
+      --high: #5fd389;
+      --high-bg: #1d3327;
+      --medium: #e8b34d;
+      --medium-bg: #3a2f14;
+      --low: #f08080;
+      --low-bg: #3a1f1f;
+      --unverified-bg: #2b2733;
+      --unverified-text: #c9b8e8;
+      --code-bg: #2a2820;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #171613;
+    --surface: #201f1b;
+    --text: #ece9e2;
+    --text-muted: #b2ada0;
+    --border: #39362e;
+    --accent: #d8c49a;
+    --accent-soft: #332c1f;
+    --high: #5fd389;
+    --high-bg: #1d3327;
+    --medium: #e8b34d;
+    --medium-bg: #3a2f14;
+    --low: #f08080;
+    --low-bg: #3a1f1f;
+    --unverified-bg: #2b2733;
+    --unverified-text: #c9b8e8;
+    --code-bg: #2a2820;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+  header.report-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+  header.report-header h1 { margin: 0 0 0.4rem; font-size: 1.5rem; }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.6rem 1.2rem;
+    margin-top: 1rem;
+    font-size: 0.88rem;
+  }
+  .meta-grid div span.label { display: block; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .decision-line { color: var(--text-muted); font-size: 0.95rem; margin: 0.3rem 0 0; }
+
+  nav.toc {
+    position: sticky;
+    top: 0.75rem;
+    z-index: 10;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+  nav.toc a { color: var(--accent); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  section { margin-bottom: 2rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+  }
+  h2 { font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-top: 0; }
+  h3 { font-size: 1.02rem; margin-top: 1.4rem; }
+  .exec-summary { border-left: 4px solid var(--accent); }
+  .exec-summary p { margin: 0.6rem 0; }
+  .caveat {
+    background: var(--medium-bg);
+    border: 1px solid var(--medium);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    margin-top: 1rem;
+    font-size: 0.92rem;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.12rem 0.55rem;
+    border-radius: 999px;
+    margin-left: 0.4rem;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  .badge.high { background: var(--high-bg); color: var(--high); }
+  .badge.medium { background: var(--medium-bg); color: var(--medium); }
+  .badge.low { background: var(--low-bg); color: var(--low); }
+  .badge.disputed { background: var(--low-bg); color: var(--low); font-weight: 700; }
+
+  .candidate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .candidate-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    background: var(--bg);
+  }
+  .candidate-card.pick { border: 2px solid var(--high); background: var(--high-bg); }
+  .candidate-card.runnerup { border: 2px solid var(--medium); }
+  .candidate-card h4 { margin: 0 0 0.4rem; font-size: 0.98rem; }
+  .pick-tag, .runnerup-tag, .reject-tag {
+    display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+    text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 6px; margin-bottom: 0.5rem;
+  }
+  .pick-tag { background: var(--high); color: #fff; }
+  .runnerup-tag { background: var(--medium); color: #1c1c1a; }
+  .reject-tag { background: var(--border); color: var(--text-muted); }
+
+  ul.findings { padding-left: 1.1rem; }
+  ul.findings li { margin-bottom: 0.55rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  thead th { text-align: left; border-bottom: 2px solid var(--border); padding: 0.5rem 0.6rem; color: var(--text-muted); font-weight: 600; }
+  tbody td { padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .table-scroll { overflow-x: auto; }
+
+  .matrix-table td.score { text-align: center; font-weight: 600; }
+  .matrix-table td.total { text-align: center; font-weight: 700; background: var(--accent-soft); }
+  .matrix-table th.total-col { background: var(--accent-soft); }
+
+  details.appendix summary {
+    cursor: pointer; font-weight: 600; padding: 0.5rem 0; color: var(--accent);
+  }
+  details.appendix table.sources a { color: var(--accent); }
+  details.appendix table.sources td:first-child { white-space: nowrap; }
+
+  .stale-yes { color: var(--low); font-weight: 700; }
+  .stale-no { color: var(--high); font-weight: 600; }
+  .stale-mixed { color: var(--medium); font-weight: 700; }
+
+  code { background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 5px; font-size: 0.85em; }
+
+  .svg-wrap { margin-top: 1rem; }
+  svg text { fill: var(--text); font-family: inherit; }
+  svg .gridline { stroke: var(--border); stroke-width: 1; }
+  svg .bar-rule { fill: var(--text-muted); }
+  svg .bar-claude { fill: var(--high); }
+  svg .bar-openai { fill: var(--medium); }
+  svg .bar-local { fill: var(--low); }
+
+  footer { color: var(--text-muted); font-size: 0.8rem; text-align: center; margin-top: 2.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="report-header">
+  <h1>Suggestion engine selection for To-Do-List v1</h1>
+  <p class="decision-line"><strong>Decision:</strong> rule-based only vs. rule-based + optional cloud/local AI with no-key fallback</p>
+  <div class="meta-grid">
+    <div><span class="label">Type</span>Technical research (select shape)</div>
+    <div><span class="label">Date</span>2026-10-28</div>
+    <div><span class="label">Depth</span>Standard preset, round 1 of 2 (stopped on coverage)</div>
+    <div><span class="label">Verification</span>Normal validation · red-team off</div>
+    <div><span class="label">Claims</span>5 verified / 2 disputed / 33 sources</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#summary">Summary</a>
+  <a href="#frame">Requirements frame</a>
+  <a href="#candidates">Evidence per candidate</a>
+  <a href="#cross">Cross-dimension insights</a>
+  <a href="#contrary">Contrary evidence</a>
+  <a href="#matrix">Decision matrix</a>
+  <a href="#verdict">Verdict</a>
+  <a href="#open">Open questions</a>
+  <a href="#sources">Sources</a>
+  <a href="#staleness">Staleness map</a>
+</nav>
+
+<section id="summary" class="card exec-summary">
+  <h2>Executive summary</h2>
+  <p><strong>Recommendation: rule-based classifier as the permanent fallback, with an optional Claude API call (Haiku tier) layered on top as the primary path when a key is configured.</strong> OpenAI's API is an equally-capable, slightly better-evidenced-on-latency runner-up — pick whichever key the student already has. The in-browser local-model option is not recommended for v1: this round turned up a concrete, currently-open, dated bug (ONNX Runtime Web's WebGPU execution mode crashing tabs on Safari/iOS, still unresolved as of the most recent follow-up found) that makes it the riskiest of the three AI options, not just the most complex in the abstract.</p>
+  <p>The real choice is still not "pick one of four" — the rule-based engine ships either way as the mandatory no-key fallback. A concrete, reusable version of that fallback surfaced this round: a real open-source task-triage project (<code>fazal305/nightbeacon</code>) documents that its keyword classifier "can misjudge priority on ambiguous text," and proposes escalating only low-confidence/ambiguous cases to a small LLM rather than replacing the rule engine outright <a href="#src-3">[3]</a> — close to the exact architecture recommended here.</p>
+  <p>Two genuine disputes surfaced in this round's sources and are reported honestly rather than averaged: the size of the rule-based-vs-ML accuracy gap <a href="#src-1">[1]</a><a href="#src-7">[7]</a>, and Claude Haiku 5.5's short-call latency, where sources disagree by roughly 10x <a href="#src-13">[13]</a>. Both cloud APIs share one confirmed, actionable mechanism behind latency swings like this: a "reasoning effort" setting that must be pinned to its lowest value for a short classification call <a href="#src-13">[13]</a><a href="#src-21">[21]</a>.</p>
+  <div class="caveat"><strong>Biggest caveat:</strong> free-trial credit amounts, OpenAI's exact current cheapest model name, and whether the Safari/WebKit ONNX bug has since been patched are all reported only by secondary sources or are actively churning as of this research date — see Open Questions. None of this changes the recommendation; it changes what to re-verify at implementation time.</div>
+</section>
+
+<section id="frame" class="card">
+  <h2>Requirements frame</h2>
+  <p>Sourced from the product brief and instructor feedback — not from web research (per the select-shape method, web research doesn't set requirements).</p>
+  <h3>Hard gates</h3>
+  <ul class="findings">
+    <li>Must run end-to-end for a grader with no API key or paid account of their own → a rule-based fallback is mandatory, not optional</li>
+    <li>Stays local-first: no backend, no login requirement introduced by the suggestion engine itself</li>
+    <li>Buildable solo, alongside the rest of the CRUD/smart-lists app, by end of November 2026</li>
+    <li>Default path never sends task data anywhere without explicit opt-in</li>
+  </ul>
+  <h3>Weighted preferences</h3>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Criterion</th><th>Weight</th></tr></thead>
+    <tbody>
+      <tr><td>Suggestion quality (tags/priority/summary)</td><td>High</td></tr>
+      <tr><td>Implementation complexity / time for a solo student</td><td>High</td></tr>
+      <tr><td>Cost (ideally near-$0 to run and to test)</td><td>Medium-high</td></tr>
+      <tr><td>Latency (feels instant on task capture)</td><td>Medium</td></tr>
+      <tr><td>Privacy exposure (data leaving the device)</td><td>Medium</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="candidates">
+  <h2 style="border:none;">Evidence per candidate</h2>
+
+  <div class="card" style="margin-bottom:1rem;">
+    <h3 style="margin-top:0;">Candidate 1 — Rule-based / keyword classifier only</h3>
+    <ul class="findings">
+      <li>Real, working precedent exists: a Flask task-triage app classifies into 5 categories/4 priority levels offline with no API key, and its own README flags "LLM-based classification" as future work — evidence of a known ceiling from someone who lived with the rule-based version <span class="badge high">high</span> <a href="#src-2">[2]</a>. A second project documents the same ceiling directly: "can misjudge priority on ambiguous text" <span class="badge high">high</span> <a href="#src-3">[3]</a>.</li>
+      <li>A concrete, reusable rule design was found: tokenize/lowercase, weight two-word phrases at 3 and single tokens at 1, urgency/deferral keyword maps for priority, 0.35 confidence floor, ties resolve to "other" <span class="badge medium">medium (spec only)</span> <a href="#src-4">[4]</a>.</li>
+      <li><strong>Accuracy gap vs. ML is disputed.</strong> One unverified source cites 69.4% vs. 87.5% <span class="badge disputed">disputed</span> <a href="#src-1">[1]</a>; a peer-reviewed microtext study instead found rule-based and ML "perform well on different parts" of a dataset <span class="badge medium">medium</span> <a href="#src-7">[7]</a> — a narrower, more task-dependent gap than one headline number implies.</li>
+      <li>JS/TS landscape: <code>compromise</code> (rule-based parsing, not classification), <code>natural</code> (ships trainable ML classifiers, not rule-based by default), <code>wink-nlp</code> (525,000+ tokens/sec, supports custom rule-based entities) <span class="badge medium">medium</span> <a href="#src-5">[5]</a><a href="#src-9">[9]</a>.</li>
+      <li>Zero marginal cost, near-instant latency, no data ever leaves the device — architectural certainties, corroborated by real "runs offline, no API key" precedent <span class="badge high">high</span> <a href="#src-2">[2]</a><a href="#src-10">[10]</a>.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem;">
+    <h3 style="margin-top:0;">Candidate 2 — Rule-based + optional Claude API</h3>
+    <ul class="findings">
+      <li>Claude Haiku 5.5 (released 2026-10-07, ~90% price cut vs. 4.5): $0.10/MTok input, $0.50/MTok output, confirmed on Anthropic's live pricing page <span class="badge high">high</span> <a href="#src-11">[11]</a><a href="#src-12">[12]</a> → roughly <strong>$0.00005–0.0001 per call</strong>.</li>
+      <li><strong>Latency is genuinely disputed, not just uncertain.</strong> One tracker shows ~0.7–1.0s; artificialanalysis.ai's own Haiku 5.5 pages show 9.6–13.4s "time to first answer token" at low/medium reasoning effort <span class="badge disputed">disputed</span> <a href="#src-13">[13]</a>. Should be empirically timed with a real key before assuming either number.</li>
+      <li>Integration confirmed directly on Anthropic's docs: Messages API <code>output_config.json_schema</code>, <code>x-api-key</code> auth, SDK <code>.parse()</code> helper <span class="badge high">high</span> <a href="#src-16">[16]</a>.</li>
+      <li><strong>Privacy — strongest-sourced claim in this report:</strong> fetched directly from Anthropic's own privacy center (policy dated 2026-08-18) — API input/output not used for training by default, 30-day auto-deletion unless opted in <span class="badge high">high</span> <a href="#src-17">[17]</a>.</li>
+      <li>Free credit (~$5) and rate limits only reported by third-party aggregators, not confirmed on an Anthropic page <span class="badge low">low-medium</span> <a href="#src-14">[14]</a><a href="#src-15">[15]</a>.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem;">
+    <h3 style="margin-top:0;">Candidate 3 — Rule-based + optional OpenAI API</h3>
+    <ul class="findings">
+      <li>GPT-5-nano: $0.05/MTok input, $0.40/MTok output, confirmed on OpenAI's live pricing page and cross-checked against an independent calculator <span class="badge high">high</span> <a href="#src-19">[19]</a><a href="#src-20">[20]</a> → roughly <strong>$0.00003–0.00006 per call</strong>, cheapest of the two APIs.</li>
+      <li><strong>Latency mechanism confirmed more cleanly than Claude's:</strong> "minimal" effort ~0.8s TTFT; "medium/high" effort balloons to 37–118s on the same model — a consistent evidence trail <span class="badge medium">medium</span> <a href="#src-21">[21]</a>.</li>
+      <li>Integration confirmed directly on OpenAI's docs: Responses API Structured Outputs (<code>strict:true</code> JSON schema), Bearer auth, SDK <code>.parse()</code> <span class="badge high">high</span> <a href="#src-24">[24]</a>.</li>
+      <li>Privacy confirmed directly on OpenAI's data-usage guide (policy effective 2023-03-01) — not used for training by default <span class="badge high">high</span> <a href="#src-22">[22]</a>.</li>
+      <li>Free tier and current cheapest-model name are both actively churning — newer model names already appearing in OpenAI's own example docs <span class="badge low">low-medium</span> <a href="#src-19">[19]</a><a href="#src-25">[25]</a><a href="#src-26">[26]</a>.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Candidate 4 — Rule-based + in-browser local model</h3>
+    <ul class="findings">
+      <li>Realistic classification models are small and well-documented: MiniLM ≈23MB, quantized DistilBERT 64MB (0.12-pt accuracy loss) <span class="badge medium">medium</span> <a href="#src-27">[27]</a><a href="#src-28">[28]</a>; measured ~58ms WASM latency in Chrome — fast enough for "suggest on capture" <span class="badge medium">medium</span> <a href="#src-28">[28]</a>.</li>
+      <li><strong>Decisive new finding this round: a concrete, dated, still-open browser bug.</strong> ONNX Runtime Web's WebGPU/JSEP mode causes severe CPU/memory blowups and tab crashes on Safari/iOS — reported ~Jan 2026, confirmed still open in v1.30.0. Workaround requires forcing WASM-only execution on Safari <span class="badge high">high</span> <a href="#src-32">[32]</a>. This is a specific, named, currently-unresolved defect, not an abstract complexity concern.</li>
+      <li>Generative use (the "summary" feature) is a worse fit — WebLLM-class models are 4.2GB+ and take minutes to download; realistic use here is classification-only <span class="badge medium">medium</span> <a href="#src-30">[30]</a>.</li>
+      <li>Cost/privacy architecturally strong (zero per-call cost, no data leaves device once cached) <span class="badge high">high</span> <a href="#src-27">[27]</a>, but real non-monetary costs: bundle size, mobile memory ceilings, bundler/asset-pipeline pitfalls <span class="badge medium">medium</span> <a href="#src-29">[29]</a><a href="#src-33">[33]</a><a href="#src-34">[34]</a>.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="cross" class="card">
+  <h2>Cross-dimension insights</h2>
+  <ul class="findings">
+    <li><strong>The local-model candidate's risk profile sharpened this round</strong> from "abstractly complex" to "concretely broken on one major platform, right now" — a still-open, dated GitHub issue thread is stronger evidence than general cross-browser-complexity concerns alone.</li>
+    <li><strong>Both cloud APIs share the same latency trap, but the evidence for it is asymmetric.</strong> OpenAI's reasoning-effort mechanism is confirmed with a clean, consistent number set; Claude's own evidence trail is contradictory in this round. Claude is still picked on pricing/privacy/primary-source strength, but its latency should be empirically timed before assuming a UX without a loading state.</li>
+    <li><strong>Rule-based-alone still isn't competing on the same axis as the other three.</strong> It wins cleanly on cost/latency/privacy/simplicity, and real precedent now confirms rule-based engines are shipped standalone in similar small apps — but whether that alone satisfies the course's "practical AI use" grading weight is a judgment this research can't resolve with web evidence.</li>
+  </ul>
+</section>
+
+<section id="contrary" class="card">
+  <h2>Contrary evidence</h2>
+  <p>The red-team pass did not run (off by default at <code>normal</code> validation). No adversarial search was performed against the recommendation. Two genuine disputes did surface organically during normal research (rule-based accuracy gap magnitude; Claude latency) and are reported in the sections above rather than resolved by averaging. Re-run at <code>high</code> validation for a dedicated adversarial pass if a harder pressure-test is wanted.</p>
+</section>
+
+<section id="matrix" class="card">
+  <h2>Decision matrix</h2>
+  <p>Weights: High=3, Medium-high=2.5, Medium=2. Scores 1–5, this report's judgment grounded in the evidence above — re-weight freely.</p>
+  <div class="table-scroll">
+  <table class="matrix-table">
+    <thead>
+      <tr><th>Criterion (weight)</th><th>Rule-based only</th><th>Claude API</th><th>OpenAI API</th><th>Local model</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Suggestion quality (3)</td><td class="score">2</td><td class="score">5</td><td class="score">5</td><td class="score">3</td></tr>
+      <tr><td>Implementation ease (3)</td><td class="score">5</td><td class="score">3</td><td class="score">3</td><td class="score">2</td></tr>
+      <tr><td>Cost (2.5)</td><td class="score">5</td><td class="score">4</td><td class="score">4</td><td class="score">5</td></tr>
+      <tr><td>Latency (2)</td><td class="score">5</td><td class="score">3</td><td class="score">3</td><td class="score">3</td></tr>
+      <tr><td>Privacy (2)</td><td class="score">5</td><td class="score">2</td><td class="score">2</td><td class="score">5</td></tr>
+      <tr><td class="total-col"><strong>Weighted total /5</strong></td><td class="total">4.28</td><td class="total">3.52</td><td class="total">3.52</td><td class="total">3.48</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="svg-wrap">
+    <svg viewBox="0 0 560 190" width="100%" height="190" role="img" aria-label="Weighted total scores bar chart: rule-based 4.28, Claude 3.52, OpenAI 3.52, local model 3.48, out of 5">
+      <line class="gridline" x1="90" y1="10" x2="90" y2="150"/>
+      <line class="gridline" x1="90" y1="150" x2="540" y2="150"/>
+      <text x="80" y="14" font-size="11" text-anchor="end">5</text>
+      <text x="80" y="82" font-size="11" text-anchor="end">2.5</text>
+      <text x="80" y="150" font-size="11" text-anchor="end">0</text>
+      <line class="gridline" x1="90" y1="80" x2="540" y2="80" stroke-dasharray="3,3"/>
+      <rect class="bar-rule" x="110" y="26.6" width="70" height="123.4"/>
+      <text x="145" y="168" font-size="11" text-anchor="middle">Rule-based</text>
+      <text x="145" y="20" font-size="12" text-anchor="middle" font-weight="700">4.28</text>
+      <rect class="bar-claude" x="220" y="61.6" width="70" height="88.4"/>
+      <text x="255" y="168" font-size="11" text-anchor="middle">Claude</text>
+      <text x="255" y="55" font-size="12" text-anchor="middle" font-weight="700">3.52</text>
+      <rect class="bar-openai" x="330" y="61.6" width="70" height="88.4"/>
+      <text x="365" y="168" font-size="11" text-anchor="middle">OpenAI</text>
+      <text x="365" y="55" font-size="12" text-anchor="middle" font-weight="700">3.52</text>
+      <rect class="bar-local" x="440" y="63.6" width="70" height="86.4"/>
+      <text x="475" y="168" font-size="11" text-anchor="middle">Local model</text>
+      <text x="475" y="57" font-size="12" text-anchor="middle" font-weight="700">3.48</text>
+    </svg>
+  </div>
+  <p style="font-size:0.85rem;color:var(--text-muted);">Rule-based-only numerically "wins" — but that's an artifact of the matrix only scoring the five criteria the brief asked it to score, none of which is "does this satisfy the course's AI-practical-use grading weight." See Verdict.</p>
+</section>
+
+<section id="verdict" class="card">
+  <h2>Verdict</h2>
+  <div class="candidate-grid">
+    <div class="candidate-card pick">
+      <div class="pick-tag">Pick</div>
+      <h4>Rule-based (fallback, always) + Claude API (optional primary)</h4>
+      <p style="font-size:0.88rem;">Full LLM-grade quality, near-zero cost, strongest-sourced privacy policy of the four. Latency should be empirically timed before shipping — sources disagree.</p>
+    </div>
+    <div class="candidate-card runnerup">
+      <div class="runnerup-tag">Named runner-up</div>
+      <h4>Rule-based + OpenAI API</h4>
+      <p style="font-size:0.88rem;">Tied on cost/privacy; this round's latency evidence for it is cleaner and more internally consistent than Claude's. Wins if that matters more to you than Claude's other strengths.</p>
+    </div>
+    <div class="candidate-card">
+      <div class="reject-tag">Not recommended for v1</div>
+      <h4>Rule-based + local in-browser model</h4>
+      <p style="font-size:0.88rem;">Best privacy/cost on paper, but a concrete, dated, still-open Safari/iOS crash bug in the exact runtime layer it depends on. Re-check if revisited in Vision.</p>
+    </div>
+    <div class="candidate-card">
+      <div class="reject-tag">Not recommended alone</div>
+      <h4>Rule-based only</h4>
+      <p style="font-size:0.88rem;">Wins the matrix on the five scored criteria, and real precedent confirms it's shippable standalone — but risks not clearing the course's "practical AI use" grading weight by itself. Ships either way as the fallback.</p>
+    </div>
+  </div>
+  <h3>Strongest argument against the pick</h3>
+  <p>The Claude latency dispute itself. If Haiku 5.5's slower, reasoning-effort-engaged numbers (9.6–13.4s) turn out to be what a real implementation gets by default, Claude would feel meaningfully slower than OpenAI's more consistently sub-second nano tier for the same task. Testable in under an hour with a real API key — do this before finalizing the provider choice in the PRD.</p>
+  <h3>Cheapest reversibility hedge</h3>
+  <p>Build the suggestion engine behind one interface — a function returning <code>{tags, priority, summary}</code> — with the rule-based classifier and the chosen API call as interchangeable implementations. Already required by the mandatory-fallback architecture, and it matches the real hybrid pattern found this round (escalate only ambiguous cases to an LLM, per <a href="#src-3">[3]</a>).</p>
+  <p style="font-size:0.85rem;color:var(--text-muted);"><strong>Feeds:</strong> an input to the PRD's resolution of its own "Open Decision Point," and an architecture constraint (the swappable-provider interface) once architecture work starts.</p>
+</section>
+
+<section id="open" class="card">
+  <h2>Open questions</h2>
+  <ul class="findings">
+    <li><strong>Empirically time a real Claude Haiku 5.5 call with reasoning effort pinned to minimal</strong> before trusting either latency number — the sources disagree and this affects whether a loading-state UX is needed.</li>
+    <li><strong>Exact current free-trial credit amounts</strong> for both providers are only reported secondarily. Check both providers' billing/dashboard pages directly before writing grader/setup instructions.</li>
+    <li><strong>OpenAI's exact current cheapest model name is actively churning</strong> — newer names already appear in OpenAI's own example docs. Re-check before hard-coding <code>gpt-5-nano</code>.</li>
+    <li><strong>Whether the Safari/WebKit ONNX Runtime Web memory bug (#26827/#33516) has been patched</strong> should be re-checked if the local-model path is ever revisited.</li>
+    <li><strong>No direct benchmark exists for rule-based vs. AI accuracy on todo-task tagging specifically</strong> — the two sources found actively disagree on the gap's size. The brief's own 10–15 example-task test fixture is the right way to generate this evidence locally.</li>
+    <li><strong>Red-team pass did not run</strong> (off by default at normal validation). Re-run at <code>high</code> validation for a dedicated adversarial pass.</li>
+  </ul>
+</section>
+
+<section id="sources" class="card">
+  <details class="appendix" open>
+    <summary>Source appendix (33 sources)</summary>
+    <div class="table-scroll">
+      <table class="sources">
+        <thead><tr><th>#</th><th>Claim/finding</th><th>Publisher</th><th>Pub. date</th><th>Accessed</th><th>Confidence</th></tr></thead>
+        <tbody><tr id="src-1"><td>[1]</td><td>Rule-based 69.4% vs. ML 87.5% accuracy (unverified, full paper inaccessible)</td><td>ResearchGate — "Comparative Analysis of Rule-Based and Machine Learning Decision Systems"</td><td>n.d.</td><td>2026-10-28</td><td>Low (disputed)</td></tr><tr id="src-2"><td>[2]</td><td>Real rule-based task-triage system, offline, no API key; flags LLM option as future work</td><td><a href="https://github.com/bassam-111/ops-task-triage" target="_blank" rel="noopener">GitHub — bassam-111/ops-task-triage</a></td><td>n.d.</td><td>2026-10-28</td><td>High</td></tr><tr id="src-3"><td>[3]</td><td>Keyword classifier "can misjudge priority on ambiguous text"; proposes LLM escalation for ambiguous cases only</td><td><a href="https://github.com" target="_blank" rel="noopener">GitHub — fazal305/nightbeacon, Issue #13</a></td><td>n.d.</td><td>2026-10-28</td><td>High</td></tr><tr id="src-4"><td>[4]</td><td>Concrete rule-weighting design (2-word phrase=3, token=1, 0.35 confidence floor)</td><td>GitHub — frankda94/homework-management-app, Issue #3</td><td>n.d.</td><td>2026-10-28</td><td>Medium (spec only)</td></tr><tr id="src-5"><td>[5]</td><td>compromise/natural/wink-nlp JS library landscape and capabilities</td><td>npm-compare.com + PkgPulse NLP library guide</td><td>2026</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-7"><td>[7]</td><td>Rule-based and ML "perform well on different parts" of a dataset; combining beats either alone</td><td><a href="https://arxiv.org/pdf/2008.00343" target="_blank" rel="noopener">arXiv — "Extracting actionable information from microtexts"</a></td><td>n.d.</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-8"><td>[8]</td><td>Rule-based needs no training data but has generalization limits vs. ML</td><td>arXiv — "A Survey on Text Classification" (2008.00364)</td><td>n.d.</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-9"><td>[9]</td><td>wink-nlp: rule/pattern-capable, 525,000+ tokens/sec</td><td>winkjs.org / npm — wink-nlp docs</td><td>n.d.</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-10"><td>[10]</td><td>Architectural certainty: no network call → near-zero cost/latency, no data transfer</td><td>Reasoned from [2]'s "no API key required... runs offline"</td><td>n.d.</td><td>2026-10-28</td><td>High (architectural)</td></tr><tr id="src-11"><td>[11]</td><td>Claude Haiku 5.5 pricing $0.10/$0.50 per MTok (≤100K tokens)</td><td><a href="https://claude.com/pricing" target="_blank" rel="noopener">Anthropic — Pricing</a></td><td>n.d. (live)</td><td>2026-10-28</td><td>High</td></tr><tr id="src-12"><td>[12]</td><td>Haiku 5.5 (2026-10-07) ~90% price cut vs. Haiku 4.5</td><td>cellcog.ai / developersdigest.tech release coverage</td><td>~2026-10-07</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-13"><td>[13]</td><td>Claude Haiku 5.5 latency: 0.7-1.0s (one tracker) vs. 9.6-13.4s TTFT (artificialanalysis.ai, low/medium effort) — disputed</td><td>artificialanalysis.ai + respan.ai</td><td>n.d./2026</td><td>2026-10-28</td><td>Low-medium (disputed)</td></tr><tr id="src-14"><td>[14]</td><td>~$5 free credit, SMS-verified, ~14-day expiry (unconfirmed primary)</td><td>ssdnodes.com / grabaicredits.com</td><td>n.d./2026</td><td>2026-10-28</td><td>Low-medium</td></tr><tr id="src-15"><td>[15]</td><td>Evaluation-tier rate limits ~5 RPM rising to ~50 RPM after $5 spend (unconfirmed primary)</td><td>aifreeapi.com</td><td>n.d./2026</td><td>2026-10-28</td><td>Low</td></tr><tr id="src-16"><td>[16]</td><td>Messages API structured output (output_config.json_schema), x-api-key auth, SDK .parse() helper</td><td><a href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs" target="_blank" rel="noopener">Anthropic — Structured Outputs docs</a></td><td>n.d. (live)</td><td>2026-10-28</td><td>High</td></tr><tr id="src-17"><td>[17]</td><td>API input/output not used for training by default; 30-day auto-deletion unless opted in</td><td><a href="https://privacy.claude.com" target="_blank" rel="noopener">Anthropic — Privacy Center</a></td><td>2026-08-18</td><td>2026-10-28</td><td>High</td></tr><tr id="src-18"><td>[18]</td><td>Corroborating API-vs-consumer privacy distinction</td><td>strac.io / humla.team summaries</td><td>n.d.</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-19"><td>[19]</td><td>GPT-5-nano pricing $0.05/$0.40 per MTok; newer model names (gpt-6-astra etc.) already appearing in docs</td><td><a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noopener">developers.openai.com — Pricing</a></td><td>n.d. (live)</td><td>2026-10-28</td><td>High</td></tr><tr id="src-20"><td>[20]</td><td>Cross-check of gpt-5-nano pricing</td><td>getmaxim.ai Bifrost LLM Cost Calculator</td><td>n.d.</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-21"><td>[21]</td><td>GPT-5-nano TTFT 0.8s (minimal) vs. 37-118s (medium/high reasoning effort)</td><td>artificialanalysis.ai — GPT-5-nano benchmark</td><td>n.d.</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-22"><td>[22]</td><td>API input/output not used for training by default since 2023-03-01; 30-day log retention; ZDR available</td><td><a href="https://developers.openai.com/api/docs/guides/your-data" target="_blank" rel="noopener">developers.openai.com — API data usage guide</a></td><td>effective 2023-03-01</td><td>2026-10-28</td><td>High</td></tr><tr id="src-23"><td>[23]</td><td>Expanded Zero Data Retention / Private Safety Processing rollout (title/claim only, not fully verified)</td><td>openai.com/index/offering-zero-data-retention-for-frontier-models</td><td>n.d.</td><td>2026-10-28</td><td>Low</td></tr><tr id="src-24"><td>[24]</td><td>Responses API Structured Outputs (text.format, strict:true), Bearer auth, SDK .parse()</td><td><a href="https://developers.openai.com/api/docs/guides/structured-outputs" target="_blank" rel="noopener">developers.openai.com — Structured Outputs guide</a></td><td>n.d. (live)</td><td>2026-10-28</td><td>High</td></tr><tr id="src-25"><td>[25]</td><td>Free-tier/trial-credit figures inconsistent ($15 one-time vs. data-sharing program)</td><td>perkstack.co and similar aggregators</td><td>n.d./2026</td><td>2026-10-28</td><td>Low-medium</td></tr><tr id="src-26"><td>[26]</td><td>Paid-tier rate-limit structure (unconfirmed primary)</td><td>requesty.ai</td><td>n.d./2026</td><td>2026-10-28</td><td>Low-medium</td></tr><tr id="src-27"><td>[27]</td><td>Transformers.js v4 (leaner build, smaller bundle); zero per-call cost, no data leaves device once cached</td><td>Hugging Face — Transformers.js v4 blog</td><td>2026-02-09</td><td>2026-10-28</td><td>High</td></tr><tr id="src-28"><td>[28]</td><td>Classification model sizes (MiniLM ~23MB, DistilBERT 64MB quantized); 58ms Chrome WASM latency; "Safari currently fails to load it"</td><td>Hugging Face model hub + dev.to (fuxionixt) DistilBERT quantization build</td><td>~2025-09</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-29"><td>[29]</td><td>Implementation pitfalls: token_type_ids mismatch, QUInt8 required for browser, quantization increased latency on Apple Silicon</td><td>dev.to (fuxionixt)</td><td>~2025-09</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-30"><td>[30]</td><td>WebLLM generative models impractical at this scale (4.2GB+, minutes to download)</td><td><a href="https://arxiv.org/abs/2412.15803" target="_blank" rel="noopener">arXiv — WebLLM paper (2412.15803)</a> + dev.to (mattbusel)</td><td>~2025</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-31"><td>[31]</td><td>Safari/WebKit WebGPU support only from Safari 26 (Sept 2025)</td><td>web.dev WebGPU support post + AppDeveloperMagazine</td><td>2025-09</td><td>2026-10-28</td><td>High</td></tr><tr id="src-32"><td>[32]</td><td>ONNX Runtime Web WebGPU/JSEP causes CPU/memory blowups, tab crashes on Safari/iOS; still open as of v1.30.0</td><td><a href="https://github.com/microsoft/onnxruntime" target="_blank" rel="noopener">microsoft/onnxruntime — Issues #26827, #33516</a></td><td>~2026-01 (still open)</td><td>2026-10-28</td><td>High</td></tr><tr id="src-33"><td>[33]</td><td>iOS Safari memory ceiling (&lt;500MB tabs); WebGPU buffer-size limits</td><td>note.com + tianpan.co</td><td>n.d./2025-2026</td><td>2026-10-28</td><td>Medium</td></tr><tr id="src-34"><td>[34]</td><td>Production pitfalls: lazy-load models, bundler/WASM asset handling (not independently fetched, 403)</td><td>SitePoint — "Optimizing Transformers.js for Production Web Apps"</td><td>n.d./2025</td><td>2026-10-28</td><td>Low-medium</td></tr></tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section id="staleness" class="card">
+  <h2>Staleness map</h2>
+  <p>Computed against the pack's freshness bars (pricing/latency ≤3mo, privacy policy ≤6mo, browser-compat ≤6mo, implementation/landscape ≤12mo, accuracy/pattern claims ≤24mo).</p>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Claim</th><th>Class</th><th>Pub. date</th><th>Re-check by</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Rule-based vs. ML accuracy gap (disputed) <a href="#src-1">[1]</a><a href="#src-7">[7]</a></td><td>accuracy</td><td>n.d./2025</td><td>—</td><td class="stale-mixed">disputed — re-check magnitude</td></tr>
+      <tr><td>Claude Haiku 5.5 pricing <a href="#src-11">[11]</a></td><td>pricing</td><td>2026-10</td><td>2027-01</td><td class="stale-no">fresh</td></tr>
+      <tr><td>GPT-5-nano pricing <a href="#src-19">[19]</a></td><td>pricing</td><td>n.d. (live)</td><td>2027-01</td><td class="stale-mixed">fresh, model name churning</td></tr>
+      <tr><td>Reasoning-effort latency mechanism <a href="#src-13">[13]</a><a href="#src-21">[21]</a></td><td>latency</td><td>2026</td><td>2027-01</td><td class="stale-mixed">fresh, Claude's own numbers disputed</td></tr>
+      <tr><td>API-not-used-for-training default <a href="#src-17">[17]</a><a href="#src-22">[22]</a></td><td>privacy-policy</td><td>2026-08 / 2023-03</td><td>2027-02 / ongoing</td><td class="stale-no">fresh (both primary-sourced)</td></tr>
+      <tr><td>Safari/WebKit WebGPU support (Safari 26) <a href="#src-31">[31]</a></td><td>browser-compat</td><td>2025-09</td><td>2026-03</td><td class="stale-yes">stale — re-verify</td></tr>
+      <tr><td>ONNX Runtime Web Safari/iOS memory bug <a href="#src-32">[32]</a></td><td>browser-compat</td><td>2026-01 (open)</td><td>2026-07</td><td class="stale-yes">re-check if still open</td></tr>
+      <tr><td>Transformers.js model sizes/build <a href="#src-27">[27]</a><a href="#src-28">[28]</a></td><td>implementation</td><td>2026-02 / 2025-09</td><td>2027-02 / 2026-09</td><td class="stale-mixed">mixed — [28] past window</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="margin-top:0.8rem;"><strong>The ONNX Runtime Web Safari/iOS bug status is the single most important item to re-check before any implementation decision on the local-model candidate</strong> — this verdict's strongest argument against that candidate depends on it still being open.</p>
+</section>
+
+<footer>Generated from <code>research.md</code> in this run folder — same claims, same citations, same numbers. Open the markdown for the full plain-text report.</footer>
+</div>
+</body>
+</html>

@@ -2,7 +2,7 @@
 title: "Product Brief: To-Do-List"
 status: done
 created: 2026-09-08
-updated: 2026-10-16
+updated: 2026-10-31
 ---
 
 # Product Brief: To-Do-List
@@ -25,7 +25,7 @@ secure. An account, cloud sync, and list sharing are a planned later phase, not
 v1 — see *Vision*.
 
 To-Do-List is the solo project for IBE160 (Programmering med KI) at Høgskolen i
-Molde, due at the end of November 2026. It is deliberately scoped as a "Simple"
+Molde, due in the second week of December 2026. It is deliberately scoped as a "Simple"
 difficulty build: enough CRUD and data modelling to be a real application, with
 the graded emphasis on a practical, honest use of a basic AI model.
 
@@ -104,7 +104,7 @@ deferred to a later phase once accounts and sync exist; see *Vision*.
 - Smart lists derived from task and AI data.
 - Documentation of the AI approach: the rules-vs-model decision and its
   rationale, and the privacy trade-offs considered.
-- Submitted by end of November 2026.
+- Submitted by the second week of December 2026.
 
 **User success signals (testable):**
 

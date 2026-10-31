@@ -35,7 +35,7 @@ Sourced from the product brief and instructor feedback, not from web research (p
 **Hard gates:**
 - Must run end-to-end for a grader with no API key or paid account of their own → a rule-based fallback is mandatory, not optional, regardless of which AI layer (if any) is added
 - Stays local-first: no backend, no login requirement introduced by the suggestion engine itself
-- Buildable solo, alongside the rest of the CRUD/smart-lists app, by end of November 2026
+- Buildable solo, alongside the rest of the CRUD/smart-lists app, by the second week of December 2026
 - Default path never sends task data anywhere without explicit opt-in
 
 **Weighted preferences used in the verdict below:**

@@ -262,6 +262,11 @@ month", no relative arithmetic.
 - The task text itself is never rewritten by parsing; the original wording is preserved.
 - Parsing does not depend on the Suggestion Engine and runs identically whichever implementation
   is active.
+- **Date words match as whole words only, never inside another word.** "Mondays" does not match
+  `monday`; "Satisfaction" does not match `sat`; "today's" is a judgment call to settle in
+  implementation, but a match inside an unrelated word is a defect.
+- **The vocabulary is English only.** Norwegian date words — `fredag`, `i morgen`, `neste uke` —
+  are not recognized and set no due date (see §6.2).
 
 ### 4.2 Suggestion Engine
 
@@ -337,6 +342,10 @@ The Rule Engine produces a Suggestion with no API Key, no network, and no config
   research found no rule-based summarization approach at all; truncation is the only honest option
   on device, and the Summary is where the Model Engine should visibly outperform the Rule Engine in
   FR-21's comparison.
+- **The Rule Engine's keyword rules are English only.** Its urgency and deferral keyword maps and
+  its tag keywords are English; Norwegian task text (`skole`, `viktig`, `innlevering`) will not
+  match and will fall through to the default Priority and no Tags. This is a v1 scope boundary,
+  not a bug (see §6.2).
 - Rule Engine accuracy against the Fixture is measured and reported by FR-20.
 
 #### FR-8: Suggestion never blocks capture
@@ -661,6 +670,9 @@ is better and demonstrating where it is and is not. Protect it if the schedule c
 ### 6.1 In Scope
 
 - CRUD over Task with text, due date, Project, notes (FR-1 – FR-5).
+- **English task text only.** FR-23's date vocabulary and the Rule Engine's keyword rules are
+  English. The app's interface language is a separate question; what is scoped here is the text
+  the engines can interpret.
 - Deterministic offline parsing of simple date words — `today`, `tomorrow`, weekday names,
   `next week` — from task text into the due date, shown on the Task and editable (FR-23).
 - Rule Engine producing Tags, Priority, Summary, always available (FR-7).
@@ -688,6 +700,12 @@ is better and demonstrating where it is and is not. Protect it if the schedule c
 - Payments.
 - A local in-browser AI model. Research found a live, unfixed ONNX Runtime Web / Safari WebGPU
   crash and recommended against it for v1; the tracked issues are in `addendum.md`.
+- **Norwegian task text.** FR-23's date words and the Rule Engine's keyword rules are English
+  only, so `fredag`, `i morgen` and `skole` are not recognized in v1. Worth being explicit about
+  given the course context: the Fixture is written in English, which is why the instructor
+  feedback's example "Lever innlevering i IBE160 fredag" appears in it as **"Submit assignment in
+  IBE160 Friday"** (UJ-1). Adding Norwegian is a keyword-map and date-vocabulary change behind the
+  same interfaces, not a redesign — a plausible first extension if time allows.
 - Suggested due dates and suggested next actions — the review model extends there later, not now.
 - Multi-device storage, export, or import. `[NOTE FOR PM]` A JSON export is cheap and would
   partially offset "your data is trapped in one browser." Revisit only if the schedule frees up.
@@ -703,9 +721,9 @@ than borrowed.
 
 **Primary**
 
-- **SM-1: Rule Engine correctness on the Fixture.** Per-field accuracy — Tags, Priority, Smart
-  List placement — measured by FR-20. Target: baseline on first run, then no regression; the
-  committed number becomes the bar. Validates FR-7, FR-15, FR-20.
+- **SM-1: Rule Engine correctness on the Fixture.** Per-field accuracy — Tags, Priority, parsed
+  due date, Smart List placement — measured by FR-20. Target: baseline on first run, then no
+  regression; the committed number becomes the bar. Validates FR-7, FR-15, FR-20, FR-23.
 - **SM-2: Grader runnability.** A fresh clone reaches a working app exercising every graded
   capability with no API Key, no account, and no network. Target: binary pass, verified by
   following the README on a clean machine. Validates FR-7, FR-9, FR-17, UJ-3.
@@ -921,10 +939,11 @@ named stage that owns it.
 | 7 | §10 NFR-10; FR-19 | All date-dependent behavior and the Fixture harness are tested against a fixed injected reference date recorded in the Fixture, never the system clock, so results are identical on any day and machine | **Confirmed 2026-11-01** |
 | 8 | §10 NFR-2 | The Model Engine timeout value is set from the OQ-1 latency measurement before the Model Engine is implemented. FR-8 keeps it off the capture path either way | **Confirmed 2026-11-01** |
 | 9 | §0, §8 | Deadline is the second week of December 2026, matching the brief. An older planning log said end of November; stale and superseded | **Confirmed 2026-11-01** |
-| 10 | §9, OQ-8 | Storage is browser-local — decided. The specific API (`localStorage` vs IndexedDB) is chosen in `bmad-architecture`, weighing size limits against Smart List querying | **Deferred to architecture, confirmed 2026-11-01** |
-| 11 | §4.2, OQ-1 | Claude Haiku 5.5 is the planned provider; confirmed only after the OQ-1 latency spike, with OpenAI as the fallback provider behind the same interface | **Deferred to the OQ-1 spike** |
-| 12 | OQ-4 | Where the API Key lives and what `.env.example` means with no backend | **Deferred to architecture** |
+| 10 | §4.1 FR-23, §4.2 FR-7, §6.1, §6.2 | **v1 supports English task text only.** FR-23's date vocabulary and the Rule Engine's keyword rules are English; Norwegian (`fredag`, `i morgen`, `skole`) is out of v1. The Fixture is written in English, which is why the instructor feedback's example "Lever innlevering i IBE160 fredag" appears as "Submit assignment in IBE160 Friday" | **Confirmed 2026-11-01** |
+| 11 | §9, OQ-8 | Storage is browser-local — decided. The specific API (`localStorage` vs IndexedDB) is chosen in `bmad-architecture`, weighing size limits against Smart List querying | **Deferred to architecture, confirmed 2026-11-01** |
+| 12 | §4.2, OQ-1 | Claude Haiku 5.5 is the planned provider; confirmed only after the OQ-1 latency spike, with OpenAI as the fallback provider behind the same interface | **Deferred to the OQ-1 spike** |
+| 13 | OQ-4 | Where the API Key lives and what `.env.example` means with no backend | **Deferred to architecture** |
 
-Items 11 and 12 remain genuinely open and are tracked as open questions in §12 rather than as
+Items 12 and 13 remain genuinely open and are tracked as open questions in §12 rather than as
 assumptions; they are listed here so the index is a complete picture of what is settled and what
 is not.

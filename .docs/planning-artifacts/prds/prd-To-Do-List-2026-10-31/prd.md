@@ -152,9 +152,13 @@ nicety; it is a hard requirement of the course deliverable, and it shapes §4.2.
 - **Rule Engine** — the keyword/heuristic implementation of the Suggestion Engine. Runs on
   device, needs no network and no API Key, and is always present.
 - **Model Engine** — the Claude API implementation of the Suggestion Engine. Used only when an
-  API Key is configured and Cloud Suggestions are enabled.
+  API Key is configured and Cloud Suggestions are enabled. *The provider named here is the planned
+  one; it follows whichever provider OQ-1 confirms (§4.2). The term "Model Engine" and everything
+  required of it are provider-independent.*
 - **API Key** — a user-supplied Anthropic API key, stored on device, never committed to the
-  repository, never bundled with the app.
+  repository, never bundled with the app. *The provider named here follows the provider confirmed
+  by OQ-1 (§4.2); the requirements on the key — user-supplied, on-device, never committed — do
+  not depend on which provider it is for.*
 - **Cloud Suggestions** — the user-facing setting that governs whether Task text may be sent
   to the Claude API. Off until explicitly turned on.
 - **Smart List** — a view of Tasks derived automatically from Task fields (e.g. "Due this
@@ -292,9 +296,17 @@ spike** (§12). The brief frames the cloud option as "OpenAI / Claude" without c
 `research.md` rates OpenAI's cheapest nano tier an essentially tied runner-up whose latency
 evidence is in fact cleaner than Claude's. So: if Haiku's measured latency at lowest effort turns
 out to be unacceptable, **OpenAI is the fallback provider choice**, slotted behind the same
-Suggestion Engine interface with no other part of this PRD changing. OpenAI's model names are
-churning fast enough that the specific model must be re-checked at implementation rather than
-taken from the research. Comparison detail is in `addendum.md`.
+Suggestion Engine interface. OpenAI's model names are churning fast enough that the specific model
+must be re-checked at implementation rather than taken from the research. Comparison detail is in
+`addendum.md`.
+
+**What a provider switch would and would not touch.** No requirement in this PRD changes: not
+FR-6's output shape, not FR-9's fallback rules, not FR-10's review, not FR-11's attribution, not
+FR-18's consent gate, and not any NFR. What changes is the provider *name* and the text that
+depends on it, in exactly these places — the Glossary entries for **Model Engine** and **API
+Key**, the disclosure wording in **FR-18**, the privacy basis in **§8**, and the browser-access
+mechanism in **§9**. Each is marked in place as following the confirmed provider.
+That is the whole blast radius, and it is why the interface is worth having.
 
 Realizes UJ-1, UJ-3.
 
@@ -553,6 +565,10 @@ told what that means.
 - Default state on first run is off, including when an API Key is already present.
 - The consent control states, before being enabled, that Task text will be sent to Anthropic's
   API, that the key is the user's own, and that the Rule Engine remains the fallback.
+- **The disclosure names whichever provider OQ-1 confirms** (§4.2). The requirement is that the
+  disclosure be accurate about where Task text actually goes — so if the provider changes, this
+  text changes with it. What must be disclosed does not change: the destination, that the key is
+  the user's own, and that the Rule Engine remains the fallback.
 - Turning it off stops all outbound requests immediately.
 - With it off, no network request containing Task text is issued under any code path.
 - **Saving an API Key never enables Cloud Suggestions.** The moment a key is saved, Settings shows
@@ -725,7 +741,10 @@ than borrowed.
   to Anthropic's API under the user's own key. Anthropic's published policy for API traffic —
   inputs and outputs not used for training by default, deleted within 30 days — is the
   strongest-sourced claim in the research and is the basis of the disclosure. Exact wording and
-  citation in `addendum.md`.
+  citation in `addendum.md`. *Provider-dependent: this basis follows the provider confirmed by
+  OQ-1 (§4.2). The research found OpenAI's published policy functionally equivalent, so the
+  disclosure's substance would survive a switch — but the citation must be re-sourced to that
+  provider rather than carried over.*
 - There is no analytics, telemetry, crash reporting, or third-party script in v1.
 
 **Cost**
@@ -765,7 +784,11 @@ than borrowed.
   network.
 - The Model Engine calls the Claude API directly from the browser, which the API permits only
   under an explicit opt-in header. Mechanism, header name, and the key-exposure consequence are
-  in `addendum.md`; the user-facing consequence is FR-18's disclosure.
+  in `addendum.md`; the user-facing consequence is FR-18's disclosure. *Provider-dependent: the
+  header is Anthropic-specific and follows the provider confirmed by OQ-1 (§4.2). The
+  architectural point is provider-independent and does not change — a no-backend browser app must
+  satisfy whatever browser-origin policy its provider imposes, and the user's key lives in the
+  browser either way.*
 
 ## 10. Cross-Cutting NFRs
 

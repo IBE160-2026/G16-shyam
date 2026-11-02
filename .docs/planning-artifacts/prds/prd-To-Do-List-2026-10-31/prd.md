@@ -1,8 +1,8 @@
 ---
 title: To-Do-List
-status: draft
+status: final
 created: 2026-10-31
-updated: 2026-11-01
+updated: 2026-11-02
 ---
 
 # PRD: To-Do-List
@@ -689,6 +689,9 @@ is better and demonstrating where it is and is not. Protect it if the schedule c
   with no API Key and no network (NFR-8).**
 - **A written record of the suggestion-engine decision — rationale, privacy trade-offs, and the
   FR-21 engine comparison results — in the README or a document it links (NFR-9).**
+- **Screenshots or a short screen recording of a Model Engine Suggestion, attributed as such in
+  the review UI, in the README or a document it links, so a grader without an API Key can still
+  see the AI model working (NFR-9).**
 - Responsive single app across phone, tablet, desktop, and web; installable PWA; offline-capable.
 - A README that takes a fresh clone to a running app with no API Key.
 
@@ -848,7 +851,10 @@ than borrowed.
   measured FR-21 comparison results. This is a required deliverable, not a courtesy: the brief
   lists "documentation of the AI approach" among its success criteria, and the feedback asks twice
   for the reasoning to be written down ("Skriv ned begrunnelsen"), calling it "godt
-  prosessmateriale" for the 30% process weighting (§11).
+  prosessmateriale" for the 30% process weighting (§11). Consequence: the README, or a document it
+  links, also includes screenshots or a short screen recording of a Suggestion produced by the
+  Model Engine and attributed as such in the review UI (FR-11), so a grader without an API Key can
+  still see the AI model working rather than only the Rule Engine fallback.
 - **NFR-10 — Date-dependent behavior is tested against a fixed date, never the system clock.**
   Every date-dependent test — FR-23's parsing, FR-12's due-window placement, FR-15's Fixture
   placement assertions, FR-16's archive window — and the FR-20/FR-21 harness runs against an

@@ -119,15 +119,19 @@ key is entered at runtime (PRD FR-17) and stored on device. This is what makes P
 
 ## 2. Rule Engine design
 
-From the research's worked design — **specification only, medium confidence, not a measured
-result.** Treat as a starting point for the architecture stage, not a mandate.
+**The binding specification is PRD FR-7**, which fixes the tag set (`school`, `group`, `work`,
+`personal`), both keyword tables, the whole-word case-insensitive matching rule, the multi-tag
+rule, `high`-beats-`low`, and the no-match outcome (Tags `[]`, Priority `medium`). What follows is
+the research's worked design — **specification only, medium confidence, not a measured result** —
+kept for the scoring and tokenizing mechanics FR-7 leaves to implementation. Where the two differ,
+FR-7 governs.
 
-- Lowercase and tokenize the Task text.
+- Lowercase and tokenize the task text.
 - Score candidate categories: **two-word phrases weight 3, single tokens weight 1.**
 - Keyword maps for urgency and deferral drive Priority → `high` / `low`, with **`medium` as the
-  default** when nothing fires.
-- **Confidence floor 0.35**; ties and zero-match cases fall through to a catch-all category
-  (`other`).
+  default** when nothing fires. FR-7 now names those keywords.
+- **Confidence floor 0.35.** Note that FR-7 supersedes this sketch's catch-all category (`other`):
+  a zero-match case yields Tags `[]`, and no `other` tag exists.
 - Implement as **one pure synchronous function** — this is what delivers PRD NFR-5 determinism and
   makes FR-20 a real test.
 - Precedent implementation used 5 categories and 4 priority levels, keyed on "urgency words and

@@ -15,6 +15,6 @@
 - [x] 2026-11-12 [prd-to-do-list-v1](997-2026-11-01-13-37-39-prd-to-do-list-v1.md) — PRD-tilbakemelding 4.5: definer minimumsnivå per felt for SM-1 etter første kjøring (løst 2026-11-13 — kravet er nedfelt i SM-1; tallene kommer ved første kjøring, OQ-6)
 - [ ] 2026-11-12 [prd-to-do-list-v1](997-2026-11-01-13-37-39-prd-to-do-list-v1.md) — PRD-tilbakemelding §7: besvar de to refleksjonsspørsmålene om egne vs. KI-foreslåtte beslutninger
 - [ ] 2026-11-12 [prd-to-do-list-v1](997-2026-11-01-13-37-39-prd-to-do-list-v1.md) — avklar rollen til `.docs/planning-artifacts/architecture/technology.md` (referanse fra pytagoras-website-v2, ikke vår egen arkitektur)
-- [ ] 2026-11-13 [prd-to-do-list-v1](997-2026-11-01-13-37-39-prd-to-do-list-v1.md) — FR-23: bekreft at «fulle ukedagsnavn» var riktig tolkning (alle sju dager beholdt), ikke en innsnevring til mandag–fredag
-- [ ] 2026-11-13 [prd-to-do-list-v1](997-2026-11-01-13-37-39-prd-to-do-list-v1.md) — §11 rubrikk-tabellen ble gjort om til prosa for å nå ordgrensen; avgjør om tabellen skal gjenopprettes
+- [x] 2026-11-13 [prd-to-do-list-v1](997-2026-11-01-13-37-39-prd-to-do-list-v1.md) — FR-23: bekreft at «fulle ukedagsnavn» var riktig tolkning (alle sju dager beholdt), ikke en innsnevring til mandag–fredag (løst 2026-11-13 — snevret til Monday–Friday)
+- [x] 2026-11-13 [prd-to-do-list-v1](997-2026-11-01-13-37-39-prd-to-do-list-v1.md) — §11 rubrikk-tabellen ble gjort om til prosa for å nå ordgrensen; avgjør om tabellen skal gjenopprettes (løst 2026-11-13 — grid gjenopprettet)
 - [ ] 2026-11-13 [prd-to-do-list-v1](997-2026-11-01-13-37-39-prd-to-do-list-v1.md) — skriv Fixture-fila (FR-19) med FR-7s tagg-/nøkkelordtabeller som grunnlag; forutsetning for FR-20 og SM-1

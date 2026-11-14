@@ -2,7 +2,7 @@
 title: To-Do-List PRD Addendum
 status: draft
 created: 2026-10-31
-updated: 2026-10-31
+updated: 2026-11-14
 ---
 
 # PRD Addendum: To-Do-List
@@ -106,10 +106,21 @@ Node-shaped — wrong for a no-backend PWA. Resolved:
   key, in their own browser, which they pasted in themselves.** It is never the project's key and
   never ships in the bundle.
 
-**Confidence: medium-high.** The header name and behavior are corroborated across many independent
-third-party repositories, but this was *not* confirmed on an official Anthropic documentation page
-during this run. **Verify against the official docs or the SDK source before implementing** — it is
-a single header name and cheap to check.
+**Confidence: confirmed.** Verified against official Anthropic documentation on **2026-11-14** —
+*Authentication → Browser-based applications*
+(`platform.claude.com/docs/en/manage-claude/authentication`), which names both the header and the
+TypeScript SDK's `dangerouslyAllowBrowser: true` option. This **supersedes** the earlier reading
+recorded here — "medium-high, corroborated only across third-party repositories, verify before
+implementing" — and no further verification is needed.
+
+**One restriction the same page adds, and it is not a footnote.** An organization under **zero data
+retention**, or using the **Compliance API**, cannot call the API from a browser at all. A *valid* key
+returns `401 authentication_error` with *"CORS requests are not allowed for this Organization"*, and the
+restriction is **inherited from a parent Claude Enterprise organization** — so a user can hit it without
+having configured anything themselves. There is no client-side workaround: a backend would be required,
+and PRD §9 rules one out. For such a user the Rule Engine is the permanent path, which is exactly why
+PRD FR-9 names this as its own *persistent* failure mode and FR-11 words its Settings status apart from
+a rejected key.
 
 Architectural consequence: there is no server, so there is no server-side place to put a key. The
 key is entered at runtime (PRD FR-17) and stored on device. This is what makes PRD OQ-4
@@ -258,6 +269,14 @@ the fallback provider.
 | Structured output | `output_config.format`, `json_schema` (verified §1.1) | Responses API `text.format`, `strict: true` [24] |
 | Privacy | Not used for training by default; 30-day deletion; policy dated 2026-08-18 [17] | Not used for training by default since 2023-03-01; abuse logs ≤30 days; ZDR available [22] |
 | Model-name stability | `claude-haiku-5-5` pinned, retirement ≥2027-10-07 | **Churning** — `gpt-6-astra` and `gpt-6.1-sol` already appear in OpenAI's own example docs [19] |
+
+**One caveat on the price rows: the two columns do not count tokens the same way.** Haiku 5.5 uses the
+newer tokenizer, which counts roughly **30% more tokens for the same text** than Haiku 4.5 did (verified
+2026-11-14). Per-MTok rates are therefore not comparable across vendors on text length alone, and the
+per-call figures in this table inherit that uncertainty. At this volume it changes no decision — a
+thousand Tasks moves from 5–10 cents to perhaps 7–13 — but it does mean the "slightly cheaper" reading of
+the OpenAI column sits inside the noise rather than being a measured gap. Cost is still not a design
+constraint here; it is just not a tiebreaker either.
 
 The honest reading: OpenAI is marginally cheaper and has the *better-evidenced* latency story —
 the research notes Claude "should be empirically timed" while OpenAI's "shouldn't need the same

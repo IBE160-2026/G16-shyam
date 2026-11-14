@@ -2,7 +2,7 @@
 title: To-Do-List
 status: draft
 created: 2026-10-31
-updated: 2026-11-13
+updated: 2026-11-14
 ---
 # PRD: To-Do-List
 
@@ -260,10 +260,13 @@ Tag, and these are the only values FR-19's expected Tags may use.
 - `today` and `tomorrow` sit in both this table and FR-23's vocabulary and do both jobs — due date parsed
   from them, Priority raised by them — since FR-23 never rewrites the task text.
 
-**Worked example (runnable as a test):** reference date **Friday 2026-11-13**, task text *"Submit
-assignment in IBE160 Monday"* → Tags `[school]` (`submit`, `assignment`, `IBE160`), Priority `high`
-(`submit`), due date **2026-11-16** (the next Monday). Task text with no keyword and no date word —
-*"Figure out the thing"* → Tags `[]`, Priority `medium`, no due date.
+**Worked example (runnable as a test):** reference date **Monday 2026-11-16**, task text *"Submit
+assignment in IBE160 Friday"* → Tags `[school]` (`submit`, `assignment`, `IBE160`), Priority `high`
+(`submit`), due date **2026-11-20** (the next Friday). This is the instructor's example translated
+(§6.2) and the same text UJ-1 narrates. The reference date is deliberately **not** a Friday, so this
+example exercises FR-23's ordinary next-occurrence rule; the resolve-to-the-reference-date edge case is
+carried by its own Fixture entry (FR-19). Task text with no keyword and no date word — *"Figure out the
+thing"* → Tags `[]`, Priority `medium`, no due date.
 
 **Testable:**
 
@@ -301,9 +304,14 @@ Settings explains them (§13 item 5).
   Settings; nothing is recorded that would make Settings call the Model Engine unavailable, and the next
   capture attempts it again.
 - *Persistent failures — silent in the flow, surfaced in Settings:* invalid API Key, exhausted credit or
-  quota. Each produces a Rule Engine Suggestion with **no error, popup or interruption in the capture or
-  review flow** — identical in-flow behavior to a transient failure — and Settings then shows a plain
-  status explaining it (FR-11), the only place it is visible.
+  quota, and **an organization that forbids browser calls outright**. The third is not a key fault: an
+  account under zero data retention or using the Compliance API returns `401 authentication_error` with
+  *"CORS requests are not allowed for this Organization"* on a **valid** key, and the restriction is
+  inherited from a parent Claude Enterprise organization. No retry, and no second key from the same
+  organization, will clear it — for such a user the Rule Engine is simply the permanent path
+  (`addendum.md` §1.2). Each of the three produces a Rule Engine Suggestion with **no error, popup or
+  interruption in the capture or review flow** — identical in-flow behavior to a transient failure — and
+  Settings then shows a plain status explaining it (FR-11), the only place it is visible.
 - *Both kinds:* fallback is automatic; the user can tell which implementation produced a Suggestion
   (FR-11); every failure mode has an automated test against a mocked API (NFR-8).
 
@@ -342,8 +350,12 @@ current Suggestion Engine state in Settings.
 - Settings states plainly whether an API Key is configured and which implementation is active; with no key
   it says so without framing it as an error.
 - **After a persistent failure (FR-9), Settings shows a plain, non-alarming status saying three things:**
-  that the Model Engine is not being used, the reason — the API Key was rejected, or its credit or quota
-  is exhausted — and that the Rule Engine is serving Suggestions normally.
+  that the Model Engine is not being used, the reason — the API Key was rejected, its credit or quota is
+  exhausted, or the key's organization does not permit browser calls at all — and that the Rule Engine is
+  serving Suggestions normally.
+- **The organization-policy reason is worded distinctly from a rejected key**, because the key is valid
+  and nothing the user does to it will help. Reporting it as "rejected" would send them hunting for a
+  fault that is not theirs; the status says the organization does not allow it and stops there.
 - That status appears **only** in Settings: no popup, banner, toast or badge anywhere else. It clears once
   the cause is resolved, without the user dismissing anything.
 
@@ -542,7 +554,7 @@ Everything in §5, plus these, deferred rather than rejected:
 - A local in-browser AI model. Research found a live, unfixed ONNX Runtime Web / Safari WebGPU crash and
   recommended against it for v1 (`addendum.md`).
 - **Norwegian task text**, which is why the instructor's example "Lever innlevering i IBE160 fredag"
-  appears in the Fixture as **"Submit assignment in IBE160 Monday"** (UJ-1, FR-7). Adding it later is a
+  appears in the Fixture as **"Submit assignment in IBE160 Friday"** (UJ-1, FR-7). Adding it later is a
   keyword-map and vocabulary change behind the same interfaces.
 - Suggested due dates and suggested next actions.
 - Multi-device storage, export or import. `[NOTE FOR PM]` A JSON export is cheap and would offset "your
@@ -636,7 +648,10 @@ numeric comparison is unverified and from another domain; targets are set locall
 - Storage is browser-local — decided. Which API (`localStorage` or IndexedDB) is chosen in
   `bmad-architecture`, weighing size limits against the cost of querying Smart Lists (OQ-8).
 - The Model Engine calls the Anthropic API directly from the browser, which the API permits only under an
-  explicit opt-in header; the header name and the key-exposure consequence are in `addendum.md`.
+  explicit opt-in header — and, for some organizations, not even then: an account under zero data
+  retention or the Compliance API is refused browser calls outright, which FR-9 carries as a persistent
+  failure mode. The header name, the key-exposure consequence and that restriction are in `addendum.md`
+  §1.2, all three confirmed against official documentation.
 
 ## 10. Cross-Cutting NFRs
 
@@ -691,11 +706,37 @@ not the lever; depth on what is specified is.
 
 1. **OQ-1 — What is the Model Engine's real latency?** Sources disagree by an order of magnitude (roughly
    0.7–1.0 s versus 9.6–13.4 s to first token); effort settings move latency by 10–100×, and Haiku 5.5's
-   default effort is not the lowest. **Action:** time a real call at lowest effort with a real key — under
-   an hour. **Blocks:** NFR-2's timeout, FR-8's pending-state UX, and the provider choice (§4.2). The
-   reason this document is `draft`.
-2. **OQ-2 — Can thinking be turned off, and does it matter for latency?** Bears on OQ-1; answered from the
-   Models API capability flags during the same spike.
+   default effort is not the lowest. **Action:** time a real call with a real key — under an hour.
+   **Blocks:** NFR-2's timeout, FR-8's pending-state UX, and the provider choice (§4.2). The reason this
+   document is `draft`.
+
+   **What is timed.** Wall-clock from request sent to a **parsed, schema-valid Suggestion object** — not
+   time to first token. FR-10 cannot review a partial object, so first-token latency is the wrong meter,
+   and it is the meter most of the disputed sources actually report. At least 10 consecutive calls on
+   representative task text, the first discarded as connection setup, over an ordinary consumer
+   connection named alongside the result.
+
+   **Spike configuration**, fixed here so the number is reproducible rather than a property of how the
+   call happened to be written: `model: claude-haiku-5-5`, `output_config.effort: "low"`,
+   `thinking: {"type": "disabled"}` (OQ-2), structured output via `output_config.format`, a small
+   `max_tokens`, and no `temperature`, `top_p` or `top_k`.
+
+   **Pass bar — set before the measurement so the result can falsify it: p50 ≤ 2.5 s and p95 ≤ 6 s.**
+
+   - **Pass** → Claude Haiku 5.5 is confirmed as the Model Engine provider, §13 item 12 closes, and
+     NFR-2's timeout is set to **6 s**.
+   - **Miss** → time the OpenAI nano fallback at the same call shape and take the faster of the two. If
+     both miss, Claude is kept — pricing and privacy already decided it, not speed (`addendum.md` §5) —
+     NFR-2's timeout is set to **10 s**, and the Model Engine's place in §6.3's Tier 2 is re-examined
+     rather than assumed.
+
+   Either way FR-8 holds: capture is never gated on this number, so no outcome here can make the app
+   unusable. What the number decides is the provider and the timeout, not whether v1 ships.
+2. **OQ-2 — Can thinking be turned off, and does it matter for latency? RESOLVED 2026-11-14.** It can, on
+   Haiku 5.5, via `thinking: {"type": "disabled"}` at effort `high` or below; `xhigh` and `max` reject the
+   combination with a 400. Adaptive thinking is **on by default** and counts against `max_tokens`, so the
+   naive call is both the slow one and the expensive one. Whether disabling it is *enough* is OQ-1's
+   measurement — the setting is part of the spike configuration above.
 3. **OQ-3 — Free credit and rate limits.** Research's figures are low-confidence aggregator values on no
    official page. **Action:** confirm in the Anthropic console before writing API Key setup instructions
    into the README.
@@ -731,7 +772,8 @@ where each decision's rationale lives.
 | 9  | §0, §8           | Deadline is the second week of December 2026; an older log said end of November, superseded                                                                                                                                                                             | **Confirmed 2026-11-01**                           |
 | 10 | FR-7, FR-23, §6   | **English task text only**                                                                                                                                                                                                                                        | **Confirmed 2026-11-01**                           |
 | 11 | §9, OQ-8          | Storage is browser-local; the API is chosen in architecture                                                                                                                                                                                                             | **Deferred to architecture**                       |
-| 12 | §4.2, OQ-1        | Haiku 5.5 planned, OpenAI the fallback behind the same interface                                                                                                                                                                                                        | **Open — OQ-1 spike**                             |
+| 12 | §4.2, OQ-1        | Haiku 5.5 planned, OpenAI the fallback behind the same interface; the spike's pass bar (p50 ≤ 2.5 s, p95 ≤ 6 s) and call shape are fixed in OQ-1, so the measurement can fail rather than merely inform | **Open — OQ-1 spike**; bar set 2026-11-14 |
 | 13 | OQ-4               | Where the API Key lives, and `.env.example` with no backend                                                                                                                                                                                                           | **Open — architecture**                           |
 | 14 | FR-7               | **The tag set, both keyword tables, the multi-tag rule, `high`-beats-`low`, and the no-match outcome** — the builder's own choices from §2.1's four contexts, rejecting the research sketch's five categories, four priority levels and `other` catch-all | **Confirmed 2026-11-13**                           |
 | 15 | §6.3              | The three-tier cut order within v1                                                                                                                                                                                                                                      | **Confirmed 2026-11-13**                           |
+| 16 | FR-9, FR-11        | The zero-data-retention / Compliance-API `401` is named as its own persistent failure mode and worded apart from a rejected key, because the key is valid and the user can do nothing about it. Verified against official documentation 2026-11-14 | **Confirmed 2026-11-14**                           |

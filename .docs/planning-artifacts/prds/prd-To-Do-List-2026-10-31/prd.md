@@ -4,7 +4,6 @@ status: draft
 created: 2026-10-31
 updated: 2026-11-13
 ---
-
 # PRD: To-Do-List
 
 ## 0. Document Purpose
@@ -55,29 +54,28 @@ Anyone whose core need is a shared list, a reminder, or their data on a second d
 > The protagonist is modelled on the builder's own use. These are the journeys UX builds on.
 
 - **UJ-1. Shyam dumps a task between classes and never opens a menu.** Phone browser, installed PWA, no
-  login. He types "Submit assignment in IBE160 Monday"; the Task saves immediately; a Suggestion then
+  login. He types "Submit assignment in IBE160 Friday"; the Task saves immediately; a Suggestion then
   proposes Tags `[school]`, Priority `high` and a Summary; he taps Accept all. The Task is filed under
   `school`, shows as high Priority and has appeared in "Due this week" — structure he never added.
+
   - **Edge case:** if only Priority is wrong, he accepts Tags and Summary and on Priority alone taps Edit,
     sets `high`, saves — one wrong field costs one correction, not a rejected Suggestion. Undo puts a
     reflex acceptance back.
-
 - **UJ-2. Shyam opens the app cold and trusts what he sees.** Monday morning, offline on the tram. The
-  default view shows "Due this week", "Overdue" and "High priority" populated from existing Tasks; he opens
+  default view shows "Due this week", "Due" and "High priority" populated from existing Tasks; he opens
   one to read its notes. He knows what matters today without having filed anything or built a view. No
   sync indicator, no spinner, no empty state.
-
 - **UJ-3. A grader runs the app with no API key and sees the AI feature work.** Fresh clone, no Anthropic
   account, no configuration. Following the README they create a Task and a Rule Engine Suggestion appears.
   They accept the proposed Tags, then edit the proposed Priority and save it, seeing each field land
   independently; Settings says plainly that no API Key is configured. "AI proposes, human disposes" is
   visible in the interaction, and the harness (§4.6) reports accuracy without a key.
-
 - **UJ-4. Shyam brings his own key and the Model Engine takes over.** Desktop browser. He saves his own
   Anthropic API Key; the Cloud Suggestions control appears beside the key field, still off, with the
   disclosure (FR-17, FR-18). He turns it on and the next Suggestion is attributed to the Model Engine
   (FR-11), so he observes the comparison in use, not only in harness output. Capture feels the same,
   having never waited on the Suggestion (FR-8).
+
   - **Edge case:** weeks later his credit runs out. Suggestions keep arriving with no error and no
     interruption, served by the Rule Engine again (FR-9); Settings explains why when he next opens it.
 
@@ -86,7 +84,7 @@ Anyone whose core need is a shared list, a reminder, or their data on a second d
 - **Task** — the core entity. Fields: task text, due date, Project, notes, Tags, Priority, Summary,
   completed state, archived state (all but task text optional). Zero or more Tags, one Priority, at most
   one Summary.
-- **task text** — the user's own typed sentence. Never rewritten by the app (FR-23).
+- **Task text** — the user's own typed sentence. Never rewritten by the app (FR-23).
 - **Tag** — a short label categorizing a Task; a Task may have several. The Rule Engine proposes only the
   four Tags fixed in FR-7; the user may add any Tag by hand (FR-3).
 - **Priority** — exactly one of `high`, `medium`, `low` on every Task. `medium` is the default.
@@ -102,8 +100,8 @@ Anyone whose core need is a shared list, a reminder, or their data on a second d
 - **Cloud Suggestions** — the setting governing whether task text may be sent to the Anthropic API. Off
   until explicitly turned on (FR-18).
 - **Smart List** — a view of Tasks derived automatically from Task fields, never hand-maintained.
-- **Overdue** — the Smart List of Tasks whose due date is past and which are not completed (FR-12). Named
-  so FR-15 can assert placement into it.
+- **Due** — the Smart List of Tasks whose due date is past and which are not completed (FR-12). Named so
+  FR-15 can assert placement into it. Distinct from "Due this week", the current Monday-to-Sunday window.
 - **Project** — a user-named grouping a Task may belong to. Assigned, not derived.
 - **Archive** — the state a completed Task enters after the retention window, removing it from default
   views without deleting it.
@@ -125,6 +123,7 @@ Full CRUD, local to the device; a Task needs only task text. Realizes UJ-1, UJ-2
 The user can create a Task by entering task text and nothing else.
 
 **Testable:**
+
 - It persists with Priority `medium`, no Tags and no Summary, and is readable after a full page reload and
   after the browser is closed and reopened.
 - Creation needs no network and does not block on the Suggestion Engine (FR-8).
@@ -134,6 +133,7 @@ The user can create a Task by entering task text and nothing else.
 The user can see all non-archived Tasks, and open one to see every field.
 
 **Testable:**
+
 - The default view excludes archived Tasks and includes completed-but-unarchived ones.
 - Every field in §3's Task definition is visible on the detail view.
 
@@ -142,6 +142,7 @@ The user can see all non-archived Tasks, and open one to see every field.
 The user can edit task text, due date, Project, notes, Tags, Priority and Summary.
 
 **Testable:**
+
 - Each field changes independently and persists across reload.
 - Editing a field that came from an accepted Suggestion overwrites it without re-triggering the
   Suggestion Engine.
@@ -151,6 +152,7 @@ The user can edit task text, due date, Project, notes, Tags, Priority and Summar
 The user can permanently delete a Task.
 
 **Testable:**
+
 - A deleted Task is absent from all views and storage after reload.
 - Deletion is distinct from completion and Archive.
 
@@ -159,6 +161,7 @@ The user can permanently delete a Task.
 The user can mark a Task complete and can un-complete it.
 
 **Testable:**
+
 - A completed Task leaves active Smart Lists at once and stays retrievable until archived.
 
 #### FR-23: Parse simple date words from task text into the due date
@@ -172,6 +175,7 @@ FR-10's review: it is applied directly and editable at once (§13 item 2).
 dates, no "in three days", no relative arithmetic.
 
 **Testable:**
+
 - Matching is case-insensitive, needs no network, and is deterministic: same text and reference date,
   same due date (NFR-10).
 - `today` → the reference date; `tomorrow` → the next day; `next week` → the Monday of the following week,
@@ -219,6 +223,7 @@ The Suggestion Engine produces a Suggestion — Tags, Priority and Summary — f
 date.
 
 **Testable:**
+
 - The output shape is identical whichever implementation ran: same fields, same types, Priority always one
   of `high`, `medium`, `low`.
 - A Suggestion is never applied to a Task without passing through FR-10.
@@ -231,19 +236,20 @@ fixed here rather than left to implementation, because FR-19 cannot otherwise st
 **Tag set (the whole of it):** `school`, `group`, `work`, `personal`. The Rule Engine proposes no other
 Tag, and these are the only values FR-19's expected Tags may use.
 
-| Tag | Keywords |
-|---|---|
-| `school` | assignment, exam, lecture, course, study, homework, submit, IBE160 |
-| `group` | group, meeting, team, presentation, classmate |
-| `work` | shift, work, boss, invoice, timesheet, customer |
-| `personal` | buy, call, doctor, rent, gym, birthday, clean, pay |
+| Tag          | Keywords                                                           |
+| ------------ | ------------------------------------------------------------------ |
+| `school`   | assignment, exam, lecture, course, study, homework, submit, IBE160 |
+| `group`    | group, meeting, team, presentation, classmate                      |
+| `work`     | shift, work, boss, invoice, timesheet, customer                    |
+| `personal` | buy, call, doctor, rent, gym, birthday, clean, pay                 |
 
-| Priority | Keywords |
-|---|---|
+| Priority | Keywords                                                              |
+| -------- | --------------------------------------------------------------------- |
 | `high` | urgent, asap, deadline, due, exam, submit, important, today, tomorrow |
-| `low` | someday, maybe, eventually, sometime, whenever, later, optional |
+| `low`  | someday, maybe, eventually, sometime, whenever, later, optional       |
 
 **Matching rules:**
+
 - Keywords match as whole words, case-insensitively, against the task text.
 - **Tags:** every Tag with at least one keyword match is proposed, in table order — so a Task can be
   proposed more than one Tag.
@@ -260,6 +266,7 @@ assignment in IBE160 Monday"* → Tags `[school]` (`submit`, `assignment`, `IBE1
 *"Figure out the thing"* → Tags `[]`, Priority `medium`, no due date.
 
 **Testable:**
+
 - With no API Key configured, creating a Task still yields a Suggestion; with the device offline, the same.
 - The Rule Engine is a pure function of task text and due date: same input, same Suggestion, every time.
 - The Summary is a cleaned-up, truncated restatement of the task text, not true summarization (§13 item 3).
@@ -273,6 +280,7 @@ A Task is saved and visible before its Suggestion exists; the Suggestion arrives
 the saved Task.
 
 **Testable:**
+
 - **The Task appears in the list before the next user action, and no later than 100 ms after submit**
   (measured with the Suggestion Engine excluded), regardless of Suggestion Engine state.
 - While a Suggestion is pending, the Task shows a pending indicator and remains fully editable.
@@ -285,6 +293,7 @@ failure the Rule Engine produces the Suggestion instead. The two kinds of failur
 Settings explains them (§13 item 5).
 
 **Testable:**
+
 - *Not attempted at all:* no API Key → not attempted, no network request made. Cloud Suggestions off →
   not attempted even with a key present.
 - *Transient failures — fully silent:* offline, timeout, rate limit, any other temporary API error. Each
@@ -306,6 +315,7 @@ instructor puts it as *"hvert forslag til tagger, prioritet og sammendrag vises 
 eller avvises"* — per part, not per Suggestion.
 
 **Testable:**
+
 - Each of Tags, Priority and Summary can be accepted, edited or rejected without affecting the other two,
   in any combination.
 - Accepting a part writes only that part, the others keeping their prior values until acted on; editing
@@ -327,6 +337,7 @@ The user can see whether a Suggestion came from the Rule Engine or the Model Eng
 current Suggestion Engine state in Settings.
 
 **Testable:**
+
 - Each Suggestion is attributed to one implementation in the review UI.
 - Settings states plainly whether an API Key is configured and which implementation is active; with no key
   it says so without framing it as an error.
@@ -342,6 +353,7 @@ The user can explicitly ask for a new Suggestion for an existing Task via a "Sug
 fresh Suggestion is never produced automatically.
 
 **Testable:**
+
 - Available after a Suggestion has been rejected in whole or in part, and after the Task's task text has
   been edited; available whichever implementation is active, and obeys FR-9's fallback rules.
 - It produces a new Suggestion replacing the previous pending one, reviewed through FR-10 like any other.
@@ -358,15 +370,16 @@ Derived views computed from Task fields on every render. No stored membership. R
 
 #### FR-12: Due-window Smart Lists
 
-The system presents two Smart Lists grouping Tasks by due date window: **"Due this week"** and
-**"Overdue"** (§3). **"Current week" means Monday through Sunday inclusive, in the device's local time
-zone** — fixed here so FR-15's assertions and FR-23's `next week` share one definition. The window stays
-Monday-to-Sunday even though FR-23 parses no weekend day: a Sunday due date arrives by editing (FR-3).
+The system presents two Smart Lists grouping Tasks by due date window: **"Due this week"** and **"Due"**
+(§3). **"Current week" means Monday through Sunday inclusive, in the device's local time zone** — fixed
+here so FR-15's assertions and FR-23's `next week` share one definition. The window stays Monday-to-Sunday
+even though FR-23 parses no weekend day: a Sunday due date arrives by editing (FR-3).
 
 **Testable:**
+
 - A Task due inside the current week appears in "Due this week": one due that Sunday appears, one due the
   next Monday does not.
-- **A Task with a due date in the past and not completed appears in "Overdue".**
+- **A Task with a due date in the past and not completed appears in "Due".**
 - A completed Task, and a Task with no due date, appear in neither.
 
 #### FR-13: Priority Smart List
@@ -374,6 +387,7 @@ Monday-to-Sunday even though FR-23 parses no weekend day: a Sunday due date arri
 The system presents a Smart List of Tasks at Priority `high`.
 
 **Testable:**
+
 - Setting Priority to `high` — by accepting a Suggestion or by editing — adds the Task immediately;
   completing it removes it immediately.
 
@@ -382,6 +396,7 @@ The system presents a Smart List of Tasks at Priority `high`.
 The system presents a Smart List per Tag in use.
 
 **Testable:**
+
 - A Tag that no non-archived Task carries produces no Smart List.
 - Accepting a Suggestion that adds a new Tag makes its Smart List available without a reload.
 
@@ -390,8 +405,9 @@ The system presents a Smart List per Tag in use.
 Each Fixture entry's expected Smart List placement is asserted by the test suite.
 
 **Testable:**
-- Expected placement is drawn from the named Smart Lists: **"Due this week"**, **"Overdue"**, "High
-  priority", and one per FR-7 Tag.
+
+- Expected placement is drawn from the named Smart Lists: **"Due this week"**, **"Due"**, "High priority",
+  and one per FR-7 Tag.
 - The suite fails if a Fixture Task lands in a different Smart List than expected, asserted against the
   Fixture's fixed reference date rather than the machine's clock (NFR-10).
 
@@ -405,6 +421,7 @@ A completed Task is archived once complete for longer than the retention window 
 user-configurable.
 
 **Testable:**
+
 - With the default setting, a Task completed 31 days ago is archived and absent from default views.
 - Changing the window re-evaluates existing completed Tasks against the new value.
 - An archived Task is still retrievable through an archive view and is not deleted.
@@ -418,6 +435,7 @@ The only place task text can leave the device, so it carries the privacy posture
 The user can enter an API Key, see that one is stored, and clear it.
 
 **Testable:**
+
 - The API Key is stored on device only and survives reload.
 - It is never written to the repository and is not present in any committed file.
 - Clearing it returns the app to Rule-Engine-only operation with no further network requests.
@@ -428,6 +446,7 @@ Task text is never sent off the device until the user turns Cloud Suggestions on
 that means.
 
 **Testable:**
+
 - Default state on first run is off, including when an API Key is already present.
 - The consent control states, before being enabled, that task text will be sent to the **Anthropic API**,
   that the key is the user's own, and that the Rule Engine remains the fallback. If OQ-1 changes the
@@ -450,6 +469,7 @@ A Fixture of 10–15 Tasks, each with expected Tags, expected Priority, expected
 expected Smart List placement, is committed at a documented path named in the README.
 
 **Testable:**
+
 - At least 10 and at most 15 entries, each with all four expectations populated; "none" is a valid
   expected due date, not a blank.
 - **Expected Tags use only FR-7's tag set**, with `[]` a valid value; expected Priority uses only `high`,
@@ -473,6 +493,7 @@ expected Smart List placement, is committed at a documented path named in the RE
 A command runs the Rule Engine over every Fixture entry and reports per-field accuracy.
 
 **Testable:**
+
 - The command runs with no API Key and no network.
 - Output reports Tags, Priority, parsed due date and Smart List placement accuracy separately, not as one
   number, with Summary reported separately again and folded into none of them (SM-1).
@@ -485,6 +506,7 @@ The same harness can run against the Model Engine when an API Key is supplied, p
 comparable result.
 
 **Testable:**
+
 - Both engines' results are reported in the same format over the same Fixture.
 - The Model Engine run is skipped with a clear message, not an error, when no API Key is present.
 
@@ -655,15 +677,15 @@ The rubric's weights are not a normal product's priorities, which is why §6.3 t
 The project is rated "Enkel", and a simple project compensates through execution — so adding features is
 not the lever; depth on what is specified is.
 
-| Weight | Dimension | Where this PRD serves it |
-|---:|---|---|
-| 30% | Process and AI-steering | NFR-9's written record; FR-21's comparison; brief → PRD → code traceability |
-| 20% | Functionality and scope | §4 FR-1 – FR-23, prioritized by §6.3 |
-| 15% | QA and testing | FR-15, FR-19 – FR-21, NFR-8, NFR-10, SM-1 |
-| 10% | Design | NFR-4, UJ-1 – UJ-4 |
-| 10% | Code and architecture | Deferred to `bmad-architecture` |
-| 10% | README and runnability | SM-2, NFR-7, §8 |
-| 5% | Repo tidiness | §8 |
+| Weight | Dimension               | Where this PRD serves it                                                      |
+| -----: | ----------------------- | ----------------------------------------------------------------------------- |
+|    30% | Process and AI-steering | NFR-9's written record; FR-21's comparison; brief → PRD → code traceability |
+|    20% | Functionality and scope | §4 FR-1 – FR-23, prioritized by §6.3                                       |
+|    15% | QA and testing          | FR-15, FR-19 – FR-21, NFR-8, NFR-10, SM-1                                    |
+|    10% | Design                  | NFR-4, UJ-1 – UJ-4                                                           |
+|    10% | Code and architecture   | Deferred to `bmad-architecture`                                             |
+|    10% | README and runnability  | SM-2, NFR-7, §8                                                              |
+|     5% | Repo tidiness           | §8                                                                           |
 
 ## 12. Open Questions
 
@@ -696,20 +718,20 @@ Every judgment that was once an open inference, with its status. Items 12 and 13
 genuinely open* — the OQ-1 and OQ-4 named in §0; everything else is settled. This table, not the body, is
 where each decision's rationale lives.
 
-| # | Where | Decision, and why it was taken | Status |
-|---|---|---|---|
-| 1 | §2.3 | The four User Journeys are what UX builds on | **Confirmed 2026-11-01** |
-| 2 | FR-23 | The fixed date-word vocabulary — `Monday` to `Friday` only, full spellings only — applied directly rather than reviewed because it is deterministic and editable at once. Resolves OQ-5 | **Confirmed 2026-11-01**; weekday scope 2026-11-13 |
-| 3 | FR-7 | Summary is truncation, not summarization: the research offers no rule-based summarization at all, hence SM-1 scoring it separately | **Confirmed 2026-11-01** |
-| 4 | FR-8 | Capture is asynchronous, limit 100 ms, because Model Engine latency is unresolved (OQ-1) and could reach ~13 s | **Confirmed 2026-11-01**; limit 2026-11-13 |
-| 5 | FR-9, FR-11, NFR-6 | The failure-mode list and the transient/persistent split: a dropped connection fixes itself, a dead key does not, and silence would leave the user believing the Model Engine still runs. Owned here — the research is silent on failures | **Confirmed 2026-11-01** |
-| 6 | FR-18 | The consent mechanism; the brief establishes opt-in but not how | **Confirmed 2026-11-01** |
-| 7 | NFR-10, FR-19 | A fixed reference date, not the system clock | **Confirmed 2026-11-01** |
-| 8 | NFR-2 | The timeout value comes from the OQ-1 measurement | **Confirmed 2026-11-01** |
-| 9 | §0, §8 | Deadline is the second week of December 2026; an older log said end of November, superseded | **Confirmed 2026-11-01** |
-| 10 | FR-7, FR-23, §6 | **English task text only** | **Confirmed 2026-11-01** |
-| 11 | §9, OQ-8 | Storage is browser-local; the API is chosen in architecture | **Deferred to architecture** |
-| 12 | §4.2, OQ-1 | Haiku 5.5 planned, OpenAI the fallback behind the same interface | **Open — OQ-1 spike** |
-| 13 | OQ-4 | Where the API Key lives, and `.env.example` with no backend | **Open — architecture** |
-| 14 | FR-7 | **The tag set, both keyword tables, the multi-tag rule, `high`-beats-`low`, and the no-match outcome** — the builder's own choices from §2.1's four contexts, rejecting the research sketch's five categories, four priority levels and `other` catch-all | **Confirmed 2026-11-13** |
-| 15 | §6.3 | The three-tier cut order within v1 | **Confirmed 2026-11-13** |
+| #  | Where              | Decision, and why it was taken                                                                                                                                                                                                                                          | Status                                                   |
+| -- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 1  | §2.3              | The four User Journeys are what UX builds on                                                                                                                                                                                                                            | **Confirmed 2026-11-01**                           |
+| 2  | FR-23              | The fixed date-word vocabulary — `Monday` to `Friday` only, full spellings only — applied directly rather than reviewed because it is deterministic and editable at once. Resolves OQ-5                                                                           | **Confirmed 2026-11-01**; weekday scope 2026-11-13 |
+| 3  | FR-7               | Summary is truncation, not summarization: the research offers no rule-based summarization at all, hence SM-1 scoring it separately                                                                                                                                      | **Confirmed 2026-11-01**                           |
+| 4  | FR-8               | Capture is asynchronous, limit 100 ms, because Model Engine latency is unresolved (OQ-1) and could reach ~13 s                                                                                                                                                          | **Confirmed 2026-11-01**; limit 2026-11-13         |
+| 5  | FR-9, FR-11, NFR-6 | The failure-mode list and the transient/persistent split: a dropped connection fixes itself, a dead key does not, and silence would leave the user believing the Model Engine still runs. Owned here — the research is silent on failures                              | **Confirmed 2026-11-01**                           |
+| 6  | FR-18              | The consent mechanism; the brief establishes opt-in but not how                                                                                                                                                                                                         | **Confirmed 2026-11-01**                           |
+| 7  | NFR-10, FR-19      | A fixed reference date, not the system clock                                                                                                                                                                                                                            | **Confirmed 2026-11-01**                           |
+| 8  | NFR-2              | The timeout value comes from the OQ-1 measurement                                                                                                                                                                                                                       | **Confirmed 2026-11-01**                           |
+| 9  | §0, §8           | Deadline is the second week of December 2026; an older log said end of November, superseded                                                                                                                                                                             | **Confirmed 2026-11-01**                           |
+| 10 | FR-7, FR-23, §6   | **English task text only**                                                                                                                                                                                                                                        | **Confirmed 2026-11-01**                           |
+| 11 | §9, OQ-8          | Storage is browser-local; the API is chosen in architecture                                                                                                                                                                                                             | **Deferred to architecture**                       |
+| 12 | §4.2, OQ-1        | Haiku 5.5 planned, OpenAI the fallback behind the same interface                                                                                                                                                                                                        | **Open — OQ-1 spike**                             |
+| 13 | OQ-4               | Where the API Key lives, and `.env.example` with no backend                                                                                                                                                                                                           | **Open — architecture**                           |
+| 14 | FR-7               | **The tag set, both keyword tables, the multi-tag rule, `high`-beats-`low`, and the no-match outcome** — the builder's own choices from §2.1's four contexts, rejecting the research sketch's five categories, four priority levels and `other` catch-all | **Confirmed 2026-11-13**                           |
+| 15 | §6.3              | The three-tier cut order within v1                                                                                                                                                                                                                                      | **Confirmed 2026-11-13**                           |

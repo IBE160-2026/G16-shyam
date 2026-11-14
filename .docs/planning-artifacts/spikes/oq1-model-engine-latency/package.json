@@ -1,0 +1,19 @@
+{
+  "name": "oq1-model-engine-latency-spike",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Throwaway measurement harness for PRD OQ-1 — Model Engine latency to a parsed Suggestion object. Planning artifact, not application code.",
+  "scripts": {
+    "spike": "node oq1-latency-spike.mjs",
+    "compare": "node oq1-latency-spike.mjs --arm=both",
+    "dry-run": "node oq1-latency-spike.mjs --dry-run --arm=both"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

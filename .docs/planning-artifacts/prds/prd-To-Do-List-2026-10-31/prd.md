@@ -2,7 +2,7 @@
 title: To-Do-List
 status: draft
 created: 2026-10-31
-updated: 2026-11-14
+updated: 2026-11-15
 ---
 # PRD: To-Do-List
 
@@ -62,9 +62,9 @@ Anyone whose core need is a shared list, a reminder, or their data on a second d
     sets `high`, saves — one wrong field costs one correction, not a rejected Suggestion. Undo puts a
     reflex acceptance back.
 - **UJ-2. Shyam opens the app cold and trusts what he sees.** Monday morning, offline on the tram. The
-  default view shows "Due this week", "Overdue" and "High priority" populated from existing Tasks; he opens
-  one to read its notes. He knows what matters today without having filed anything or built a view. No
-  sync indicator, no spinner, no empty state.
+  default view shows "Due this week", "Need Attention" and "High priority" populated from existing Tasks;
+  he opens one to read its notes. He knows what matters today without having filed anything or built a
+  view. No sync indicator, no spinner, no empty state.
 - **UJ-3. A grader runs the app with no API key and sees the AI feature work.** Fresh clone, no Anthropic
   account, no configuration. Following the README they create a Task and a Rule Engine Suggestion appears.
   They accept the proposed Tags, then edit the proposed Priority and save it, seeing each field land
@@ -100,8 +100,8 @@ Anyone whose core need is a shared list, a reminder, or their data on a second d
 - **Cloud Suggestions** — the setting governing whether task text may be sent to the Anthropic API. Off
   until explicitly turned on (FR-18).
 - **Smart List** — a view of Tasks derived automatically from Task fields, never hand-maintained.
-- **Overdue** — the Smart List of Tasks whose due date is past and which are not completed (FR-12). Named
-  so FR-15 can assert placement into it.
+- **Need Attention** — the Smart List of Tasks whose due date is past and which are not completed
+  (FR-12). Named so FR-15 can assert placement into it.
 - **Project** — a user-named grouping a Task may belong to. Assigned, not derived.
 - **Archive** — the state a completed Task enters after the retention window, removing it from default
   views without deleting it.
@@ -383,15 +383,16 @@ Derived views computed from Task fields on every render. No stored membership. R
 #### FR-12: Due-window Smart Lists
 
 The system presents two Smart Lists grouping Tasks by due date window: **"Due this week"** and
-**"Overdue"** (§3). **"Current week" means Monday through Sunday inclusive, in the device's local time
-zone** — fixed here so FR-15's assertions and FR-23's `next week` share one definition. The window stays
-Monday-to-Sunday even though FR-23 parses no weekend day: a Sunday due date arrives by editing (FR-3).
+**"Need Attention"** (§3). **"Current week" means Monday through Sunday inclusive, in the device's local
+time zone** — fixed here so FR-15's assertions and FR-23's `next week` share one definition. The window
+stays Monday-to-Sunday even though FR-23 parses no weekend day: a Sunday due date arrives by editing
+(FR-3).
 
 **Testable:**
 
 - A Task due inside the current week appears in "Due this week": one due that Sunday appears, one due the
   next Monday does not.
-- **A Task with a due date in the past and not completed appears in "Overdue".**
+- **A Task with a due date in the past and not completed appears in "Need Attention".**
 - A completed Task, and a Task with no due date, appear in neither.
 
 #### FR-13: Priority Smart List
@@ -418,7 +419,7 @@ Each Fixture entry's expected Smart List placement is asserted by the test suite
 
 **Testable:**
 
-- Expected placement is drawn from the named Smart Lists: **"Due this week"**, **"Overdue"**, "High
+- Expected placement is drawn from the named Smart Lists: **"Due this week"**, **"Need Attention"**, "High
   priority", and one per FR-7 Tag.
 - The suite fails if a Fixture Task lands in a different Smart List than expected, asserted against the
   Fixture's fixed reference date rather than the machine's clock (NFR-10).

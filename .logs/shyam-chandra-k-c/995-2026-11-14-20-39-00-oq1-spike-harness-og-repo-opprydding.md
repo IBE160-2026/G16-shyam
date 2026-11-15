@@ -92,3 +92,69 @@ brukerens nøkkel. Alt under `.docs/planning-artifacts/spikes/` er utracket/ukom
 - Følg med på om `spike`-armen gir gjentatte `schema_validation_failed` mens `default`-armen
   ikke gjør det: da er Anthropics advarsel mot avslått thinking (lekkasje av interne tagger)
   funnet, ikke latens, og appen bør kjøre lav effort med thinking på i stedet.
+
+## 2026-11-15 kl. 15:58 — Shyam Chandra K C
+
+### Oppgave
+Sjekke om OQ-1-harnesset faktisk er klart til å kjøre, og kjøre målingen mot bestå-grensen
+(p50 ≤ 2,5 s / p95 ≤ 6 s) hvis en Anthropic-nøkkel med kreditt er trygt tilgjengelig. Brukeren
+stilte samtidig et prinsipielt spørsmål: hvorfor må han som student kjøpe kreditt for å gjøre
+PRD-en ferdig og komme videre til UX-design?
+
+### Plan
+- Verifiser harnessets kjøreklarhet: Node, installerte avhengigheter, SDK-flatene det bruker, og
+  `--dry-run` (gratis, ingen API-kall).
+- Verifiser mot *levende* dokumentasjon de påstandene harnesset selv ikke kan sjekke: modell-ID,
+  pris og at kallformen er lovlig.
+- Let etter legitim legitimasjon (env-variabler, `ant`-profil, `.env`).
+- Besvar kjøp-spørsmålet med faktisk kostnad og med hva OQ-1 faktisk blokkerer i PRD-en.
+
+### Resultat
+**Harnesset er klart.** Node v26.7.0, `@anthropic-ai/sdk` 1.8.0 og `zod` 4.6.7 installert;
+`zodOutputFormat` og `client.messages.parse` finnes begge; `--dry-run --arm=both` produserer
+nøyaktig kallformen §12 fastsetter.
+
+**Fire påstander verifisert mot platform.claude.com 2026-11-15** (alle holdt):
+
+- `claude-haiku-5-5` er en reell modell, sluppet 2026-10-07, og fortsatt den nyeste Haiku-en —
+  ikke forbigått av 5.5/5.2-bølgen (Opus 5.5, Sonnet 5.5, Fable 5.2 finnes nå).
+- Pris $0,10 inn / $0,50 ut per MTok for prompts opp til 100 000 tokens — eksakt match med
+  skriptets konstanter ($0,50/$2,50 over 100k, irrelevant ved ~200 tokens).
+- `thinking: {"type": "disabled"}` **aksepteres på Haiku 5.5 ved effort `high` eller lavere**,
+  400 ved `xhigh`/`max`. Spike-armens effort `low` er dermed lovlig — dette var den største
+  usikkerheten, siden Claude Sonnet 5.5 avviser `disabled` og krever `between_tools` i stedet.
+- Haiku 5.5s standard-effort er `medium`, og tokenizeren teller ~30 % mer enn Haiku 4.5. Begge
+  bekrefter PRD-ens og addendum §5s ordlyd.
+
+**Ny forbehold som harnesset er eldre enn:** med thinking av kan Haiku 5.5 hoppe over et
+verktøykall den trenger når man samtidig ber om JSON-output. Spiken erklærer ingen verktøy, så
+den biter ikke her, men den bør med før appen baserer seg på thinking-av i produksjon.
+
+**Målingen ble ikke kjørt — ingen legitimasjon finnes.** `ANTHROPIC_API_KEY` og
+`ANTHROPIC_AUTH_TOKEN` er usatt, `ant` er ikke installert, det finnes ingen `~/.anthropic`- eller
+`~/.config/anthropic`-profil, og ingen `.env`. Skriptet ville gått ut med kode 2. Claude Codes
+egen legitimasjon ble bevisst *ikke* brukt: et Claude-abonnement er ikke API-kreditt, og å
+omdirigere den innloggingen til direkte Messages API-kall er ingen støttet vei.
+
+**Svaret på kjøp-spørsmålet.** Kostnaden er ikke hindringen: ved ~200 tokens inn og ~50 ut koster
+spike-armen ~$0,000045 per kall, og hele `--arm=both`-kjøringen ~$0,005 — rundt 5 øre.
+Prissiden sier dessuten rett ut at «New users receive free credits to test the API»; beløpet er
+upublisert, som er nøyaktig OQ-3, og kan sjekkes gratis i konsollen. Viktigere: OQ-1 blokkerer
+*ikke* UX-design. Det tallet avgjør NFR-2s timeout (6 s vs. 10 s — og NFR-2 sier selv at den
+«governs only how long a pending Suggestion stays pending»), leverandørvalget bak ett grensesnitt,
+og PRD-ens `draft`-status. FR-8s ventetilstand er allerede fullt spesifisert uten tallet (100 ms,
+pending-indikator, fortsatt redigerbar), NFR-3 unntar indikatoren eksplisitt, og OQ-4 er av §12
+rutet til arkitektur, ikke til UX. Appen leveres og vurderes nøkkelfritt (§8, UJ-3). Det eneste
+som faktisk krever en fungerende nøkkel er NFR-9s README-skjermbilde — ett kall, ikke en
+benchmark — og det står allerede i `issues.md`.
+
+Ingen filer endret i denne økten; kun lesing og dokumentasjonsoppslag.
+
+### Åpne punkter
+- OQ-3: sjekk gratis-kreditt-beløpet i `platform.claude.com/settings/billing`. Bekreftet at
+  gratis kreditt *finnes* for nye kontoer, men beløpet er upublisert og må leses i konsollen.
+- Harnessets README/skript kan oppdateres med at pris, modell-ID og `thinking: disabled`-støtte
+  er re-verifisert 2026-11-15, og med det nye JSON-output-forbeholdet. Ikke gjort — avventer at
+  brukeren velger OQ-1-vei først.
+- Beslutningen om å starte UX-design før OQ-1 er målt står åpen hos brukeren; underlaget er at
+  OQ-1 bare binder en timeout-konstant, ikke designet.

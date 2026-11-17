@@ -209,3 +209,54 @@ ikke mellom panelet på `d3` og tabellen på `d2`/`d4`).
 - `d5`: du flagget at den «kan også vurderes fra nr. 1 Due date». Begge konseptene bygger den fra
   Kartet; Date Due-varianten er fortsatt ikke tegnet.
 - De tre `[OPEN]`-punktene i `PRODUCT.md` står uendret.
+
+## 2026-11-17 kl. 23:13 — Shyam Chandra K C
+
+### Oppgave
+Brukeren landet på **konsept 06 «Kurs»** og ba om at konseptmappene beholdes som historisk
+grunnlag.
+
+### Plan
+- Registrer valget der `impeccable` krever det: retningskontrakt og telemetri-ping.
+- Bevar `.working/concepts/` i sin helhet, og forfremme det valgte konseptet til en stabil plass.
+- Lukk UX-fasens faktiske leveranse: `DESIGN.md` og `EXPERIENCE.md`.
+
+### Resultat
+
+**Valget er låst.** Retningskontrakten er skrevet til `.impeccable/surfaces/product-md.md` med alle
+seks blokker (THESIS, OWN-WORLD, STORY, FIRST VIEWPORT, FORM, FINISH) og
+`seed: 936505b7939c1812`, verifisert ved å lese brief-en tilbake. Telemetri-pinget er sendt
+(`--kind challenger --chosen notation-diagram-systems-orienteering-map`) og svarte
+`choice recorded` — det åpne punktet fra runde 1 er dermed lukket.
+
+**Historikken er bevart.** `.working/concepts/` står urørt med alle sju konsepter fra begge runder,
+og har fått en `README.md` som dokumenterer hva hver runde var, dommene, hva som ble vurdert og
+ikke videreført, og hvordan hvert konsept regenereres. Det valgte konseptet er kopiert til
+`mockups/kurs/` (17 SVG + side + CONCEPT + palett) som den levende referansen.
+
+**Spine-filene er lukket, skrevet fra den bygde verdenen:**
+- `DESIGN.md` — frontmatter med 16 fargetokens, to skriftsnitt, avstander, radius og
+  komponentliste, pluss Brand & Style, Colors (med målte kontrastpar), Typography, Layout &
+  Spacing, Elevation & Depth (ingen — dybde er overlapp, ikke skygge), Shapes (radius null med to
+  funksjonelle unntak), Components og Do's and Don'ts.
+- `EXPERIENCE.md` — Foundation, informasjonsarkitektur over alle 17 flater, Voice and Tone,
+  Component Patterns, State Patterns, Interaction Primitives med en eksplisitt
+  «acceptance-rate guard», Accessibility Floor, Responsive & Platform, en egen seksjon
+  **Engine Disclosure and Failure**, de fire brukerreisene med klimaks-beat, og de åpne
+  beslutningene.
+
+**Ikke gjort, med vilje.** `impeccable`s byggefase — `build-phase`, finish-review, den leverte
+dokumentaristen og `.impeccable/design.json` — hører til når kode faktisk bygges. Her finnes ingen
+app-kode ennå, så `DESIGN.md` er skrevet i hovedtråden som UX-fasens leveranse, ikke som en
+build-dokumentasjon. Det bør kjøres når implementasjonen starter.
+
+Alt under `ux-designs/`, `PRODUCT.md` og `.impeccable/` er **ukommittert**.
+
+### Åpne punkter
+- `d5` kan også bygges fra nr. 1 «Due date» — brukeren flagget det, varianten er ikke tegnet.
+- De tre `[OPEN]`-punktene i `PRODUCT.md` står fortsatt: UI-språk, tilgjengelighetsstandard, og om
+  prioritet/motor-proveniens får bæres av farge alene. `EXPERIENCE.md` tar en arbeidsposisjon på
+  alle tre og sier det på skjermen framfor å skjule det, men ingen av dem er bekreftet.
+- Når implementasjonen starter: kjør `impeccable` sin byggefase og den leverte dokumentaristen, og
+  produser `.impeccable/design.json` — DESIGN.md alene er ikke den fullstendige leveransen for en
+  bygget verden.

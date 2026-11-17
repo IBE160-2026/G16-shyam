@@ -111,3 +111,69 @@ fra dem.
   Begrunnelsen står i [oq1-spike-harness](995-2026-11-14-20-39-00-oq1-spike-harness-og-repo-opprydding.md):
   OQ-1 binder bare NFR-2s timeout, leverandørvalget og PRD-statusen — ikke flatene. OQ-1-målingen
   og OQ-4 gjenstår fortsatt.
+
+## 2026-11-17 kl. 22:45 — Shyam Chandra K C
+
+### Oppgave
+Brukeren pekte på `.docs/planning-artifacts/ux-designs/decisions.md` og ba om **to nye
+designkonsepter, runde 2, bygget på beslutningene der**. Fila var tom ved første lesing (0 byte),
+og en `mydecisions.md` ved siden av var en tom *mappe*, ikke en fil — begge ble meldt tilbake
+framfor å finne på beslutninger. Brukeren fylte deretter `decisions.md`, og runde 2 ble kjørt på
+det reelle innholdet.
+
+### Plan
+- Les beslutningene nøyaktig og skill mellom *hoveddesign* (verden) og *per-flate-valg* (struktur).
+- Siden verdenen nå er brukerpinnet, hopp over en ny `concept-seed`-rull: en pinnet retning slår
+  rullen i `impeccable`. Finn i stedet den variabelen beslutningene **ikke** avgjorde, og la de to
+  konseptene skille seg på den.
+- Bygg ett delt verdensmodul fra Kartets faktiske `palette.json`, så ingen farge eller skrift
+  driver fra det brukeren valgte.
+- Tegn, render, se på resultatet, rett, og sett sammen et eget runde-2-galleri.
+
+### Resultat
+
+**Beslutningene, slik de ble lest.** Hoveddesign: **nr. 3 Kartet** for farger, tekst og størrelse.
+Per-flate-struktur: `m1`, `m5`, `m8` fra 01 Date Due; `m2`, `m6`, `m7` fra 05 Tett; `m3`, `m4` fra
+03 Kartet; `m9` som en blanding av 01 og 05. Desktop: `d1`, `d2`, `d7`, `d8` fra Tett; `d3`, `d5`,
+`d6` fra Kartet.
+
+**Den variabelen beslutningene ikke avgjorde** — og som derfor ble aksen mellom de to konseptene —
+er *hvordan de lånte flatene forenes med Kartets punch-mekanikk*. Den endrer hver eneste
+gjennomgangsflate, så det er et reelt valg og ikke en detalj:
+
+- **06 «Kurs»** — kurslaget forblir et eget objekt lagt *over* journalen. De lånte flatene beholder
+  skjelettet, men mister sitt eget tilstandsvokabular: Date Dues daterte stempel og Tetts røde
+  fane blir punchede kontroller. Én mekanikk eier hver flate.
+- **07 «Beskrivelse»** — kontrollbeskrivelses-arket er ryggraden; raden leses på tvers, slik at
+  «hva feltet er nå» og «hva som foreslås» står på samme linje med en pil mellom. Tetts tetthet er
+  innfødt her framfor importert, og Date Dues daterte merker overlever *bokstavelig*, som daterte
+  oppføringer i en beskrivelseskolonne.
+
+**Ingen ny rull.** `impeccable` sier at en bruker- eller brief-pinnet retning alltid slår rullen,
+så `concept-seed` ble bevisst ikke kjørt på nytt. Verdenen er låst; `seed:936505b7939c1812` fra
+runde 1 står fortsatt som rullen bak Kartet.
+
+**Filer** under `.working/concepts/round-2/`: `world.py` (Kartets palett og skrifter, hentet fra
+`03-kartet/palette.json`, ikke gjenskapt), `06-kurs/` og `07-beskrivelse/` med hver sin `gen.py`,
+17 SVG-rammer, `CONCEPT.md`, `palette.json` og `concept.html`, pluss `build-gallery.py` og
+galleriet `index.html`. Galleriet viser flate-opphavet rad for rad, så det er etterprøvbart mot
+`decisions.md`.
+
+**Verifisert ved å se, ikke anta.** Begge konseptene ble rendret til kontaktark med headless
+Chrome og gjennomgått. Funnet og rettet: i 06 fløt kontrollbildetekster inn i neste blokk,
+`m1`-legenden ble kuttet av fanelinja, `d1`-radene overlappet på 26 px avstand, og `d2`s
+snarveisrad kolliderte med modulen under. I 07 løp oppgaveteksten inn i tagg-kolonnen, og
+ark-verdiene under handlingskolonnen på 360 px — løst strukturelt ved å la raden ta to linjer og
+beholde kolonnene, som nå er konseptets uttalte responsive svar.
+
+Alt er **ukommittert**.
+
+### Åpne punkter
+- **`d4` (desktop, gjennomgang med angre) står ikke i beslutningslista.** Desktop-lista nevner
+  `d1`, `d2`, `d7`, `d8` fra Tett og `d3`, `d5`, `d6` fra Kartet. Hvert konsept følger sin egen
+  gjennomgangsgrammatikk der framfor å gjette; velg hvilken du vil ha.
+- **`d5` har et alternativ du selv flagget:** «kan også vurderes fra nr. 1 Due date». Begge
+  konseptene bygger `d5` fra Kartet, som er førstevalget ditt. Date Due-varianten er ikke tegnet.
+- Velg mellom 06 Kurs og 07 Beskrivelse — eller si at du vil ha det ene konseptets gjennomgang og
+  det andres lister; de deler ett verdensmodul, så en blanding er noen få funksjoner, ikke en
+  omtegning.

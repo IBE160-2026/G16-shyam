@@ -260,3 +260,46 @@ Alt under `ux-designs/`, `PRODUCT.md` og `.impeccable/` er **ukommittert**.
 - Når implementasjonen starter: kjør `impeccable` sin byggefase og den leverte dokumentaristen, og
   produser `.impeccable/design.json` — DESIGN.md alene er ikke den fullstendige leveransen for en
   bygget verden.
+
+## 2026-11-17 kl. 23:22 — Shyam Chandra K C
+
+### Oppgave
+«Commit alt.» Hele UX-fasen lå ukommittert etter fire økter — to konseptrunder, `PRODUCT.md`,
+retningskontrakten og de to spine-filene.
+
+### Plan
+- Sjekk for hemmeligheter før noe stages, framfor å stole på at `.gitignore` dekker dem.
+- Avgjør hva «alt» faktisk bør betyr for gjenskapbar render-output.
+- Én commit for hele fasen, med en melding som dokumenterer begge runder og låsen.
+
+### Resultat
+
+**Commit `8024bcd` — «UX-fase: sju designkonsepter, konsept 06 «Kurs» låst» — 179 filer,
+12 776 linjer, 6,8 MB.** Arbeidstreet er rent etterpå.
+
+**Sikkerhetskontroller kjørt før staging**, fordi PRD §8 og FR-17 krever at ingen nøkkel havner i
+repoet:
+- `git check-ignore -v ".docs/planning-artifacts/spikes/oq1-model-engine-latency/.env"` →
+  `.gitignore:42:.env`. Fila er trygt ignorert; den kunne inneholdt en API-nøkkel.
+- `.impeccable/mocks|questions|review` ignorerer seg selv via egne `.gitignore`-filer. Bare
+  retningskontrakten `.impeccable/surfaces/product-md.md` gikk med, som er det riktige.
+- `node_modules/` dekket av rot-regelen.
+
+**Ett bevisst avvik fra «alt»:** `.verify/` holdt utenfor og lagt i `.gitignore` med en forklarende
+kommentar. Det er 7,7 MB rendrede kontaktark som ble lagd for å kontrollere rammene visuelt, og de
+regenereres med `verify.py` på sekunder. Uten avviket ville commiten vært 14,5 MB. Meldt til
+brukeren som en dom tatt på deres vegne, med tilbud om å reversere.
+
+Hoveddelen av de 6,8 MB er de 119 SVG-rammene pluss `concept.html`-sidene som inlinerer dem —
+teknisk redundant, men det lar en sensor åpne arbeidet direkte i nettleser uten å kjøre noe,
+og prosessen vektes 30 % i rubrikken.
+
+**UX-fasen er dermed lukket.** `DESIGN.md` og `EXPERIENCE.md` står `status: final` /
+`stage: locked`. Neste påkrevde BMad-port er `bmad-architecture`, som eier OQ-4 (hvor nøkkelen bor)
+og OQ-8 (lagrings-API). Ingenting er pushet.
+
+### Åpne punkter
+Ingen nye. De fem som gjensto fra forrige økt står uendret i
+[issues.md](issues.md): `d5`-varianten fra Date Due, de tre `[OPEN]`-punktene i `PRODUCT.md`,
+start-trekanten i `03-kartet`s `d5`/`m6`, `impeccable`s byggefase ved implementasjon, og
+OQ-1-målingen.

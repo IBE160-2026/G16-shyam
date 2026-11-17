@@ -1,0 +1,17 @@
+{
+  "name": "Tett",
+  "fonts": ["Archivo", "Encode Sans Semi Condensed"],
+  "colors": {
+    "ground": "#ffffff",
+    "ink": "#15171a",
+    "ink-secondary": "#5f646b",
+    "ink-tertiary": "#b9bec6",
+    "module-fill": "#f2f4f6",
+    "module-border": "#d2d6db",
+    "rule": "#e4e7ea",
+    "utility-red": "#cc1122",
+    "red-wash": "#fbecee",
+    "settled-blue": "#1a5fa8",
+    "blue-wash": "#eaf1f8"
+  }
+}

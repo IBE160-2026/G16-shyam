@@ -1,0 +1,9 @@
+{
+  "name": "Centre Rail",
+  "fonts": ["Spectral", "Archivo"],
+  "colors": {
+    "bone (ground)": "#F2EDE3",
+    "iron (ink, every rule)": "#17171A",
+    "vermilion (rubric)": "#A6261C"
+  }
+}

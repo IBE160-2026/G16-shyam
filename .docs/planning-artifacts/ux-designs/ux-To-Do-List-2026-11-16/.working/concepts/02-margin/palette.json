@@ -1,0 +1,17 @@
+{
+  "name": "Margin",
+  "fonts": ["Spectral", "Archivo"],
+  "colors": {
+    "stock (page ground)": "#F4F0E6",
+    "leaf (inputs, insets)": "#FBF8F1",
+    "shell (rail, tab bar)": "#EFEADC",
+    "iron (the user's own words)": "#1A1917",
+    "graphite (apparatus, struck marks)": "#5C564B",
+    "rule (hairlines)": "#C4BCA7",
+    "edge (input borders)": "#B9AF97",
+    "vermilion (proposed, awaiting you)": "#B3261E",
+    "blue pencil (accepted and set, selection)": "#2B4C8C",
+    "vermilion wash": "#F7EBE7",
+    "blue wash": "#E7EAF2"
+  }
+}

@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+<rect x="0" y="0" width="1280" height="800" fill="#F2EDE3"/>
+<line x1="168.5" y1="0" x2="168.5" y2="800" stroke="#17171A" stroke-width="1"/>
+<line x1="948.5" y1="24" x2="948.5" y2="776" stroke="#17171A" stroke-width="1"/>
+<text x="24" y="36" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" fill="#17171A" text-anchor="start" letter-spacing="1.98" style="" xml:space="preserve">TO-DO-LIST</text>
+<line x1="24" y1="48.5" x2="144" y2="48.5" stroke="#17171A" stroke-width="1"/>
+<text x="24" y="78" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">TODAY</text>
+<text x="144" y="78" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" fill="#17171A" text-anchor="end" letter-spacing="0.44" style="font-variant-numeric: tabular-nums;" xml:space="preserve">10</text>
+<text x="24" y="104" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">DUE THIS WEEK</text>
+<text x="144" y="104" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" fill="#17171A" text-anchor="end" letter-spacing="0.44" style="font-variant-numeric: tabular-nums;" xml:space="preserve">3</text>
+<text x="24" y="130" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">NEED ATTENTION</text>
+<text x="144" y="130" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" fill="#17171A" text-anchor="end" letter-spacing="0.44" style="font-variant-numeric: tabular-nums;" xml:space="preserve">2</text>
+<text x="24" y="156" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">HIGH PRIORITY</text>
+<text x="144" y="156" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" fill="#17171A" text-anchor="end" letter-spacing="0.44" style="font-variant-numeric: tabular-nums;" xml:space="preserve">5</text>
+<line x1="24" y1="174.5" x2="144" y2="174.5" stroke="#17171A" stroke-width="1"/>
+<text x="24" y="196" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.26" style="" xml:space="preserve">TAGS IN USE</text>
+<text x="24" y="218" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">SCHOOL</text>
+<text x="144" y="218" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" fill="#17171A" text-anchor="end" letter-spacing="0.44" style="font-variant-numeric: tabular-nums;" xml:space="preserve">3</text>
+<text x="24" y="244" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">GROUP</text>
+<text x="144" y="244" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" fill="#17171A" text-anchor="end" letter-spacing="0.44" style="font-variant-numeric: tabular-nums;" xml:space="preserve">1</text>
+<text x="24" y="270" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">WORK</text>
+<text x="144" y="270" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" fill="#17171A" text-anchor="end" letter-spacing="0.44" style="font-variant-numeric: tabular-nums;" xml:space="preserve">1</text>
+<text x="24" y="296" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">PERSONAL</text>
+<text x="144" y="296" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" fill="#17171A" text-anchor="end" letter-spacing="0.44" style="font-variant-numeric: tabular-nums;" xml:space="preserve">4</text>
+<line x1="24" y1="314.5" x2="144" y2="314.5" stroke="#17171A" stroke-width="1"/>
+<text x="24" y="344" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">ARCHIVE</text>
+<text x="144" y="344" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="500" fill="#17171A" text-anchor="end" letter-spacing="0.44" style="font-variant-numeric: tabular-nums;" xml:space="preserve">7</text>
+<rect x="12" y="362" width="6" height="6" fill="#A6261C"/>
+<text x="24" y="370" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#A6261C" text-anchor="start" letter-spacing="1.10" style="" xml:space="preserve">SETTINGS</text>
+<line x1="24" y1="712.5" x2="144" y2="712.5" stroke="#17171A" stroke-width="1"/>
+<rect x="24.5" y="726.5" width="10" height="10" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<line x1="28.5" y1="727" x2="28.5" y2="736" stroke="#17171A" stroke-width="1"/>
+<line x1="32.5" y1="727" x2="32.5" y2="736" stroke="#17171A" stroke-width="1"/>
+<text x="41" y="736" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">RULE ENGINE</text>
+<text x="24" y="756" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">ON DEVICE</text>
+<text x="224" y="36" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" fill="#A6261C" text-anchor="start" letter-spacing="1.76" style="" xml:space="preserve">SETTINGS</text>
+<text x="924" y="36" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#17171A" text-anchor="end" letter-spacing="1.10" style="" xml:space="preserve">MON 16 NOV 2026</text>
+<line x1="224" y1="48.5" x2="924" y2="48.5" stroke="#17171A" stroke-width="1"/>
+<text x="224" y="79" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" fill="#A6261C" text-anchor="start" letter-spacing="1.54" style="" xml:space="preserve">ENGINE STATUS</text>
+<line x1="224" y1="88.5" x2="924" y2="88.5" stroke="#17171A" stroke-width="1"/>
+<text x="224" y="126" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="19" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">Rule Engine</text>
+<text x="604" y="120" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.00" style="" xml:space="preserve">SERVING EVERY SUGGESTION ON THIS DEVICE</text>
+<text x="604" y="140" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">NO NETWORK, NO ACCOUNT, NO KEY NEEDED</text>
+<line x1="224" y1="156.5" x2="924" y2="156.5" stroke="#17171A" stroke-width="1"/>
+<text x="224" y="194" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="19" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">Model Engine</text>
+<text x="604" y="188" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="1.00" style="" xml:space="preserve">AVAILABLE, NOT IN USE</text>
+<text x="604" y="208" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">A KEY IS STORED · CLOUD SUGGESTIONS IS OFF</text>
+<line x1="224" y1="224.5" x2="924" y2="224.5" stroke="#17171A" stroke-width="1"/>
+<text x="224" y="264" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" fill="#A6261C" text-anchor="start" letter-spacing="1.54" style="" xml:space="preserve">API KEY</text>
+<line x1="224" y1="272.5" x2="544" y2="272.5" stroke="#17171A" stroke-width="1"/>
+<rect x="224.5" y="288.5" width="319" height="37" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<text x="236" y="313" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="500" fill="#17171A" text-anchor="start" letter-spacing="0.52" style="font-variant-numeric: tabular-nums;" xml:space="preserve">SK-ANT-</text>
+<rect x="290.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="299.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="308.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="317.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="326.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="335.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="344.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="353.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="362.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="371.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="380.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="389.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="398.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="407.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="416.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="425.5" y="302.5" width="5" height="5" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<text x="442" y="313" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="500" fill="#17171A" text-anchor="start" letter-spacing="0.52" style="font-variant-numeric: tabular-nums;" xml:space="preserve">7Q4F</text>
+<text x="505.03" y="313" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">STORED</text>
+<rect x="224.5" y="342.5" width="95" height="31" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<text x="272" y="361.6" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" fill="#17171A" text-anchor="middle" letter-spacing="1.20" style="" xml:space="preserve">REPLACE</text>
+<rect x="328.5" y="342.5" width="95" height="31" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<text x="376" y="361.6" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" fill="#17171A" text-anchor="middle" letter-spacing="1.20" style="" xml:space="preserve">REMOVE</text>
+<text x="224" y="400" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">STORED IN THIS BROWSER ONLY. NEVER COMMITTED TO THE</text>
+<text x="224" y="415" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">REPOSITORY, AND NEVER SENT ANYWHERE UNTIL CLOUD</text>
+<text x="224" y="430" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">SUGGESTIONS IS ON.</text>
+<text x="604" y="264" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" fill="#A6261C" text-anchor="start" letter-spacing="1.54" style="" xml:space="preserve">CLOUD SUGGESTIONS</text>
+<line x1="604" y1="272.5" x2="924" y2="272.5" stroke="#17171A" stroke-width="1"/>
+<rect x="604.5" y="290.5" width="14" height="14" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<text x="630" y="304" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="19" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">Off</text>
+<text x="924" y="304" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="end" letter-spacing="0.72" style="" xml:space="preserve">SAVING A KEY NEVER TURNS THIS ON</text>
+<text x="604" y="342" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="14" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">Turning this on sends your task text to the Anthropic</text>
+<text x="604" y="363" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="14" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">API. The key is your own and the call is made from this</text>
+<text x="604" y="384" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="14" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">browser. The Rule Engine stays the fallback and takes</text>
+<text x="604" y="405" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="14" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">over silently whenever a cloud call fails.</text>
+<text x="604" y="462" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">OFF ON FIRST RUN EVEN WHEN A KEY IS ALREADY STORED</text>
+<text x="604" y="480" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">NOTHING LEAVES THIS DEVICE WHILE IT READS OFF</text>
+<text x="972" y="100" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" fill="#A6261C" text-anchor="start" letter-spacing="1.54" style="" xml:space="preserve">WHAT LEAVES THIS DEVICE</text>
+<line x1="972" y1="108.5" x2="1240" y2="108.5" stroke="#17171A" stroke-width="1"/>
+<text x="972" y="132" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="13" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">Nothing, as this page stands. The key sits in this</text>
+<text x="972" y="152" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="13" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">browser and the Rule Engine never needed a</text>
+<text x="972" y="172" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="13" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">network.</text>
+<text x="972" y="234" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" fill="#A6261C" text-anchor="start" letter-spacing="1.54" style="" xml:space="preserve">THE ONLY PLACE</text>
+<line x1="972" y1="242.5" x2="1240" y2="242.5" stroke="#17171A" stroke-width="1"/>
+<text x="972" y="266" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="13" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">No popup, banner, toast or badge reports an</text>
+<text x="972" y="286" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="13" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">engine problem anywhere else. Capture and</text>
+<text x="972" y="306" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="13" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">review stay silent.</text>
+<text x="972" y="368" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="700" fill="#A6261C" text-anchor="start" letter-spacing="1.54" style="" xml:space="preserve">ON THE RAIL</text>
+<line x1="972" y1="376.5" x2="1240" y2="376.5" stroke="#17171A" stroke-width="1"/>
+<text x="972" y="400" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="13" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">R is filled: the Rule Engine is serving. M is at rest:</text>
+<text x="972" y="420" font-family="Spectral, Georgia, 'Times New Roman', serif" font-size="13" font-weight="400" fill="#17171A" text-anchor="start" style="" xml:space="preserve">available, and not in use.</text>
+<line x1="972" y1="690.5" x2="1240" y2="690.5" stroke="#17171A" stroke-width="1"/>
+<rect x="972.5" y="702.5" width="10" height="10" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<line x1="976.5" y1="703" x2="976.5" y2="712" stroke="#17171A" stroke-width="1"/>
+<line x1="980.5" y1="703" x2="980.5" y2="712" stroke="#17171A" stroke-width="1"/>
+<text x="989" y="712" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">RULE ENGINE · ON DEVICE</text>
+<text x="972" y="732" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">SETTINGS IS VISITED RARELY, AND READS PLAINLY</text>
+<text x="972" y="750" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="600" fill="#17171A" text-anchor="start" letter-spacing="0.72" style="" xml:space="preserve">MON 16 NOV 2026</text>
+<line x1="574.5" y1="68" x2="574.5" y2="72" stroke="#17171A" stroke-width="1"/>
+<line x1="574.5" y1="80" x2="574.5" y2="90" stroke="#17171A" stroke-width="1"/>
+<line x1="574.5" y1="130" x2="574.5" y2="158" stroke="#17171A" stroke-width="1"/>
+<line x1="574.5" y1="198" x2="574.5" y2="248" stroke="#17171A" stroke-width="1"/>
+<line x1="574.5" y1="256" x2="574.5" y2="516" stroke="#17171A" stroke-width="1"/>
+<line x1="574.5" y1="524" x2="574.5" y2="690" stroke="#17171A" stroke-width="1"/>
+<line x1="574.5" y1="698" x2="574.5" y2="700" stroke="#17171A" stroke-width="1"/>
+<rect x="571.5" y="73.5" width="6" height="6" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="571.5" y="249.5" width="6" height="6" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="571.5" y="517.5" width="6" height="6" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="571.5" y="691.5" width="6" height="6" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<rect x="566" y="110" width="16" height="16" fill="#A6261C"/>
+<text x="574" y="103" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" fill="#17171A" text-anchor="middle" letter-spacing="1.00" style="" xml:space="preserve">R</text>
+<rect x="566.5" y="178.5" width="15" height="15" fill="#F2EDE3" stroke="#17171A" stroke-width="1"/>
+<text x="574" y="171" font-family="Archivo, 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" fill="#17171A" text-anchor="middle" letter-spacing="1.00" style="" xml:space="preserve">M</text>
+</svg>

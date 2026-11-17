@@ -1,0 +1,17 @@
+{
+  "name": "Date Due",
+  "fonts": ["Public Sans", "Oswald"],
+  "colors": {
+    "kraft (shell ground)": "#D7C6A2",
+    "card (records, inputs)": "#EFE6D2",
+    "card-2 (rail, apparatus)": "#E6DAC0",
+    "stamp ink": "#241C2E",
+    "ink secondary": "#4A4455",
+    "graphite (apparatus)": "#575046",
+    "vermilion (stamp marks)": "#A8271C",
+    "vermilion (small text)": "#8E1F16",
+    "set-blue (accepted)": "#2C4A6E",
+    "rule on kraft": "#B9A982",
+    "rule on card": "#CFC0A0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Kartet",
+  "fonts": ["Archivo", "Barlow Condensed"],
+  "colors": {
+    "paper-chrome": "#EDE4D3",
+    "runnable-ground": "#FCFBF8",
+    "field-white": "#FFFFFF",
+    "terrain-ink": "#1B1915",
+    "ink-secondary": "#5C5345",
+    "contour-hairline": "#CBB08E",
+    "contour-strong": "#9B6B3F",
+    "course-purple": "#8E2E7E",
+    "course-wash": "#F8EAF4",
+    "open-yellow": "#F2CB5A",
+    "open-yellow-pale": "#FAEDC4",
+    "thicket-olive": "#4E7033",
+    "thicket-pale": "#E4EBD8",
+    "marsh-blue": "#6BA3D6",
+    "marsh-ink": "#1F5878",
+    "marsh-pale": "#E2EEF7"
+  }
+}

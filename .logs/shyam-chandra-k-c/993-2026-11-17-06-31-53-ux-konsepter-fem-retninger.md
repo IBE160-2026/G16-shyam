@@ -177,3 +177,35 @@ Alt er **ukommittert**.
 - Velg mellom 06 Kurs og 07 Beskrivelse — eller si at du vil ha det ene konseptets gjennomgang og
   det andres lister; de deler ett verdensmodul, så en blanding er noen få funksjoner, ikke en
   omtegning.
+
+## 2026-11-17 kl. 23:20 — Shyam Chandra K C
+
+### Oppgave
+Brukeren avgjorde det ene åpne punktet fra runde 2: **`d4` skal bygges fra nr. 5 «Tett»**.
+
+### Plan
+- Avgjør hva valget faktisk betyr i hvert av de to konseptene framfor å endre begge likt.
+- Parametriser Tett-tabellen i 06 så `d2` og `d4` deler struktur og bare skiller seg på tilstand.
+- Oppdater flate-opphavet i galleriet og begge `CONCEPT.md` så dokumentasjonen stemmer med rammene.
+
+### Resultat
+Valget rammet bare det ene konseptet:
+
+- **06 Kurs** — `d4` lå på Kartets kurspanel (som `d3`). Tett-tabellen fra `d2` ble skilt ut som
+  `tett_review_d(states, …)` og parametrisert på tilstand, slik at `d2` og `d4` nå deler struktur.
+  `d4` viser Tags punchet med `Undo` i raden, Priority strøket med begrunnelsen stavet ut, og
+  Summary åpen med `Accept / Edit / Reject`. Modulen «In the record now» følger tilstanden, og
+  tellingen i båndet leser `1 punched · 1 struck · 1 open`.
+- **07 Beskrivelse** — ingen endring nødvendig. Konseptets ark *er* Tetts tabell satt i Kartets
+  blekk, så `d2` og `d4` var allerede samme struktur. Dette er nå sagt rett ut i `CONCEPT.md`
+  framfor å late som det var en endring.
+
+Rendret og kontrollert: ingen kollisjoner i `d4`. Galleriets opphavstabell viser nå `d4 → 05 Tett`,
+det åpne punktet om `d4` er fjernet derfra, og begge `CONCEPT.md` er rettet (06 skilte tidligere
+ikke mellom panelet på `d3` og tabellen på `d2`/`d4`).
+
+### Åpne punkter
+- Velg mellom 06 Kurs og 07 Beskrivelse.
+- `d5`: du flagget at den «kan også vurderes fra nr. 1 Due date». Begge konseptene bygger den fra
+  Kartet; Date Due-varianten er fortsatt ikke tegnet.
+- De tre `[OPEN]`-punktene i `PRODUCT.md` står uendret.

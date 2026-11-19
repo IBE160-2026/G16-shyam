@@ -2,7 +2,7 @@
 title: To-Do-List
 status: draft
 created: 2026-10-31
-updated: 2026-11-15
+updated: 2026-11-18
 ---
 # PRD: To-Do-List
 
@@ -16,8 +16,9 @@ the downstream BMad workflows that consume it. It builds on, and does not repeat
 `.docs/planning-artifacts/`. Mechanism, pricing and rejected alternatives sit in `addendum.md`, and §13
 indexes every decision with the rationale not repeated inline.
 
-Two items remain open: **OQ-1** (Model Engine latency, which also confirms the provider) and **OQ-4**
-(what `.env.example` means with no backend). The status stays `draft` until OQ-1 is measured.
+One item remains open: **OQ-1** (Model Engine latency, which also confirms the provider). **OQ-4**
+(the API Key and `.env.example` with no backend) and **OQ-8** (the storage mechanism) were resolved in
+architecture on 2026-11-18 and are recorded in §12. The status stays `draft` until OQ-1 is measured.
 
 ## 1. Vision
 
@@ -82,8 +83,10 @@ Anyone whose core need is a shared list, a reminder, or their data on a second d
 ## 3. Glossary
 
 - **Task** — the core entity. Fields: task text, due date, Project, notes, Tags, Priority, Summary,
-  completed state, archived state (all but task text optional). Zero or more Tags, one Priority, at most
-  one Summary.
+  completion date (all but task text optional). Zero or more Tags, one Priority, at most one Summary.
+  **Completed state and archived state are derived from the completion date, not stored** — the
+  architecture decision of 2026-11-18, recorded as §13 item 17, which is what makes FR-16's
+  re-evaluation on a changed retention window free.
 - **task text** — the user's own typed sentence. Never rewritten by the app (FR-23).
 - **Tag** — a short label categorizing a Task; a Task may have several. The Rule Engine proposes only the
   four Tags fixed in FR-7; the user may add any Tag by hand (FR-3).
@@ -646,8 +649,8 @@ numeric comparison is unverified and from another domain; targets are set locall
 - One responsive web application, installable as a PWA, covering phone, tablet, desktop and browser — no
   separate codebase per surface. Offline-capable: FR-1 – FR-5, FR-7, FR-10, FR-12 – FR-16, FR-22 and
   FR-23 all work with no network.
-- Storage is browser-local — decided. Which API (`localStorage` or IndexedDB) is chosen in
-  `bmad-architecture`, weighing size limits against the cost of querying Smart Lists (OQ-8).
+- Storage is browser-local — decided. The API is **`localStorage`**, behind a synchronous port, chosen in
+  `bmad-architecture` on 2026-11-18 (OQ-8 resolved; see §12).
 - The Model Engine calls the Anthropic API directly from the browser, which the API permits only under an
   explicit opt-in header — and, for some organizations, not even then: an account under zero data
   retention or the Compliance API is refused browser calls outright, which FR-9 carries as a persistent
@@ -741,10 +744,18 @@ not the lever; depth on what is specified is.
 3. **OQ-3 — Free credit and rate limits.** Research's figures are low-confidence aggregator values on no
    official page. **Action:** confirm in the Anthropic console before writing API Key setup instructions
    into the README.
-4. **OQ-4 — Where does the API Key live, and what does `.env.example` mean here?** With no backend the key
-   is entered at runtime and stored on device, so there may be no build-time variable to exemplify.
-   Resolve in architecture: either that file documents a dev-only path, or the README documents the
-   runtime Settings flow instead.
+4. **OQ-4 — Where does the API Key live, and what does `.env.example` mean here? RESOLVED 2026-11-18 —
+   `bmad-architecture`.** There are two keys in two runtimes, and only one of them is the app's.
+
+   - **The app's key** is runtime-only: entered in Settings (FR-17), held in browser storage on the
+     device, never read from a build-time variable, never present in the bundle.
+   - **The harness's key** (FR-21) belongs to Node, outside the browser, and arrives as an environment
+     variable. `.env.example` therefore documents `ANTHROPIC_API_KEY` **for the harness only**, saying in
+     as many words that the app never reads it.
+
+   So §8's *"ships an example environment file and a `.gitignore` excluding real ones"* holds literally,
+   while no build-time secret exists anywhere. Setup instructions for both paths are the README's job
+   (NFR-7, NFR-9), not this document's.
 5. **OQ-5 — Due-date parsing. RESOLVED 2026-11-01 — see FR-23.**
 6. **OQ-6 — The SM-1 minimums are unknown until measured.** The first Fixture run sets the baseline and
    the written per-field minimum (SM-1). Until then "is the Rule Engine good enough?" is open — but the
@@ -752,12 +763,20 @@ not the lever; depth on what is specified is.
 7. **OQ-7 — Research red-team pass never ran.** The research recommends re-running itself at higher
    validation first. The verdict is committed anyway: the Rule Engine is independently sanctioned and the
    Model Engine is additive and reversible. Accepted risk.
-8. **OQ-8 — Storage mechanism.** See §9. Deferred to architecture.
+8. **OQ-8 — Storage mechanism. RESOLVED 2026-11-18 — `bmad-architecture`: `localStorage`, behind a
+   synchronous port.** §9 framed the trade-off as size limits against the cost of querying Smart Lists.
+   The second half turns out not to exist: FR-12 – FR-15 recompute from every non-archived Task on every
+   render and store no membership, so every Task is in memory whichever API is used, and IndexedDB's
+   indexed queries would be bought and never issued. On the size half, a Task is roughly 200–400 bytes of
+   JSON against `localStorage`'s ~5 MB per origin — more than 12 000 Tasks, well past this product's
+   horizon. Being synchronous, it also satisfies FR-8's 100 ms with no `await` between submit and the Task
+   appearing in the list. **Accepted cost:** the whole document is re-serialized on every mutation, on the
+   main thread.
 
 ## 13. Decisions and Assumptions Index
 
-Every judgment that was once an open inference, with its status. Items 12 and 13 are deferred *and still
-genuinely open* — the OQ-1 and OQ-4 named in §0; everything else is settled. This table, not the body, is
+Every judgment that was once an open inference, with its status. Item 12 alone is deferred *and still
+genuinely open* — the OQ-1 named in §0; everything else is settled. This table, not the body, is
 where each decision's rationale lives.
 
 | #  | Where              | Decision, and why it was taken                                                                                                                                                                                                                                          | Status                                                   |
@@ -772,9 +791,11 @@ where each decision's rationale lives.
 | 8  | NFR-2              | The timeout value comes from the OQ-1 measurement                                                                                                                                                                                                                       | **Confirmed 2026-11-01**                           |
 | 9  | §0, §8           | Deadline is the second week of December 2026; an older log said end of November, superseded                                                                                                                                                                             | **Confirmed 2026-11-01**                           |
 | 10 | FR-7, FR-23, §6   | **English task text only**                                                                                                                                                                                                                                        | **Confirmed 2026-11-01**                           |
-| 11 | §9, OQ-8          | Storage is browser-local; the API is chosen in architecture                                                                                                                                                                                                             | **Deferred to architecture**                       |
+| 11 | §9, OQ-8          | Storage is browser-local; the API is **`localStorage` behind a synchronous port**, because Smart Lists are recomputed in memory on every render and never queried from storage                                                                                                                                                                                                             | **Resolved 2026-11-18 — architecture**             |
 | 12 | §4.2, OQ-1        | Haiku 5.5 planned, OpenAI the fallback behind the same interface; the spike's pass bar (p50 ≤ 2.5 s, p95 ≤ 6 s) and call shape are fixed in OQ-1, so the measurement can fail rather than merely inform | **Open — OQ-1 spike**; bar set 2026-11-14 |
-| 13 | OQ-4               | Where the API Key lives, and `.env.example` with no backend                                                                                                                                                                                                           | **Open — architecture**                           |
+| 13 | OQ-4               | Where the API Key lives, and `.env.example` with no backend: **two keys in two runtimes** — the app's is runtime-only in Settings, the harness's is a Node environment variable, and `.env.example` documents only the latter                                                                                                                                                                                                           | **Resolved 2026-11-18 — architecture**             |
 | 14 | FR-7               | **The tag set, both keyword tables, the multi-tag rule, `high`-beats-`low`, and the no-match outcome** — the builder's own choices from §2.1's four contexts, rejecting the research sketch's five categories, four priority levels and `other` catch-all | **Confirmed 2026-11-13**                           |
 | 15 | §6.3              | The three-tier cut order within v1                                                                                                                                                                                                                                      | **Confirmed 2026-11-13**                           |
 | 16 | FR-9, FR-11        | The zero-data-retention / Compliance-API `401` is named as its own persistent failure mode and worded apart from a rejected key, because the key is valid and the user can do nothing about it. Verified against official documentation 2026-11-14 | **Confirmed 2026-11-14**                           |
+| 17 | §3, FR-5, FR-16    | **Completed and archived are derived, not stored.** The Task persists a completion date; `completed` and `archived` are computed from it. Taken in architecture because a stored flag is a second source of truth that can disagree with the date, and a time-triggered sweep would write to storage as time passes, defeating NFR-10. Consequence accepted: restoring an archived Task clears the completion date, so that date is lost | **Confirmed 2026-11-18 — architecture**            |
+| 18 | FR-6, FR-7, FR-19  | **The Model Engine proposes only FR-7's four Tags** (`school`, `group`, `work`, `personal`), the same set as the Rule Engine. §3 constrained only the Rule Engine and was silent here, leaving FR-19's expected Tags and FR-21's scoring undefined for a fifth Tag. The user may still add any Tag by hand (FR-3) | **Confirmed 2026-11-18 — architecture**            |

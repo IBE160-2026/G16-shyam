@@ -4,7 +4,7 @@ status: final
 stage: locked
 concept: "06 Kurs"
 created: 2026-11-16
-updated: 2026-11-17
+updated: 2026-11-18
 form_factor: responsive-web-pwa
 viewport_floor: 360
 viewport_reference: 1280
@@ -87,8 +87,9 @@ Plain, specific, never alarming. The app describes what is true and stops.
   **neither** — the key is valid and nothing you do to it will help, so the copy says the
   organization does not allow it and stops, rather than sending the user hunting for a fault that is
   not theirs.
-- Open questions are stated on screen, not hidden: Settings shows interface language as "English —
-  not yet decided".
+- Open questions are stated on screen, not hidden — and when one is answered, the screen stops
+  asking. Interface language was settled as **English** on 2026-11-18, so Settings no longer poses it
+  as a question; the two remaining open product facts below are still stated rather than hidden.
 
 ## Component Patterns
 
@@ -246,11 +247,14 @@ account, README open beside the window, desktop.
 
 ## Open Decisions
 
-Three product facts remain undecided and are **not** design's to settle alone. The frames take a
-working position on each and say so on screen rather than hiding it.
+Two product facts remain undecided and are **not** design's to settle alone; a third, interface
+language, was resolved on 2026-11-18 and is struck through below. The frames take a working position
+on each and say so on screen rather than hiding it.
 
-- **Interface language.** The PRD fixes task text as English only and calls the interface language a
-  separate, unanswered question. Frames render English; Settings shows the question.
+- ~~**Interface language.**~~ **RESOLVED 2026-11-18 — English.** The PRD fixes task text as English
+  only and called the interface language a separate question; the user answered it during the
+  architecture run. The frames already render English, so no frame changes; only the Settings
+  microcopy that posed it as open was stale, and it is corrected above.
 - **Accessibility conformance standard.** See the Accessibility Floor. Contrast is held; AA is not
   committed.
 - **Colour-only encoding.** Frames assume it is never acceptable and publish a legend proving it.

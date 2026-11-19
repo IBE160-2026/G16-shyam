@@ -21,7 +21,7 @@ arkitekturen bærer klare, testbare epics og stories. Ingen implementasjon.
 - Skrive spinen til sist, destillert fra memloggen.
 
 Spine: `.docs/planning-artifacts/architecture/architecture-To-Do-List-2026-11-18/ARCHITECTURE-SPINE.md`
-Memlogg (72 oppføringer, all begrunnelse): samme mappe, `.memlog.md`
+Memlogg (78 oppføringer, all begrunnelse): samme mappe, `.memlog.md`
 Gate-rapporter: samme mappe, `reviews/` (fem filer)
 
 ### Resultat
@@ -34,8 +34,8 @@ memloggen, etter at en linse påpekte at fila bare var nevnt én gang.
 
 **Arkitektur:** ports and adapters med ren kjerne. Driveren er at FR-20/FR-21 kjører regelmotoren,
 datoparseren og Smart List-selektorene som en **Node-kommando** mens samme logikk tjener nettleseren —
-kode som må kjøre i to runtimes kan ikke avhenge av noen av dem. 18 AD-er, `lint_spine.py` rein tre
-ganger, `status: final`.
+kode som må kjøre i to runtimes kan ikke avhenge av noen av dem. `status: final`; AD-tallet og
+lint-kjøringene står nederst, etter at gjennomgangen la til to AD-er.
 
 **Lukket i PRD:**
 - **OQ-8 → `localStorage`, synkron port.** §9s avveining «størrelsesgrense mot kostnaden ved å spørre
@@ -84,6 +84,36 @@ planned». Å ta `latest` ville kostet linting eller en dobbel verktøykjede tre
 **To egne feil korrigert:** jeg sa DESIGN.md har 36 fargetokens; den har **43 tokens, 16 av dem farger**.
 Og første Stack-tabell var en versjonsliste, ikke et byggbart avhengighetssett.
 
+**Arkitekturgjennomgangen fullført (etter brukerens instruks).** De fem linsene returnerte bare sine
+2–5 viktigste funn i sammendraget; filene inneholder **55** til sammen (adversarial 10, reconcile-prd
+15, reconcile-ux 19, rubric-walker 11). Toppfunnene var allerede lukket, halene ikke lest. Alle fem
+rapporter er nå lest i sin helhet og hvert gjenstående funn er vurdert og lukket. Det viktigste
+halen avdekket:
+
+- **`.gitignore` manglet.** PRD §8 navngir den som *mekanismen* for hemmelighetsgarantien AD-8
+  påstår — et bundet hardt krav som falt ut i destillasjonen. Nå i AD-8 og i skjelettet, sammen med
+  en CI-grep etter nøkkelmønster i bygget.
+- **AD-11 navnga aldri `anthropic-dangerous-direct-browser-access`.** Nettverks-AD-en utelot
+  mekanismen som i det hele tatt gjør et nettleserkall lovlig, mens AD-4 nøye listet feller
+  *nedstrøms* for et kall spinen aldri hadde slått fast kunne gjøres.
+- **CI fantes bare som en etikett inne i et mermaid-diagram** — «suiten kjører uten nøkkel og uten
+  nett» var ikke bindende noe sted. Nå AD-19, som også feiler bygget under SM-1-gulvet og låser
+  `npm ci` mot committet lockfil med eksakte versjoner (en caret-range ville flytt `typescript`
+  forbi AD-13 og stilltiende opphevet lintekjeden).
+- **AD-20:** «ingen feiltilstand, aldri» + ingen logging gjør en ukontrollert render-feil til en
+  hvit skjerm på sensors maskin. En error boundary per flate er gulvet under flyten, ikke en
+  feiltilstand i den.
+- AD-1 forbød `Math.random`/`crypto`/`process`/`navigator` — `Math.random` i regelmotoren ville brutt
+  NFR-5, som er hele poenget med ordningen. AD-1s *Prevents* tilhørte dessuten AD-12.
+- Angreknappen lå i vag «React state»; nå eksplisitt i reducer-state, slik at FR-10s fire testbare
+  punkter forblir enhetstestbare i stedet for bare Playwright-synlige.
+- Startrekanten betyr **to** ting i de to låste dokumentene (DESIGN: en kontroll står åpen;
+  EXPERIENCE: et kurs settes). Spinen avstemmer dem nå eksplisitt.
+
+Spinen har **20 AD-er**, `lint_spine.py` rein fire ganger. `tsx` verifisert til 4.23.15 før binding —
+jeg var i ferd med å skrive 4.21.1 fra hukommelsen, andre nestenbom i økten på nøyaktig det
+tech-currency-linsen finnes for.
+
 **README-prosa:** `README-ARCHITECTURE-SECTION.md` i samme mappe, gjennom konfigurert `doc_standards`
 (struktur- og prosalinse). Prosalinsens skarpeste funn: teksten brukte de interne UI-verbene «punched»
 og «struck» til en sensor som aldri har møtt dem, når dokumentet selv hadde innført accept/edit/reject
@@ -93,9 +123,7 @@ i åpningssetningen. Rettet også en bøyd ASCII-figur og en relativ lenke som v
 
 - PRD §6.3 legger «Punch all»-snarveiene i Tier 3 («kutt disse først»), men UJ-1s klimaks er nettopp
   «he taps Punch all» og EXPERIENCE.md bygger reisens topp på det. To godkjente dokumenter er uenige;
-  brukeren må velge — spurt, ikke besvart.
-- Gjenoppretting av en arkivert Task sletter fullføringsdatoen (konsekvens av AD-7). Spurt om det er
-  akseptabelt; ikke besvart.
+  brukeren må velge — spurt to ganger, fortsatt ubesvart.
 - WCAG 2.2 AA som forpliktet gulv, og om prioritet/motor-proveniens kan bæres av farge alene — de to
   gjenstående `[OPEN]`-punktene i PRODUCT.md.
 - `README-ARCHITECTURE-SECTION.md` må limes inn i `README.md` med tre endringer: frontmatter bort, H1

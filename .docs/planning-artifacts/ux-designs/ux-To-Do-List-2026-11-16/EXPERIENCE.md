@@ -4,7 +4,7 @@ status: final
 stage: locked
 concept: "06 Kurs"
 created: 2026-11-16
-updated: 2026-11-18
+updated: 2026-11-22
 form_factor: responsive-web-pwa
 viewport_floor: 360
 viewport_reference: 1280
@@ -89,7 +89,9 @@ Plain, specific, never alarming. The app describes what is true and stops.
   not theirs.
 - Open questions are stated on screen, not hidden — and when one is answered, the screen stops
   asking. Interface language was settled as **English** on 2026-11-18, so Settings no longer poses it
-  as a question; the two remaining open product facts below are still stated rather than hidden.
+  as a question. The two product facts that were still open when this document locked — the
+  accessibility standard and whether colour could carry state alone — were both settled on
+  2026-11-22 (WCAG 2.2 AA as the floor), so no surface needs to pose them either.
 
 ## Component Patterns
 
@@ -153,6 +155,9 @@ this line, whatever it does to the numbers.
 
 ## Accessibility Floor
 
+- **WCAG 2.2 AA is the confirmed floor** (2026-11-22, PRD NFR-4 and §13 item 24). This document was
+  written before a standard was named; everything below already met it, and the two rules that follow
+  are now the standard's requirements rather than this document's preferences. AA, not AAA.
 - **360px and 1280px**, every flow, no horizontal scrolling, demonstrated at both. Binding (NFR-4).
 - **Body and placeholder text ≥4.5:1** against its actual background; large text ≥3:1. Measured pairs
   are listed in `DESIGN.md.Colors`.
@@ -161,11 +166,20 @@ this line, whatever it does to the numbers.
   carries a purple outline *and* a numeral *and* the start triangle on its task.
 - Every control is a standard, focusable web control with a visible focus ring themed from
   `{colors.ink}`.
-- Touch targets on the phone are the record's full 46px row and ≥20px for in-panel buttons.
+- Pointer targets are **≥24×24 CSS px everywhere**: the record's full 46px row on the phone, in-panel
+  buttons raised from 20px, and desktop table rows raised from 21px — both on 2026-11-22, because AA's
+  SC 2.5.8 Target Size (Minimum) is 24×24 CSS px and the spacing exception does not apply to rows
+  stacked against each other. These two token changes are the only ones the standard forced.
 - Text is real text at every size; nothing legible is drawn as an image.
-- `[OPEN]` **No conformance standard is committed.** WCAG 2.2 AA is a reasonable floor and the frames
-  were held to its contrast requirement, but the user has not confirmed AA, and target size,
-  reflow and focus-appearance have not been audited against it.
+- **Conformance standard: WCAG 2.2 AA, confirmed 2026-11-22** (PRD NFR-4, §13 item 24). Three AA
+  criteria specific to 2.2 are worth naming because this concept's shape touches them:
+  - **SC 2.5.8 Target Size** — handled by the 24px minimum above, in both token changes.
+  - **SC 2.4.11 Focus Not Obscured** — already satisfied structurally: the course panel overlaps
+    rules and empty ground, never type, and focus moves into the panel when it arrives. Any future
+    change that lets the panel cover a focusable control breaks AA, not just the concept.
+  - **SC 1.4.10 Reflow** — already satisfied by the 360px no-horizontal-scrolling rule.
+  Still unaudited, and not promised: anything beyond `axe-core`'s mechanical subset. The deliverable
+  claims the floor and the check, never certified conformance.
 
 ## Responsive & Platform
 
@@ -247,18 +261,20 @@ account, README open beside the window, desktop.
 
 ## Open Decisions
 
-Two product facts remain undecided and are **not** design's to settle alone; a third, interface
-language, was resolved on 2026-11-18 and is struck through below. The frames take a working position
-on each and say so on screen rather than hiding it.
+All three product facts this document could not settle alone are now resolved — interface language on
+2026-11-18, the accessibility standard and colour-only encoding on 2026-11-22. They are kept here,
+struck through, so the trail from working position to decision stays visible.
 
 - ~~**Interface language.**~~ **RESOLVED 2026-11-18 — English.** The PRD fixes task text as English
   only and called the interface language a separate question; the user answered it during the
   architecture run. The frames already render English, so no frame changes; only the Settings
   microcopy that posed it as open was stale, and it is corrected above.
-- **Accessibility conformance standard.** See the Accessibility Floor. Contrast is held; AA is not
-  committed.
-- **Colour-only encoding.** Frames assume it is never acceptable and publish a legend proving it.
-  Confirm it, because it constrains the palette.
+- ~~**Accessibility conformance standard.**~~ **RESOLVED 2026-11-22 — WCAG 2.2 AA as a floor.** See the
+  Accessibility Floor, which now names it. Two token changes followed, both SC 2.5.8: in-panel targets
+  20px → 24px and dense desktop rows 21px → 24px. Contrast was already held.
+- ~~**Colour-only encoding.**~~ **RESOLVED 2026-11-22 — never acceptable**, settled by the standard
+  above rather than separately: it is SC 1.4.1. The frames' working assumption and the published
+  legend were right, and the palette constraint stands as drawn.
 
 One design alternative is also unbuilt: **`d5` may also be built from concept 01 "Date Due"** — the
 user flagged it and it has not been drawn.

@@ -2,7 +2,7 @@
 title: To-Do-List PRD Addendum
 status: draft
 created: 2026-10-31
-updated: 2026-11-14
+updated: 2026-11-22
 ---
 
 # PRD Addendum: To-Do-List
@@ -220,10 +220,16 @@ Two things make this sharper than the research framed it:
 2. The 9.6–13.4 s figures were measured on `low` **and** `medium` variants. If `low` is genuinely
    that slow, pinning effort does not rescue it.
 
-Which is exactly why PRD NFR-2 refuses to name a timeout and PRD OQ-1 makes measurement an
-acceptance gate. A single guessed number cannot satisfy both sides: below 9.6 s the slow case
-becomes 100% fallback; above 13.4 s the app would block on capture for 13 seconds — and the PRD's
-FR-8 asynchronous capture exists precisely so that the second outcome is survivable either way.
+Which is exactly why PRD OQ-1 makes measurement an acceptance gate rather than a formality. A single
+guessed number cannot satisfy both sides: below 9.6 s the slow case becomes 100% fallback; above
+13.4 s the app would block on capture for 13 seconds — and the PRD's FR-8 asynchronous capture exists
+precisely so that the second outcome is survivable either way.
+
+**Updated 2026-11-22.** NFR-2 originally named no value at all. It now carries a **provisional 10 s**
+so the build can proceed while OQ-1 stays unmeasured (PRD §13 item 21). That is not a resolution of
+the contradiction above: 10 s sits inside the disputed band, chosen because it is the figure OQ-1's
+miss branch names and because claiming 6 s would claim a pass that never happened. Measurement is
+still the gate for the real number, and the value is marked unverified wherever it appears.
 
 ### 3.2 Accuracy, rule-based versus ML
 

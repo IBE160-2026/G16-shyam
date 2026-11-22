@@ -179,10 +179,13 @@ of tidy.
 
 **Model latency has not been measured.** Published sources disagree by an order of magnitude on how
 long a call takes to return a parsed result, and the model's effort setting moves it further still.
-A separate latency spike — distinct from the evaluation harness above — is written, and its pass bar
-was fixed *before* we ran it: median at or under 2.5 s, 95th percentile at or under 6 s, precisely so
-the result can falsify the plan instead of rationalizing it. The number decides the timeout value and
-confirms the provider. It cannot decide whether the app ships, because capture is never gated on it.
+A separate latency spike — distinct from the evaluation harness above — is written but **has not been
+run**, and its pass bar was fixed *before* it runs: median at or under 2.5 s, 95th percentile at or
+under 6 s, precisely so the result can falsify the plan instead of rationalizing it. The number
+decides the timeout value and confirms the provider. It cannot decide whether the app ships, because
+capture is never gated on it. Meanwhile the code carries a **provisional 10-second timeout** — the
+conservative of the two candidate values, marked provisional at the one constant that holds it. It is
+a placeholder, not a measurement, and nothing here claims otherwise.
 
 **The accuracy comparison has not been run yet.** The fixture and the evaluation harness are
 specified; the figures come from the first run, and we commit a written minimum per field alongside

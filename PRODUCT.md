@@ -183,16 +183,22 @@ Engine · Rule Engine · Model Engine · API Key · Cloud Suggestions · Smart L
   `.docs/planning-artifacts/spikes/oq1-model-engine-latency/` but has never made a real call. It
   sets the pending-suggestion timeout (6 s vs. 10 s) and confirms the provider. It does **not**
   constrain the surfaces, the state vocabulary, or the pending state, which are already specified.
+  **Still open on 2026-11-22**, and the build proceeds past it: the timeout is **provisionally 10 s**,
+  the conservative branch, marked unverified wherever it appears (PRD NFR-2, §13 item 21). A design or
+  a story may use the number; neither may call it measured.
 - **OQ-4 / OQ-8** — where the API key lives, and which storage API. Both belong to architecture.
-- **UI language.** The PRD fixes *task text* as English only and explicitly calls the *interface*
-  language "a separate question" that it does not answer. A previous concept run assumed English and
-  the assumption was never confirmed. `[OPEN]` — concepts should render English strings as the
-  working assumption and flag it, not treat it as settled.
-- **Accessibility standard.** No standard is named anywhere in the brief or PRD beyond NFR-4's two
-  widths. A previous run assumed WCAG 2.2 AA as a floor; also never confirmed. `[OPEN]`
-- **Non-color encoding.** A previous run assumed that priority and engine provenance must never be
-  carried by color alone. Sound practice and consistent with NFR-4's intent, but never confirmed by
-  the user. `[OPEN]` — concepts should honor it and say they are doing so.
+- **UI language — RESOLVED 2026-11-18: English.** The PRD fixes *task text* as English only and calls
+  the *interface* language "a separate question" that it does not answer; the user settled it
+  separately during the UX phase. `EXPERIENCE.md` records it, and Settings no longer poses it as a
+  question. No longer `[OPEN]`; listed here only so the trail is visible.
+- **Accessibility standard — RESOLVED 2026-11-22: WCAG 2.2 AA, as a floor.** AA and not AAA, with the
+  cheapest conforming implementation preferred over a more thorough one. Recorded in PRD NFR-4 and
+  §13 item 24. What is promised is the floor plus a mechanical `axe-core` check at 360 px and 1280 px —
+  not certified conformance, and no manual audit or screen-reader certification in v1.
+- **Non-color encoding — RESOLVED 2026-11-22**, by the line above rather than separately. Not carrying
+  information by color alone is **SC 1.4.1 of the standard now confirmed**, so it is a requirement
+  rather than an assumption: priority carries a bar ladder *and* its word, engine provenance a chip
+  *and* its letter. The UX documents already honored it; they are now right by the standard.
 
 ## Brand Commitments
 
@@ -258,7 +264,10 @@ Engine · Rule Engine · Model Engine · API Key · Cloud Suggestions · Smart L
 - **Confirmed (NFR-4):** every flow, specifically accept/edit/reject, usable at 360 px and 1280 px
   with no horizontal scrolling, demonstrated at both.
 - **Confirmed by context:** one-handed phone use in seconds, and full operability offline.
-- `[OPEN]` No conformance standard has been established. WCAG 2.2 AA is a reasonable floor and was
-  assumed by a previous run, but the user has never confirmed it.
-- `[OPEN]` Whether priority and engine provenance may be carried by color alone — previously assumed
-  "never," never confirmed.
+- **Confirmed 2026-11-22: WCAG 2.2 AA is the conformance floor** — AA, not AAA, cheapest conforming
+  implementation preferred. Promised as a floor plus an `axe-core` check at both widths, never as
+  certified conformance. Two token changes were forced by it, both SC 2.5.8: in-panel targets from
+  20px to 24px, and dense desktop table rows from 21px to 24px. PRD NFR-4, §13 item 24.
+- **Confirmed 2026-11-22: priority and engine provenance are never carried by color alone** — not as a
+  preference but as SC 1.4.1 of the standard above. Priority carries a bar ladder *and* its word;
+  provenance a chip *and* its letter.

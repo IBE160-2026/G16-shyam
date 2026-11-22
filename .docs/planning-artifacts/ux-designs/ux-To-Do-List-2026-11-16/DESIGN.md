@@ -4,7 +4,7 @@ status: final
 stage: locked
 concept: "06 Kurs"
 created: 2026-11-16
-updated: 2026-11-17
+updated: 2026-11-22
 sources:
   - ../../prds/prd-To-Do-List-2026-10-31/prd.md
   - ../../briefs/brief-To-Do-List-2026-09-08/brief.md
@@ -60,13 +60,13 @@ spacing:
   gutter-desktop: "26px"
   band-height: "22px"
   record-height-mobile: "46px"
-  row-height-desktop: "21px"
+  row-height-desktop: "24px"
   rail-width: "196px"
   tabbar-height: "46px"
   header-height-mobile: "40px"
   group-gap: "10–16px"
   field-height: "26–32px"
-  button-height: "20–26px"
+  button-height: "24–26px"
 
 components:
   band: "22px section header; colour names the list; 1.2px rule-strong beneath"
@@ -167,7 +167,10 @@ Columns of dates that do not align are the fastest way to make this world look w
 - **Mobile**, 360px floor: 14px gutters, 40px header, 46px bottom tab bar, 46px task records, 22px
   bands. One column throughout.
 - **Desktop**, 1280px reference: 196px nav rail in chrome, 26px gutters, a two-column mosaic in the
-  work area, 21px table rows in dense tables.
+  work area, **24px** table rows in dense tables — raised from 21px on 2026-11-22. A table row is a
+  pointer target, so WCAG 2.2 AA's SC 2.5.8 applies at 24×24 CSS px, and the spacing exception does
+  not rescue it: adjacent rows' 24px circles would intersect. Density is still the point — 24px is the
+  floor, not a licence to loosen the rest.
 - Groups are tight inside and generous between: 10–16px between a band's last record and the next
   band. More space above a heading than below it.
 - **Hairlines instead of card edges.** Rows are separated by a 1px `rule`; blocks are bounded by a

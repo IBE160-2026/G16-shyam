@@ -28,5 +28,12 @@ Avgjort av brukeren under `bmad-architecture` (full begrunnelse i
 3. **Fullført og arkivert er utledet, ikke lagret** — Task lagrer fullføringsdatoen. Ført som PRD §13
    rad 17 og §3. Konsekvens: gjenoppretting av en arkivert Task sletter fullføringsdatoen.
 
-Fortsatt åpent, og ikke designs å avgjøre alene: WCAG 2.2 AA som forpliktet gulv, og om
-prioritet/motor-proveniens noen gang kan bæres av farge alene.
+4. **WCAG 2.2 AA er forpliktet gulv** (2026-11-22) — AA, ikke AAA, og den billigste implementasjonen
+   som oppfyller kravet. Lukker begge de to gjenstående punktene på én gang: at farge aldri alene kan
+   bære prioritet eller motor-proveniens er standardens eget SC 1.4.1, ikke en antakelse. Ført som PRD
+   §13 rad 24 og NFR-4. To token-endringer fulgte, begge SC 2.5.8: in-panel-mål fra 20px til 24px, og
+   tette desktop-tabellrader fra 21px til 24px (`DESIGN.md`s `button-height` og `row-height-desktop`,
+   og `EXPERIENCE.md`s tilgjengelighetsgulv). Tettheten er fortsatt poenget — 24px er gulvet, ikke en
+   invitasjon til å løsne resten.
+
+Ingen av punktene som ble ført hit som åpne står åpne lenger.

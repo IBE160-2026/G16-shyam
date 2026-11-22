@@ -7,7 +7,7 @@ paradigm: 'ports and adapters (hexagonal) with a pure domain core'
 scope: 'To-Do-List v1, whole system: one responsive PWA, browser-local storage, two Suggestion Engines behind one interface, and the Fixture harness that measures them.'
 status: final
 created: '2026-11-18'
-updated: '2026-11-18'
+updated: '2026-11-22'
 binds:
   - FR-1..FR-23
   - NFR-1..NFR-10
@@ -149,7 +149,9 @@ type EngineResult =
 - **Rule:** the Model Engine request is issued with an `AbortSignal`; the NFR-2 timeout aborts it and
   resolves the call with the Rule Engine's Suggestion. A response arriving after the abort is dropped
   unwritten, unattributed and unlogged. NFR-2's value is pending OQ-1 and is read from one named
-  constant, never inlined.
+  constant, never inlined. **Its provisional value is 10 s** (PRD §13 item 21), and the constant
+  carries a comment saying so — `MODEL_ENGINE_TIMEOUT_MS = 10_000 // provisional: OQ-1 unmeasured` —
+  so the one place the number lives is also the place that admits it is unverified.
 
 ### AD-6 — Persistence: three keys, one synchronous port, one writer  `[ADOPTED]`
 
@@ -257,19 +259,25 @@ Resolves PRD OQ-4.
 
 ### AD-10 — Tier 1 may not depend on Tier 2 or Tier 3
 
-- **Binds:** PRD §6.3; FR-16's configurable window, the Project field, FR-22, the Accept-all and
-  Reject-all shortcuts
+- **Binds:** PRD §6.3; FR-16's configurable window, the Project field, FR-22
 - **Prevents:** a schedule cut turning into dependency surgery, and a feature-flag matrix doubling
   the test surface for code that may never be built
 - **Rule:** every Tier 2 and Tier 3 capability is **additive**: the Project field is an optional
-  property no Tier 1 selector reads; the Accept-all and Reject-all shortcuts compose the per-control
-  actions and add no path those lack; the configurable retention window is a settings value
+  property no Tier 1 selector reads; the configurable retention window is a settings value
   defaulting to 30 days. FR-22 is the one exception and is stated rather than glossed — it adds a
   call into `SuggestionService` **and** depends on AD-3's struck-set filter, so cutting it removes a
-  path while cutting the shortcuts does not. Cutting is deleting a file, never unpicking a
+  path while cutting a settings value or an unread property does not. Cutting is deleting a file, never unpicking a
   dependency, and the epics produce the tier-to-file mapping that turns this from a judgement into an
   import-boundary lint rule. **No feature-flag machinery is introduced** — PRD §6.3 is a build order, not a runtime
   toggle, and the Model Engine is already gated at runtime by key plus consent.
+
+**The Accept-all / Reject-all shortcuts left this decision on 2026-11-22.** They were Tier 3 when this
+spine was written; the builder promoted them to Tier 1 (PRD §13 item 19), so they are no longer a
+cuttable capability and no longer need AD-10's additivity guarantee. Their architectural shape is
+unchanged and still holds: each is a composite of the per-control actions adding no path those lack
+(AD-15), and AD-7's undo slot already holds a *set* of field snapshots precisely so one undo can reverse
+a three-field accept. Nothing in this spine moves with the promotion — the only edit is that AD-10 no
+longer lists them.
 
 This deliberately declines `technology.md`'s `FEATURE_*` principle. Flags earn their place where
 features ship dark and toggle per tenant; this is one builder shipping once.
@@ -325,6 +333,11 @@ independently from the other direction.
   the floor real. Guarding SM-C2: the Fixture may not drop below 10 entries, and may not lose its
   enumerated hard cases — the no-keyword-match entry, the entry naming the reference date's own
   weekday, the two-date-word entry, the abbreviated weekday and the `Saturday` entry.
+  **What the Fixture does not cover, by decision** (2026-11-22, PRD FR-15 and §13 item 26): with the
+  reference date fixed at Monday 2026-11-16, no date word resolves to the past, so no Fixture entry can
+  be past due. FR-12's `isPastDue` predicate and FR-16's retention window are therefore asserted by
+  unit tests on `src/core/selectors.ts` against an injected reference date through the Clock port
+  (AD-2) — not by a Fixture entry, and not left uncovered. The Fixture's shape is unchanged.
   The harness runs as `npm run harness` under `tsx`, from a clean `npm install`, with no key and no
   network — NFR-7 promises a grader exactly that, and `harness/run.ts` is TypeScript importing
   TypeScript, which bare Node will not run. **NFR-9 and SM-3's artifacts are named here because
@@ -395,6 +408,15 @@ independently from the other direction.
   EXPERIENCE.md's acceptance-rate guard. `axe-core` runs in CI through Playwright at both bound
   viewports. The course panel's "never overlaps type" rule is a layout contract verified by that same
   Playwright pass, not by eye.
+
+  **The declared target is WCAG 2.2 AA as a floor**, confirmed 2026-11-22 (PRD NFR-4, §13 item 24).
+  Three things follow for stories: **every pointer target is ≥24×24 CSS px** (SC 2.5.8 — two token
+  changes the standard forced, in-panel buttons from 20px and dense desktop rows from 21px, since rows
+  stacked against each other cannot claim the spacing exception); the panel-never-covers-
+  type contract above is also what satisfies SC 2.4.11 Focus Not Obscured, so the Playwright assertion
+  is an accessibility assertion and not only a layout one; and `axe-core` covers a **subset** of AA, so
+  a green CI run is evidence, never a conformance claim. No story, README passage or commit message may
+  say the app conforms to WCAG 2.2 AA — the wording is "built to WCAG 2.2 AA, checked with axe-core".
 
 ### AD-18 — The design system is declared once and enforced in CI
 
@@ -504,7 +526,7 @@ To-Do-List/
       localdate.ts           # the only core module doing calendar arithmetic (AD-1, AD-2)
       tokenize.ts            # shared whole-word rule
       selectors.ts           # FR-12..FR-16 predicates and derivations
-      constants.ts           # NFR-2 timeout, AD-14 call shape, retention default
+      constants.ts           # NFR-2 timeout (provisional 10 s, OQ-1), AD-14 call shape, retention default
     ports/
       storage.ts  clock.ts  id.ts  suggestion-engine.ts
     adapters/
@@ -628,7 +650,10 @@ is not yet settled.
 ## Deferred
 
 - **NFR-2's timeout value** — 6s or 10s, decided by PRD OQ-1's measurement, read from one constant
-  (AD-5), so the number lands in a single edit.
+  (AD-5), so the number lands in a single edit. **Provisionally 10 s from 2026-11-22** (PRD §13 item
+  21): the build needs a number, 6 s is what a passing measurement would license, and nothing has been
+  measured — so the miss branch's figure stands in, marked unverified at the constant itself. No test
+  asserts the value is measured, and no README or story passage may call it verified.
 - **The Model Engine provider.** Claude Haiku 5.5 planned, an OpenAI nano-tier model the fallback,
   both behind the `SuggestionEngine` port. AD-4's result type, AD-11's single-host envelope and
   AD-14's call shape keep the blast radius to one adapter file plus FR-18's disclosure wording.
@@ -653,5 +678,7 @@ is not yet settled.
 - **Does losing the completion date on restore matter?** AD-7's derived archive makes restore an
   un-complete, discarding `completedAt`. EXPERIENCE.md's "restorable with its marks" is satisfied —
   the punched controls survive — but the date does not.
-- **PRD §6.3 places "Punch all" in Tier 3, first to be cut, while UJ-1's narrated climax is "he taps
-  Punch all".** Two approved documents disagree; architecture cannot settle which wins.
+- ~~**PRD §6.3 places "Punch all" in Tier 3, first to be cut, while UJ-1's narrated climax is "he taps
+  Punch all".**~~ **Settled by the builder 2026-11-22: the shortcuts are Tier 1.** The journey won over
+  the cut list; PRD §6.3 and §13 item 19 now carry it, and AD-10 no longer lists them as cuttable. No
+  architecture decision changed — see the note under AD-10.

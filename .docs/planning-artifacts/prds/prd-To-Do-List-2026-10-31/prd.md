@@ -2,7 +2,7 @@
 title: To-Do-List
 status: draft
 created: 2026-10-31
-updated: 2026-11-18
+updated: 2026-11-22
 ---
 # PRD: To-Do-List
 
@@ -56,7 +56,8 @@ Anyone whose core need is a shared list, a reminder, or their data on a second d
 
 - **UJ-1. Shyam dumps a task between classes and never opens a menu.** Phone browser, installed PWA, no
   login. He types "Submit assignment in IBE160 Friday"; the Task saves immediately; a Suggestion then
-  proposes Tags `[school]`, Priority `high` and a Summary; he taps Accept all. The Task is filed under
+  proposes Tags `[school]`, Priority `high` and a Summary; he taps Accept all — labelled **Punch all**
+  in the interface (§13 item 19). The Task is filed under
   `school`, shows as high Priority and has appeared in "Due this week" — structure he never added.
 
   - **Edge case:** if only Priority is wrong, he accepts Tags and Summary and on Priority alone taps Edit,
@@ -337,7 +338,12 @@ eller avvises"* — per part, not per Suggestion.
   sessions — and satisfies the brief's "visible, reversible choice."
 - "Accept all" applies all three parts in one action and "Reject all" dismisses all three; both are
   shortcuts for the per-part actions and add no behavior those lack. Undo after "Accept all" restores all
-  three fields.
+  three fields. **Their interface labels are "Punch all" and "Strike all"** (`DESIGN.md`,
+  `EXPERIENCE.md`); the words are the UX documents' to own, the behavior this requirement's — the same
+  split AD-9 makes for Smart List labels. **Both are Tier 1 (§6.3, §13 item 19):** they are built, not
+  cut. Being essential says nothing about their visual weight — they stay plain outline controls below
+  a rule, never primary, and Strike stays exactly as reachable as Punch (SM-C1, `EXPERIENCE.md`'s
+  acceptance-rate guard).
 - No part is applied without an explicit accept or edit of it, and a Suggestion with any part unreviewed
   stays visibly pending on the Task.
 - The flow meets NFR-4's width requirement.
@@ -426,6 +432,14 @@ Each Fixture entry's expected Smart List placement is asserted by the test suite
   priority", and one per FR-7 Tag.
 - The suite fails if a Fixture Task lands in a different Smart List than expected, asserted against the
   Fixture's fixed reference date rather than the machine's clock (NFR-10).
+- **"Need Attention" is not asserted from the Fixture, and that is deliberate** (2026-11-22, §13 item
+  26). No FR-23 date word can resolve to the past — `today`, `tomorrow`, `next week` and the five
+  weekday names all land on or after the reference date — so no entry whose due date comes from parsing
+  can be past due. The same holds for a Sunday due date, which FR-23 does not parse at all. The list
+  above is the vocabulary expected values are drawn from, not a requirement that each occur. **The
+  division of labour:** the Fixture asserts what parsing can produce, and FR-12's past-due rule plus
+  FR-16's retention window are asserted by unit tests on the selectors against an injected reference
+  date (NFR-10). Both halves still run with no clock dependency, which is all NFR-10 asks.
 
 ### 4.4 Archiving
 
@@ -491,7 +505,15 @@ expected Smart List placement, is committed at a documented path named in the RE
 - **Expected Tags use only FR-7's tag set**, with `[]` a valid value; expected Priority uses only `high`,
   `medium`, `low`. Every expectation is derivable by hand from FR-7's tables and FR-23's vocabulary, so it
   states what the rules *should* do, not what the code does.
-- **The file records the fixed reference date all date expectations are relative to** (NFR-10).
+- **The file records the fixed reference date all date expectations are relative to** (NFR-10). **That
+  date is decided: Monday 2026-11-16** (2026-11-22, §13 item 25) — the same date FR-7's worked example
+  already uses, so that example *is* a Fixture entry rather than a parallel case, and §6.2's
+  cross-reference to UJ-1 and FR-7 holds literally. It fixes four things the entries must match: the
+  current week is **2026-11-16 to 2026-11-22** (FR-12), `today` → 2026-11-16, `tomorrow` → 2026-11-17,
+  `next week` → 2026-11-23.
+- **The reference date being a Monday decides which entry is which.** "Submit assignment in IBE160
+  Friday" is the **ordinary** next-occurrence case, due 2026-11-20. The resolve-to-the-reference-date
+  edge case therefore needs an entry naming **`Monday`**, expecting 2026-11-16 — not the IBE160 entry.
 - Ambiguous entries are required as well as easy ones: keyword classifiers misjudge Priority on such
   text, and without it the Fixture cannot separate the engines (`addendum.md`).
 - **Date coverage includes** one entry per recognized form in FR-23 (`today`, `tomorrow`, a `Monday`-to-
@@ -507,6 +529,11 @@ expected Smart List placement, is committed at a documented path named in the RE
 #### FR-20: Harness measures Rule Engine accuracy against the Fixture
 
 A command runs the Rule Engine over every Fixture entry and reports per-field accuracy.
+
+**Prerequisite: FR-19.** The committed Fixture is this command's only input, so FR-19 is built and
+committed **before** FR-20 — and before SM-1 can hold a number (§7). A harness written against a
+Fixture that does not yet exist would fix its expectations in test code, which is exactly what §4.6
+rules out. Epics and stories carry this as an ordering dependency, not a preference (§13 item 20).
 
 **Testable:**
 
@@ -548,8 +575,11 @@ thing in Tier 2 to be cut (§6.3).
 ### 6.1 In Scope
 
 v1 is FR-1 – FR-23 and NFR-1 – NFR-10, built in the order §6.3 fixes, plus one thing no FR states:
-**English task text only** — FR-23's vocabulary and FR-7's keywords are English, while the interface
-language is a separate question.
+**English task text only** — FR-23's vocabulary and FR-7's keywords are English. The interface language
+was a separate question and is now answered: **English**, settled 2026-11-18 and recorded in
+`EXPERIENCE.md`. **The README is English too** (2026-11-22), so every artifact a grader reads — PRD,
+`DESIGN.md`, `EXPERIENCE.md`, the architecture spine, the README — is in one language (§13 item 23).
+The session logs under `.logs/` stay Norwegian; they are the builder's own record, not a deliverable.
 
 ### 6.2 Out of Scope for MVP
 
@@ -569,15 +599,26 @@ Everything in §5, plus these, deferred rather than rejected:
 One builder, one deadline. Epics and stories must not treat all 23 FRs as equally important, so the cut
 order is fixed here rather than decided under pressure. Build in tier order; cut from the bottom.
 
-- **Tier 1 — the deliverable is not viable without these.** FR-1 – FR-5, FR-7, FR-10, FR-12 – FR-15,
-  FR-19, FR-20, FR-23, and the README — a complete, gradeable app on its own, and rules-only is a
-  legitimate v1 (§4.2).
+- **Tier 1 — the deliverable is not viable without these.** FR-1 – FR-5, FR-7, FR-10 **including its
+  "Accept all" / "Reject all" shortcuts**, FR-12 – FR-15, FR-19, FR-20, FR-23, and the README — a
+  complete, gradeable app on its own, and rules-only is a legitimate v1 (§4.2). **Two orderings inside
+  this tier are fixed, not preferences:** FR-19 before FR-20 (the Fixture is the harness's only input,
+  FR-20), and the README last enough to describe what was built but inside the tier, never after it
+  (NFR-7, NFR-9, SM-2).
 - **Tier 2 — the difficulty uplift, in this order.** FR-9 (Model Engine with fallback), FR-17 and FR-18
   (key and consent), NFR-8 (mocked fallback tests), then **FR-21 last**, as the highest-value artifact for
   the 30% weighting (§11).
 - **Tier 3 — cut these first.** Configurable retention in FR-16 (keep the fixed 30-day window), Project as
-  a Task field, FR-22 "Suggest again", and the "Accept all" / "Reject all" shortcuts — FR-10's per-part
-  actions are the requirement; the shortcuts are convenience.
+  a Task field, and FR-22 "Suggest again".
+
+**The "Accept all" / "Reject all" shortcuts were moved from Tier 3 to Tier 1 on 2026-11-22** (§13 item
+19). They were listed as convenience here while `EXPERIENCE.md`'s UJ-1 — a locked document — builds the
+primary journey's climax on tapping them; two approved documents disagreed, and the architecture spine
+recorded that it could not settle which won. The builder settled it in favour of the journey. Nothing
+about the review flow changes: they remain composites of the per-part actions, adding no behavior those
+lack (FR-10, AD-15), and the undo buffer already holds a set of field snapshots rather than one (AD-7),
+so no architecture decision moves with them — AD-10 simply stops listing them among the cuttable
+capabilities, since they are no longer one.
 
 FR-6 and FR-8 sit inside Tier 1 (FR-7's interface, FR-1's capture behavior); FR-11 ships with Tier 2's
 Model Engine, having nothing to disclose without it.
@@ -586,6 +627,8 @@ Model Engine, having nothing to disclose without it.
 
 The Fixture (FR-19) is the measuring instrument. No accuracy target is quoted from research, whose only
 numeric comparison is unverified and from another domain; targets are set locally, from a first run.
+**SM-1 and SM-3 therefore have FR-19 as a hard prerequisite** — until the Fixture is committed, neither
+has an instrument and neither can hold a number (FR-20, §13 item 20).
 
 **Primary**
 
@@ -663,13 +706,25 @@ numeric comparison is unverified and from another domain; targets are set locall
   FR-8's 100 ms.
 - **NFR-2 — Model Engine timeout.** A hard timeout, after which the Rule Engine serves the Suggestion. Its
   value comes from the OQ-1 measurement. FR-8 keeps it off the critical path: it governs only how long a
-  pending Suggestion stays pending.
+  pending Suggestion stays pending. **Until OQ-1 is measured the value is provisionally 10 s** — the
+  figure §12's own miss branch names, taken because 6 s is what a *passing* measurement would license and
+  nothing has been measured. It is **not a verified number**: it is read from one named constant
+  (AD-5, `core/constants.ts`) so the measurement lands in a single edit, and no test may assert that this
+  value was derived from a real call (§13 item 21).
 - **NFR-3 — Offline correctness.** With no network the app is fully functional; no view shows an error,
   spinner or empty state attributable to the missing network. **The pending indicator in FR-8 is exempt**
   — it reports a Suggestion in flight, not a missing network, and appears offline too.
 - **NFR-4 — Responsive and operable.** Every flow, and specifically FR-10's accept/edit/reject
   interaction, **is usable at 360 px and at 1280 px viewport width without horizontal scrolling**, and is
-  demonstrated at both.
+  demonstrated at both. **The accessibility target is WCAG 2.2 AA as a floor** — confirmed 2026-11-22
+  (§13 item 24), AA and not AAA, with the cheapest conforming implementation preferred over a more
+  thorough one. Two consequences are not optional, because the standard requires them: text contrast at
+  4.5:1 (3:1 for large text), and **no information carried by colour alone** (SC 1.4.1) — which is why
+  Priority carries a bar ladder *and* its word, and engine provenance carries a chip *and* its letter
+  (`DESIGN.md`, `EXPERIENCE.md`). **What is promised is the floor and a mechanical check, not certified
+  conformance:** `axe-core` runs in CI at both widths (AD-17, AD-19) and catches a subset of AA only, so
+  the README says "built to WCAG 2.2 AA, checked with axe-core" and never "WCAG 2.2 AA conformant". No
+  manual audit, screen-reader certification or VPAT is in v1's scope.
 - **NFR-5 — Determinism of the Rule Engine.** Same input, same Suggestion, always (FR-7).
 - **NFR-6 — No missing Suggestion.** Every Model Engine failure results in a Rule Engine Suggestion
   (FR-9), and no error, popup, banner or interrupted flow appears in capture or review. The one exception
@@ -727,6 +782,13 @@ not the lever; depth on what is specified is.
 
    **Pass bar — set before the measurement so the result can falsify it: p50 ≤ 2.5 s and p95 ≤ 6 s.**
 
+   **Status 2026-11-22: still open, and deliberately so.** The spike harness exists at
+   `.docs/planning-artifacts/spikes/oq1-model-engine-latency/` and has never issued a real call, so no
+   figure in this document, in architecture, or in any story describes a measured latency. Confirmed on
+   2026-11-22: epics and stories proceed with NFR-2 at its **provisional 10 s** (NFR-2, §13 item 21) and
+   with Haiku 5.5 as the *planned*, unconfirmed provider. Nothing downstream may describe either as
+   verified, and this document stays `draft` until the measurement exists.
+
    - **Pass** → Claude Haiku 5.5 is confirmed as the Model Engine provider, §13 item 12 closes, and
      NFR-2's timeout is set to **6 s**.
    - **Miss** → time the OpenAI nano fallback at the same call shape and take the faster of the two. If
@@ -775,9 +837,9 @@ not the lever; depth on what is specified is.
 
 ## 13. Decisions and Assumptions Index
 
-Every judgment that was once an open inference, with its status. Item 12 alone is deferred *and still
-genuinely open* — the OQ-1 named in §0; everything else is settled. This table, not the body, is
-where each decision's rationale lives.
+Every judgment that was once an open inference, with its status. Items 12 and 21 are the only ones still
+riding on an unmeasured number — the provider and the timeout, both the OQ-1 named in §0; everything else
+is settled. This table, not the body, is where each decision's rationale lives.
 
 | #  | Where              | Decision, and why it was taken                                                                                                                                                                                                                                          | Status                                                   |
 | -- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -799,3 +861,11 @@ where each decision's rationale lives.
 | 16 | FR-9, FR-11        | The zero-data-retention / Compliance-API `401` is named as its own persistent failure mode and worded apart from a rejected key, because the key is valid and the user can do nothing about it. Verified against official documentation 2026-11-14 | **Confirmed 2026-11-14**                           |
 | 17 | §3, FR-5, FR-16    | **Completed and archived are derived, not stored.** The Task persists a completion date; `completed` and `archived` are computed from it. Taken in architecture because a stored flag is a second source of truth that can disagree with the date, and a time-triggered sweep would write to storage as time passes, defeating NFR-10. Consequence accepted: restoring an archived Task clears the completion date, so that date is lost | **Confirmed 2026-11-18 — architecture**            |
 | 18 | FR-6, FR-7, FR-19  | **The Model Engine proposes only FR-7's four Tags** (`school`, `group`, `work`, `personal`), the same set as the Rule Engine. §3 constrained only the Rule Engine and was silent here, leaving FR-19's expected Tags and FR-21's scoring undefined for a fifth Tag. The user may still add any Tag by hand (FR-3) | **Confirmed 2026-11-18 — architecture**            |
+| 19 | §2.3, FR-10, §6.3 | **"Accept all" / "Reject all" are Tier 1, not Tier 3.** `EXPERIENCE.md` — locked — makes tapping them the climax of UJ-1, the primary journey, while §6.3 listed them first to be cut; the spine recorded the disagreement as unsettleable from architecture. The journey won: a cut that silently removes the narrated climax of the one journey a grader is walked through costs more than the two composite actions cost to build. **No behavior, no AD and no visual weight changes** — they stay composites of the per-part actions (AD-15), the undo buffer already holds a snapshot *set* (AD-7), and they stay plain outline controls below a rule with Strike as reachable as Punch (SM-C1). The interface labels are **Punch all / Strike all**; this document's names and the UX documents' names denote the same two actions | **Decided by the builder 2026-11-22** |
+| 20 | FR-19, FR-20, §7, §6.3 | **FR-19's Fixture is a hard prerequisite of FR-20, SM-1 and SM-3**, carried into epics as an ordering dependency and its own story rather than folded into the harness story. A harness built first would pin its expectations inside test code, which §4.6 exists to prevent, and SM-1's floor would be set by whatever the code already does instead of by FR-7's tables read by hand | **Decided by the builder 2026-11-22** |
+| 21 | NFR-2, OQ-1        | **NFR-2's timeout is provisionally 10 s, explicitly unverified.** 10 s is the figure OQ-1's *miss* branch names; 6 s is what a passing measurement would license, and nothing has been measured, so the conservative branch is the honest default. Epics and stories build against it through AD-5's single named constant. **No document, story, test or README passage may describe the value or the provider as measured or verified** until the spike runs | **Provisional — OQ-1 still open**, set 2026-11-22 |
+| 22 | §6.3, NFR-7, NFR-9, SM-2 | **Setup, testing and documentation are story-bearing work, not a final tidy-up.** The README (clean-clone setup for both key paths, the Fixture's path, NFR-9's prose on the two engines and the privacy trade-off, and the Model Engine screenshot), the test suites NFR-8 and NFR-10 require, and `.env.example` each get explicit stories inside Tier 1 — they carry 10% of the rubric on their own (§11) and SM-2 is a binary pass that fails silently if left to the last day | **Decided by the builder 2026-11-22** |
+| 23 | §6.1, NFR-7, NFR-9 | **The README is written in English**, like the PRD, `DESIGN.md`, `EXPERIENCE.md` and the architecture spine. It was a seven-line Norwegian stub while every document around it was English, which would have made the one artifact a grader opens first the only one out of step. Settles the last part of the interface-language question §6.1 had left open (the UI itself was settled English 2026-11-18). `.logs/` stays Norwegian — the builder's record, not a deliverable | **Decided by the builder 2026-11-22** |
+| 24 | NFR-4, `PRODUCT.md` | **WCAG 2.2 AA is the accessibility floor** — AA, not AAA, and the cheapest conforming implementation wins. This closes both of `PRODUCT.md`'s remaining `[OPEN]` product facts at once: the standard was never named, and the no-colour-alone rule the UX documents already honour is **SC 1.4.1 of the standard now confirmed**, so it stopped being an assumption. `axe-core` at both bound widths (AD-17, AD-19) is a partial mechanical check, so the deliverable claims the floor and the check, never certified conformance. **Two design tokens were raised to meet SC 2.5.8's 24×24 CSS px**, both in `DESIGN.md`: in-panel `button-height` from 20px, and `row-height-desktop` from 21px — rows stacked against each other cannot claim the criterion's spacing exception. Density remains the concept's point; 24px is the floor, not a licence to loosen the rest | **Decided by the builder 2026-11-22** |
+| 25 | FR-19, FR-7, NFR-10 | **The Fixture's fixed reference date is Monday 2026-11-16** — the date FR-7's worked example already used, so the example becomes a Fixture entry instead of a parallel case and §6.2's cross-reference holds literally. Consequences: the current week is 2026-11-16 to 2026-11-22; "Submit assignment in IBE160 Friday" is the **ordinary** next-occurrence entry (due 2026-11-20); the resolve-to-the-reference-date edge case needs an entry naming `Monday`. Closes the open question carried since 2026-11-14 | **Decided by the builder 2026-11-22** |
+| 26 | FR-15, FR-19, FR-12 | **"Need Attention" is asserted by selector unit tests, not by a Fixture entry.** Fixing the reference date exposed that no FR-23 date word resolves to the past, so no parsed due date can be past due — and a Sunday due date cannot be parsed at all. Rather than add a non-parsed due-date field to FR-19 and widen its shape, the Fixture asserts what parsing can produce and FR-12's past-due rule plus FR-16's window are asserted against an injected reference date. FR-15's list of Smart Lists is the vocabulary of expected values, not a coverage requirement; no requirement text changed | **Decided by the builder 2026-11-22** |

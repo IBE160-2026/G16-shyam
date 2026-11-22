@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1976 1852" width="1976" height="1852" role="img" aria-label="A layered dependency graph of the To-Do-List build. Eight horizontal lanes are the eight epics, grouped into three tiers: Tier 1 is Epics 1 to 5, Tier 2 is Epics 6 and 7, Tier 3 is Epic 8. Thirty-eight story boxes sit in eleven columns; a column is the earliest wave in which a story can be built, so stories in the same column have no dependency on each other. Fifty-three arrows are prerequisites pointing from the story that must ship first to the story that waits for it. Curved arrows stay inside one epic; straight coloured rails cross between epics and are coloured by the epic they leave. Epic 1 starts alone in column 0 with Story 1.1, the clean clone and first-run surface. Epic 2 starts at column 3 with Story 2.1, the Rule Engine. Epic 3 starts at column 3 with Story 3.1, the derived lists. Story 4.1, the committed Fixture, is the FR-19 gate: Stories 4.2, 4.3, 4.4, 7.1 and 7.2 all depend on it. Epic 5 runs from column 6 to column 9 and ends the Tier 1 deliverable. Epic 6 runs from column 5 to column 10 and depends only on Story 2.6. Epic 7 runs from column 8 to column 10 and needs both the harness and the Model Engine adapter. Epic 8, the three cuttable refinements, depends on Epics 2 and 3 and nothing depends on it." font-family="Segoe UI, Helvetica Neue, Arial, sans-serif">
+<title>To-Do-List: 8 epics, 38 stories and the order they must be built in</title>
+<desc>A layered dependency graph of the To-Do-List build. Eight horizontal lanes are the eight epics, grouped into three tiers: Tier 1 is Epics 1 to 5, Tier 2 is Epics 6 and 7, Tier 3 is Epic 8. Thirty-eight story boxes sit in eleven columns; a column is the earliest wave in which a story can be built, so stories in the same column have no dependency on each other. Fifty-three arrows are prerequisites pointing from the story that must ship first to the story that waits for it. Curved arrows stay inside one epic; straight coloured rails cross between epics and are coloured by the epic they leave. Epic 1 starts alone in column 0 with Story 1.1, the clean clone and first-run surface. Epic 2 starts at column 3 with Story 2.1, the Rule Engine. Epic 3 starts at column 3 with Story 3.1, the derived lists. Story 4.1, the committed Fixture, is the FR-19 gate: Stories 4.2, 4.3, 4.4, 7.1 and 7.2 all depend on it. Epic 5 runs from column 6 to column 9 and ends the Tier 1 deliverable. Epic 6 runs from column 5 to column 10 and depends only on Story 2.6. Epic 7 runs from column 8 to column 10 and needs both the harness and the Model Engine adapter. Epic 8, the three cuttable refinements, depends on Epics 2 and 3 and nothing depends on it.</desc>
+<defs>
+<marker id="ah1" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#1d4ed8"/></marker>
+<marker id="ah2" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#0e7490"/></marker>
+<marker id="ah3" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#15803d"/></marker>
+<marker id="ah4" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#a16207"/></marker>
+<marker id="ah5" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#b45309"/></marker>
+<marker id="ah6" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#6d28d9"/></marker>
+<marker id="ah7" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#be185d"/></marker>
+<marker id="ah8" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#57616f"/></marker>
+<marker id="ahk" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#3f4652"/></marker>
+</defs>
+<rect width="1976" height="1852" fill="#fcfcfb"/>
+<text x="26" y="44" font-size="25" font-weight="700" fill="#111827">To-Do-List — 8 epics, 38 stories, and the order they must be built in</text>
+<text x="26" y="70" font-size="13" fill="#374151">Every arrow is a prerequisite: the story an arrow points to cannot start until the story it leaves has shipped. Lanes are epics, read top to bottom; the build runs left to right.</text>
+<text x="26" y="90" font-size="13" fill="#374151">A column is the earliest wave a story can be built in — two stories in the same column have no dependency between them, so either order works. Generated from <tspan font-family="Consolas, Menlo, monospace" font-size="12">.docs/planning-artifacts/epics.md</tspan>.</text>
+<text x="26" y="110" font-size="13" fill="#374151">Cutting is deleting whole epics from the bottom, never stories from the middle (PRD section 6.3 cut order, AD-10): drop Epic 8, then Epic 7, then Epic 6, and every remaining arrow still has its source.</text>
+<path d="M 26 142 C 40 142, 42 134, 56 134" fill="none" stroke="#3f4652" stroke-width="1.8" marker-end="url(#ahk)"/>
+<text x="64" y="138" font-size="11.5" fill="#374151">prerequisite inside the same epic</text>
+<path d="M 295.3 142 L 303.3 142 Q 307.3 142 307.3 138 L 307.3 138 Q 307.3 134 311.3 134 L 325.3 134" fill="none" stroke="#0e7490" stroke-width="1.5" marker-end="url(#ah2)"/>
+<text x="333.29999999999995" y="138" font-size="11.5" fill="#374151">prerequisite across epics, coloured by the epic it leaves</text>
+<rect x="711" y="127" width="30" height="16" rx="3" fill="#fffbeb" stroke="#a16207" stroke-width="1.8"/>
+<text x="726" y="138" font-size="9" font-weight="700" fill="#a16207" text-anchor="middle">4.1</text>
+<text x="749" y="138" font-size="11.5" fill="#374151">Story 4.1 is the FR-19 gate: 4.2, 4.3, 4.4, 7.1 and 7.2 all wait for it</text>
+<rect x="1212.1" y="127" width="30" height="16" rx="3" fill="#ffffff" stroke="#cbd2da"/>
+<text x="1250.1" y="138" font-size="11.5" fill="#374151">story box: id, what it delivers, and its lead requirement</text>
+<rect x="12" y="180" width="1952" height="1156" rx="10" fill="#eef4fb" stroke="#c7d8ec" stroke-width="1"/>
+<text x="26" y="758" font-size="11.5" font-weight="700" fill="#64748b" text-anchor="middle" transform="rotate(-90 26 758)">Tier 1 — the viable deliverable</text>
+<rect x="12" y="1342" width="1952" height="190" rx="10" fill="#f4f0fc" stroke="#dbd0f2" stroke-width="1"/>
+<text x="26" y="1437" font-size="11.5" font-weight="700" fill="#64748b" text-anchor="middle" transform="rotate(-90 26 1437)">Tier 2 — Model Engine uplift</text>
+<rect x="12" y="1538" width="1952" height="176" rx="10" fill="#f4f4f5" stroke="#dcdce0" stroke-width="1"/>
+<text x="26" y="1626" font-size="11.5" font-weight="700" fill="#64748b" text-anchor="middle" transform="rotate(-90 26 1626)">Tier 3 — cut first</text>
+<rect x="214" y="182" width="144" height="1530" rx="6" fill="#000000" opacity="0.022"/>
+<text x="286" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 0</text>
+<text x="446" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 1</text>
+<rect x="534" y="182" width="144" height="1530" rx="6" fill="#000000" opacity="0.022"/>
+<text x="606" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 2</text>
+<text x="766" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 3</text>
+<rect x="854" y="182" width="144" height="1530" rx="6" fill="#000000" opacity="0.022"/>
+<text x="926" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 4</text>
+<text x="1086" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 5</text>
+<rect x="1174" y="182" width="144" height="1530" rx="6" fill="#000000" opacity="0.022"/>
+<text x="1246" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 6</text>
+<text x="1406" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 7</text>
+<rect x="1494" y="182" width="144" height="1530" rx="6" fill="#000000" opacity="0.022"/>
+<text x="1566" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 8</text>
+<text x="1726" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 9</text>
+<rect x="1814" y="182" width="144" height="1530" rx="6" fill="#000000" opacity="0.022"/>
+<text x="1886" y="170" font-size="11" font-weight="700" fill="#6b7280" text-anchor="middle">WAVE 10</text>
+<text x="208" y="170" font-size="10.5" fill="#9aa3ae" text-anchor="end">earliest build wave →</text>
+<path d="M 350 316 C 372 316, 360 312, 382 312" fill="none" stroke="#1d4ed8" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 350 308 C 372 308, 360 228, 382 228" fill="none" stroke="#1d4ed8" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 510 300 C 532 300, 520 228, 542 228" fill="none" stroke="#1d4ed8" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 510 308 C 532 308, 520 312, 542 312" fill="none" stroke="#1d4ed8" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 510 316 C 532 316, 520 396, 542 396" fill="none" stroke="#1d4ed8" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 670 312 C 692 312, 680 312, 702 312" fill="none" stroke="#1d4ed8" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 670 304 C 692 304, 680 228, 702 228" fill="none" stroke="#1d4ed8" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 510 324 L 520 324 Q 526 324 526 330 L 526 439 Q 526 445 532 445 L 674.5 445 Q 680.5 445 680.5 451 L 680.5 577.5 Q 680.5 583.5 686.5 583.5 L 702 583.5" fill="none" stroke="#1d4ed8" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 670 228 L 672.5 228 Q 675 228 675 230.5 L 675 566.5 Q 675 572.5 681 572.5 L 702 572.5" fill="none" stroke="#1d4ed8" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 830 558 C 852 558, 840 494, 862 494" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 830 566 C 852 566, 840 578, 862 578" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 830 574 C 852 574, 840 662, 862 662" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 990 570 C 1012 570, 1000 494, 1022 494" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 990 578 L 1182 583.5" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 1150 494 C 1172 494, 1160 572.5, 1182 572.5" fill="none" stroke="#0e7490" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 670 320 L 680 320 Q 686 320 686 326 L 686 832.5 Q 686 838.5 692 838.5 L 702 838.5" fill="none" stroke="#1d4ed8" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 670 392 L 685.5 392 Q 691.5 392 691.5 398 L 691.5 844.3 Q 691.5 849.5 696.8 849.5 L 702 849.5" fill="none" stroke="#1d4ed8" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 830 828 C 852 828, 840 760, 862 760" fill="none" stroke="#15803d" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah3)"/>
+<path d="M 830 844 C 852 844, 840 928, 862 928" fill="none" stroke="#15803d" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah3)"/>
+<path d="M 830 836 C 852 836, 840 849.5, 862 849.5" fill="none" stroke="#15803d" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah3)"/>
+<path d="M 670 400 L 691 400 Q 697 400 697 406 L 697 705 Q 697 711 703 711 L 832.7 711 Q 838.7 711 838.7 717 L 838.7 832.5 Q 838.7 838.5 844.7 838.5 L 862 838.5" fill="none" stroke="#1d4ed8" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah1)"/>
+<path d="M 830 590 L 840 590 Q 846 590 846 596 L 846 1098.5 Q 846 1104.5 852 1104.5 L 862 1104.5" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 830 852 L 847.3 852 Q 853.3 852 853.3 858 L 853.3 1111.2 Q 853.3 1115.5 857.7 1115.5 L 862 1115.5" fill="none" stroke="#15803d" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah3)"/>
+<path d="M 990 1094 C 1012 1094, 1000 1031.5, 1022 1031.5" fill="none" stroke="#a16207" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah4)"/>
+<path d="M 830 582 L 836.3 582 Q 842.3 582 842.3 588 L 842.3 961 Q 842.3 967 848.3 967 L 989 967 Q 995 967 995 973 L 995 1014.5 Q 995 1020.5 1001 1020.5 L 1022 1020.5" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 990 1110 C 1012 1110, 1000 1199.5, 1022 1199.5" fill="none" stroke="#a16207" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah4)"/>
+<path d="M 830 860 L 851 860 Q 857 860 857 866 L 857 981 Q 857 987 863 987 L 1002.8 987 Q 1008.8 987 1008.8 993 L 1008.8 1182.5 Q 1008.8 1188.5 1014.8 1188.5 L 1022 1188.5" fill="none" stroke="#15803d" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah3)"/>
+<path d="M 990 1102 L 1182 1115.5" fill="none" stroke="#a16207" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah4)"/>
+<path d="M 1150 1018 C 1172 1018, 1160 1104.5, 1182 1104.5" fill="none" stroke="#a16207" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah4)"/>
+<path d="M 1150 1026 L 1152.5 1026 Q 1155 1026 1155 1028.5 L 1155 1286 Q 1155 1292 1161 1292 L 1182 1292" fill="none" stroke="#a16207" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah4)"/>
+<path d="M 1310 1288 C 1332 1288, 1320 1292, 1342 1292" fill="none" stroke="#b45309" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah5)"/>
+<path d="M 1470 1288 C 1492 1288, 1480 1292, 1502 1292" fill="none" stroke="#b45309" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah5)"/>
+<path d="M 1310 1296 L 1320 1296 Q 1326 1296 1326 1302 L 1326 1325 Q 1326 1331 1332 1331 L 1640 1331 Q 1646 1331 1646 1325 L 1646 1292.5 Q 1646 1286.5 1652 1286.5 L 1662 1286.5" fill="none" stroke="#b45309" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah5)"/>
+<path d="M 1630 1292 C 1652 1292, 1640 1297.5, 1662 1297.5" fill="none" stroke="#b45309" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah5)"/>
+<path d="M 990 658 L 997.3 658 Q 1003.3 658 1003.3 664 L 1003.3 1384 Q 1003.3 1390 1009.3 1390 L 1022 1390" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 1150 1390 C 1172 1390, 1160 1390, 1182 1390" fill="none" stroke="#6d28d9" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah6)"/>
+<path d="M 1310 1390 C 1332 1390, 1320 1390, 1342 1390" fill="none" stroke="#6d28d9" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah6)"/>
+<path d="M 1470 1386 C 1492 1386, 1480 1390, 1502 1390" fill="none" stroke="#6d28d9" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah6)"/>
+<path d="M 1630 1386 C 1652 1386, 1640 1390, 1662 1390" fill="none" stroke="#6d28d9" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah6)"/>
+<path d="M 1630 1394 L 1651 1394 Q 1657 1394 1657 1388 L 1657 1357 Q 1657 1351 1663 1351 L 1811 1351 Q 1817 1351 1817 1357 L 1817 1382 Q 1817 1384.5 1819.5 1384.5 L 1822 1384.5" fill="none" stroke="#6d28d9" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah6)"/>
+<path d="M 1790 1390 C 1812 1390, 1800 1395.5, 1822 1395.5" fill="none" stroke="#6d28d9" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah6)"/>
+<path d="M 990 1118 L 1008.3 1118 Q 1014.3 1118 1014.3 1124 L 1014.3 1429.7 Q 1014.3 1435.7 1020.3 1435.7 L 1476.3 1435.7 Q 1482.3 1435.7 1482.3 1441.7 L 1482.3 1482 Q 1482.3 1488 1488.3 1488 L 1502 1488" fill="none" stroke="#a16207" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah4)"/>
+<path d="M 1150 1034 L 1171 1034 Q 1177 1034 1177 1040 L 1177 1423 Q 1177 1429 1183 1429 L 1469 1429 Q 1475 1429 1475 1435 L 1475 1471 Q 1475 1477 1481 1477 L 1502 1477" fill="none" stroke="#a16207" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah4)"/>
+<path d="M 1470 1394 L 1491 1394 Q 1497 1394 1497 1400 L 1497 1496.5 Q 1497 1499 1499.5 1499 L 1502 1499" fill="none" stroke="#6d28d9" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah6)"/>
+<path d="M 990 1126 L 1011 1126 Q 1017 1126 1017 1132 L 1017 1436.3 Q 1017 1442.3 1023 1442.3 L 1629 1442.3 Q 1635 1442.3 1635 1448.3 L 1635 1476.5 Q 1635 1482.5 1641 1482.5 L 1662 1482.5" fill="none" stroke="#a16207" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah4)"/>
+<path d="M 1630 1488 C 1652 1488, 1640 1493.5, 1662 1493.5" fill="none" stroke="#be185d" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah7)"/>
+<path d="M 1470 1296 L 1483.7 1296 Q 1489.7 1296 1489.7 1302 L 1489.7 1443 Q 1489.7 1449 1495.7 1449 L 1789 1449 Q 1795 1449 1795 1455 L 1795 1476.5 Q 1795 1482.5 1801 1482.5 L 1822 1482.5" fill="none" stroke="#b45309" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah5)"/>
+<path d="M 1790 1488 C 1812 1488, 1800 1493.5, 1822 1493.5" fill="none" stroke="#be185d" stroke-width="1.8" stroke-opacity="0.85" stroke-linecap="round" marker-end="url(#ah7)"/>
+<path d="M 830 598 L 843.7 598 Q 849.7 598 849.7 604 L 849.7 1531 Q 849.7 1537 855.7 1537 L 991.8 1537 Q 997.8 1537 997.8 1543 L 997.8 1574.5 Q 997.8 1580.5 1003.8 1580.5 L 1022 1580.5" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 990 586 L 995.3 586 Q 1000.5 586 1000.5 591.3 L 1000.5 1585.5 Q 1000.5 1591.5 1006.5 1591.5 L 1022 1591.5" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 990 844 L 1005.5 844 Q 1011.5 844 1011.5 850 L 1011.5 1670.3 Q 1011.5 1675.5 1016.8 1675.5 L 1022 1675.5" fill="none" stroke="#15803d" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah3)"/>
+<path d="M 990 666 L 1000 666 Q 1006 666 1006 672 L 1006 1658.5 Q 1006 1664.5 1012 1664.5 L 1022 1664.5" fill="none" stroke="#0e7490" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah2)"/>
+<path d="M 830 312 L 832.5 312 Q 835 312 835 314.5 L 835 1580 Q 835 1586 841 1586 L 862 1586" fill="none" stroke="#1d4ed8" stroke-width="1.5" stroke-opacity="0.95" stroke-linecap="round" marker-end="url(#ah1)"/>
+<rect x="38" y="196" width="3.5" height="232" rx="1.75" fill="#1d4ed8"/>
+<text x="50" y="293" font-size="13.5" font-weight="700" fill="#1d4ed8">Epic 1</text>
+<text x="50" y="308" font-size="10.5" font-weight="600" fill="#1f2937">Capture and keep a task</text>
+<text x="50" y="323" font-size="9.5" font-weight="400" fill="#6b7280">FR-1 – FR-5, FR-23</text>
+<text x="50" y="338" font-size="9.5" font-weight="400" fill="#6b7280">8 stories · no prerequisites</text>
+<rect x="38" y="462" width="3.5" height="232" rx="1.75" fill="#0e7490"/>
+<text x="50" y="551.5" font-size="13.5" font-weight="700" fill="#0e7490">Epic 2</text>
+<text x="50" y="566.5" font-size="10.5" font-weight="600" fill="#1f2937">Structure proposed, never</text>
+<text x="50" y="581.5" font-size="10.5" font-weight="600" fill="#1f2937">imposed</text>
+<text x="50" y="596.5" font-size="9.5" font-weight="400" fill="#6b7280">FR-6 – FR-8, FR-10</text>
+<text x="50" y="611.5" font-size="9.5" font-weight="400" fill="#6b7280">6 stories · after Epic 1</text>
+<rect x="38" y="728" width="3.5" height="232" rx="1.75" fill="#15803d"/>
+<text x="50" y="825" font-size="13.5" font-weight="700" fill="#15803d">Epic 3</text>
+<text x="50" y="840" font-size="10.5" font-weight="600" fill="#1f2937">Views you never built</text>
+<text x="50" y="855" font-size="9.5" font-weight="400" fill="#6b7280">FR-12 – FR-14, FR-16</text>
+<text x="50" y="870" font-size="9.5" font-weight="400" fill="#6b7280">4 stories · after Epic 1</text>
+<rect x="38" y="994" width="3.5" height="232" rx="1.75" fill="#a16207"/>
+<text x="50" y="1091" font-size="13.5" font-weight="700" fill="#a16207">Epic 4</text>
+<text x="50" y="1106" font-size="10.5" font-weight="600" fill="#1f2937">Prove the engine</text>
+<text x="50" y="1121" font-size="9.5" font-weight="400" fill="#6b7280">FR-15, FR-19, FR-20</text>
+<text x="50" y="1136" font-size="9.5" font-weight="400" fill="#6b7280">4 stories · after Epics 2 and 3</text>
+<rect x="38" y="1260" width="3.5" height="64" rx="1.75" fill="#b45309"/>
+<text x="50" y="1273" font-size="13.5" font-weight="700" fill="#b45309">Epic 5</text>
+<text x="50" y="1288" font-size="10.5" font-weight="600" fill="#1f2937">The grader's clean clone</text>
+<text x="50" y="1303" font-size="9.5" font-weight="400" fill="#6b7280">NFR-7, NFR-9, SM-2</text>
+<text x="50" y="1318" font-size="9.5" font-weight="400" fill="#6b7280">4 stories · after Epic 4</text>
+<rect x="38" y="1358" width="3.5" height="64" rx="1.75" fill="#6d28d9"/>
+<text x="50" y="1371" font-size="13.5" font-weight="700" fill="#6d28d9">Epic 6</text>
+<text x="50" y="1386" font-size="10.5" font-weight="600" fill="#1f2937">Bring your own key</text>
+<text x="50" y="1401" font-size="9.5" font-weight="400" fill="#6b7280">FR-9, FR-11, FR-17, FR-18</text>
+<text x="50" y="1416" font-size="9.5" font-weight="400" fill="#6b7280">6 stories · after Epic 2</text>
+<rect x="38" y="1456" width="3.5" height="64" rx="1.75" fill="#be185d"/>
+<text x="50" y="1469" font-size="13.5" font-weight="700" fill="#be185d">Epic 7</text>
+<text x="50" y="1484" font-size="10.5" font-weight="600" fill="#1f2937">Show where the model wins</text>
+<text x="50" y="1499" font-size="9.5" font-weight="400" fill="#6b7280">FR-21</text>
+<text x="50" y="1514" font-size="9.5" font-weight="400" fill="#6b7280">3 stories · after Epics 4 and 6</text>
+<rect x="38" y="1554" width="3.5" height="148" rx="1.75" fill="#57616f"/>
+<text x="50" y="1609" font-size="13.5" font-weight="700" fill="#57616f">Epic 8</text>
+<text x="50" y="1624" font-size="10.5" font-weight="600" fill="#1f2937">Refinements that may be cut</text>
+<text x="50" y="1639" font-size="9.5" font-weight="400" fill="#6b7280">FR-22, FR-16, FR-3</text>
+<text x="50" y="1654" font-size="9.5" font-weight="400" fill="#6b7280">3 stories · after Epics 2 and 3</text>
+<g>
+<rect x="222" y="280" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="222" y="280" width="4" height="64" rx="2" fill="#1d4ed8"/>
+<text x="233" y="295" font-size="10.5" font-weight="700" fill="#1d4ed8">Story 1.1</text>
+<text x="342" y="295" font-size="8.5" fill="#8b949e" text-anchor="end">NFR-4 · SM-2</text>
+<text x="233" y="311" font-size="9.5" fill="#1f2937">Clean clone runs,</text>
+<text x="233" y="323" font-size="9.5" fill="#1f2937">first-run surface</text>
+<text x="233" y="335" font-size="8.5" fill="#1d4ed8" font-style="italic">starts the build</text>
+</g>
+<g>
+<rect x="382" y="196" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="382" y="196" width="4" height="64" rx="2" fill="#1d4ed8"/>
+<text x="393" y="211" font-size="10.5" font-weight="700" fill="#1d4ed8">Story 1.8</text>
+<text x="502" y="211" font-size="8.5" fill="#8b949e" text-anchor="end">NFR-3</text>
+<text x="393" y="227" font-size="9.5" fill="#1f2937">Install it, open it</text>
+<text x="393" y="239" font-size="9.5" fill="#1f2937">offline</text>
+<text x="393" y="251" font-size="8.5" fill="#7a8390" font-style="normal">after 1.1</text>
+</g>
+<g>
+<rect x="382" y="280" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="382" y="280" width="4" height="64" rx="2" fill="#1d4ed8"/>
+<text x="393" y="295" font-size="10.5" font-weight="700" fill="#1d4ed8">Story 1.2</text>
+<text x="502" y="295" font-size="8.5" fill="#8b949e" text-anchor="end">FR-1 · NFR-1</text>
+<text x="393" y="311" font-size="9.5" fill="#1f2937">Create a Task from</text>
+<text x="393" y="323" font-size="9.5" fill="#1f2937">one sentence</text>
+<text x="393" y="335" font-size="8.5" fill="#7a8390" font-style="normal">after 1.1</text>
+</g>
+<g>
+<rect x="542" y="196" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="542" y="196" width="4" height="64" rx="2" fill="#1d4ed8"/>
+<text x="553" y="211" font-size="10.5" font-weight="700" fill="#1d4ed8">Story 1.3</text>
+<text x="662" y="211" font-size="8.5" fill="#8b949e" text-anchor="end">FR-23</text>
+<text x="553" y="227" font-size="9.5" fill="#1f2937">The due date the</text>
+<text x="553" y="239" font-size="9.5" fill="#1f2937">date word named</text>
+<text x="553" y="251" font-size="8.5" fill="#7a8390" font-style="normal">after 1.2</text>
+</g>
+<g>
+<rect x="542" y="280" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="542" y="280" width="4" height="64" rx="2" fill="#1d4ed8"/>
+<text x="553" y="295" font-size="10.5" font-weight="700" fill="#1d4ed8">Story 1.4</text>
+<text x="662" y="295" font-size="8.5" fill="#8b949e" text-anchor="end">FR-2</text>
+<text x="553" y="311" font-size="9.5" fill="#1f2937">Read the list,</text>
+<text x="553" y="323" font-size="9.5" fill="#1f2937">open a Task</text>
+<text x="553" y="335" font-size="8.5" fill="#7a8390" font-style="normal">after 1.2</text>
+</g>
+<g>
+<rect x="542" y="364" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="542" y="364" width="4" height="64" rx="2" fill="#1d4ed8"/>
+<text x="553" y="379" font-size="10.5" font-weight="700" fill="#1d4ed8">Story 1.6</text>
+<text x="662" y="379" font-size="8.5" fill="#8b949e" text-anchor="end">FR-5</text>
+<text x="553" y="395" font-size="9.5" fill="#1f2937">Complete and</text>
+<text x="553" y="407" font-size="9.5" fill="#1f2937">un-complete</text>
+<text x="553" y="419" font-size="8.5" fill="#7a8390" font-style="normal">after 1.2</text>
+</g>
+<g>
+<rect x="702" y="196" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="702" y="196" width="4" height="64" rx="2" fill="#1d4ed8"/>
+<text x="713" y="211" font-size="10.5" font-weight="700" fill="#1d4ed8">Story 1.7</text>
+<text x="822" y="211" font-size="8.5" fill="#8b949e" text-anchor="end">FR-4</text>
+<text x="713" y="227" font-size="9.5" fill="#1f2937">Delete a Task</text>
+<text x="713" y="251" font-size="8.5" fill="#7a8390" font-style="normal">after 1.4</text>
+</g>
+<g>
+<rect x="702" y="280" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="702" y="280" width="4" height="64" rx="2" fill="#1d4ed8"/>
+<text x="713" y="295" font-size="10.5" font-weight="700" fill="#1d4ed8">Story 1.5</text>
+<text x="822" y="295" font-size="8.5" fill="#8b949e" text-anchor="end">FR-3</text>
+<text x="713" y="311" font-size="9.5" fill="#1f2937">Edit any field</text>
+<text x="713" y="323" font-size="9.5" fill="#1f2937">of a Task</text>
+<text x="713" y="335" font-size="8.5" fill="#7a8390" font-style="normal">after 1.4</text>
+</g>
+<g>
+<rect x="702" y="546" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="702" y="546" width="4" height="64" rx="2" fill="#0e7490"/>
+<text x="713" y="561" font-size="10.5" font-weight="700" fill="#0e7490">Story 2.1</text>
+<text x="822" y="561" font-size="8.5" fill="#8b949e" text-anchor="end">FR-6 · FR-7</text>
+<text x="713" y="577" font-size="9.5" fill="#1f2937">Rule Engine proposes</text>
+<text x="713" y="589" font-size="9.5" fill="#1f2937">tags, priority, summary</text>
+<text x="713" y="601" font-size="8.5" fill="#7a8390" font-style="normal">after 1.2 · 1.3</text>
+</g>
+<g>
+<rect x="862" y="462" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="862" y="462" width="4" height="64" rx="2" fill="#0e7490"/>
+<text x="873" y="477" font-size="10.5" font-weight="700" fill="#0e7490">Story 2.2</text>
+<text x="982" y="477" font-size="8.5" fill="#8b949e" text-anchor="end">FR-8 · SM-4</text>
+<text x="873" y="493" font-size="9.5" fill="#1f2937">Capture never waits</text>
+<text x="873" y="505" font-size="9.5" fill="#1f2937">for the proposal</text>
+<text x="873" y="517" font-size="8.5" fill="#7a8390" font-style="normal">after 2.1</text>
+</g>
+<g>
+<rect x="862" y="546" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="862" y="546" width="4" height="64" rx="2" fill="#0e7490"/>
+<text x="873" y="561" font-size="10.5" font-weight="700" fill="#0e7490">Story 2.3</text>
+<text x="982" y="561" font-size="8.5" fill="#8b949e" text-anchor="end">FR-10</text>
+<text x="873" y="577" font-size="9.5" fill="#1f2937">Punch, edit or strike</text>
+<text x="873" y="589" font-size="9.5" fill="#1f2937">one control</text>
+<text x="873" y="601" font-size="8.5" fill="#7a8390" font-style="normal">after 2.1</text>
+</g>
+<g>
+<rect x="862" y="630" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="862" y="630" width="4" height="64" rx="2" fill="#0e7490"/>
+<text x="873" y="645" font-size="10.5" font-weight="700" fill="#0e7490">Story 2.6</text>
+<text x="982" y="645" font-size="8.5" fill="#8b949e" text-anchor="end">FR-11</text>
+<text x="873" y="661" font-size="9.5" fill="#1f2937">Settings tells the</text>
+<text x="873" y="673" font-size="9.5" fill="#1f2937">truth with no key</text>
+<text x="873" y="685" font-size="8.5" fill="#7a8390" font-style="normal">after 2.1</text>
+</g>
+<g>
+<rect x="1022" y="462" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1022" y="462" width="4" height="64" rx="2" fill="#0e7490"/>
+<text x="1033" y="477" font-size="10.5" font-weight="700" fill="#0e7490">Story 2.4</text>
+<text x="1142" y="477" font-size="8.5" fill="#8b949e" text-anchor="end">FR-10</text>
+<text x="1033" y="493" font-size="9.5" fill="#1f2937">Undo the punch</text>
+<text x="1033" y="505" font-size="9.5" fill="#1f2937">I just made</text>
+<text x="1033" y="517" font-size="8.5" fill="#7a8390" font-style="normal">after 2.3</text>
+</g>
+<g>
+<rect x="1182" y="546" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1182" y="546" width="4" height="64" rx="2" fill="#0e7490"/>
+<text x="1193" y="561" font-size="10.5" font-weight="700" fill="#0e7490">Story 2.5</text>
+<text x="1302" y="561" font-size="8.5" fill="#8b949e" text-anchor="end">FR-10</text>
+<text x="1193" y="577" font-size="9.5" fill="#1f2937">Punch all and</text>
+<text x="1193" y="589" font-size="9.5" fill="#1f2937">Strike all</text>
+<text x="1193" y="601" font-size="8.5" fill="#7a8390" font-style="normal">after 2.3 · 2.4</text>
+</g>
+<g>
+<rect x="702" y="812" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="702" y="812" width="4" height="64" rx="2" fill="#15803d"/>
+<text x="713" y="827" font-size="10.5" font-weight="700" fill="#15803d">Story 3.1</text>
+<text x="822" y="827" font-size="8.5" fill="#8b949e" text-anchor="end">FR-12 · FR-13</text>
+<text x="713" y="843" font-size="9.5" fill="#1f2937">Today shows the three</text>
+<text x="713" y="855" font-size="9.5" fill="#1f2937">derived lists</text>
+<text x="713" y="867" font-size="8.5" fill="#7a8390" font-style="normal">after 1.4 · 1.6</text>
+</g>
+<g>
+<rect x="862" y="728" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="862" y="728" width="4" height="64" rx="2" fill="#15803d"/>
+<text x="873" y="743" font-size="10.5" font-weight="700" fill="#15803d">Story 3.2</text>
+<text x="982" y="743" font-size="8.5" fill="#8b949e" text-anchor="end">FR-14</text>
+<text x="873" y="759" font-size="9.5" fill="#1f2937">A list per Tag, and</text>
+<text x="873" y="771" font-size="9.5" fill="#1f2937">every list in one place</text>
+<text x="873" y="783" font-size="8.5" fill="#7a8390" font-style="normal">after 3.1</text>
+</g>
+<g>
+<rect x="862" y="812" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="862" y="812" width="4" height="64" rx="2" fill="#15803d"/>
+<text x="873" y="827" font-size="10.5" font-weight="700" fill="#15803d">Story 3.4</text>
+<text x="982" y="827" font-size="8.5" fill="#8b949e" text-anchor="end">FR-16</text>
+<text x="873" y="843" font-size="9.5" fill="#1f2937">Completed work lands</text>
+<text x="873" y="855" font-size="9.5" fill="#1f2937">in Archive</text>
+<text x="873" y="867" font-size="8.5" fill="#7a8390" font-style="normal">after 3.1 · 1.6</text>
+</g>
+<g>
+<rect x="862" y="896" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="862" y="896" width="4" height="64" rx="2" fill="#15803d"/>
+<text x="873" y="911" font-size="10.5" font-weight="700" fill="#15803d">Story 3.3</text>
+<text x="982" y="911" font-size="8.5" fill="#8b949e" text-anchor="end">UX-DR13</text>
+<text x="873" y="927" font-size="9.5" fill="#1f2937">The legend publishes</text>
+<text x="873" y="939" font-size="9.5" fill="#1f2937">every mark</text>
+<text x="873" y="951" font-size="8.5" fill="#7a8390" font-style="normal">after 3.1</text>
+</g>
+<g>
+<rect x="862" y="1078" width="128" height="64" rx="5" fill="#ffffff" stroke="#a16207" stroke-width="2.2"/>
+<rect x="862" y="1078" width="4" height="64" rx="2" fill="#a16207"/>
+<rect x="866" y="1079" width="123" height="62" rx="4" fill="#fffbeb" opacity="0.85"/>
+<text x="873" y="1093" font-size="10.5" font-weight="700" fill="#a16207">Story 4.1</text>
+<text x="982" y="1093" font-size="8.5" fill="#8b949e" text-anchor="end">FR-19</text>
+<text x="873" y="1109" font-size="9.5" fill="#1f2937">The Fixture is</text>
+<text x="873" y="1121" font-size="9.5" fill="#1f2937">committed</text>
+<text x="873" y="1133" font-size="8.5" fill="#7a8390" font-style="normal">after 2.1 · 3.1</text>
+</g>
+<g>
+<rect x="1022" y="994" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1022" y="994" width="4" height="64" rx="2" fill="#a16207"/>
+<text x="1033" y="1009" font-size="10.5" font-weight="700" fill="#a16207">Story 4.2</text>
+<text x="1142" y="1009" font-size="8.5" fill="#8b949e" text-anchor="end">FR-20 · SM-1</text>
+<text x="1033" y="1025" font-size="9.5" fill="#1f2937">One command reports</text>
+<text x="1033" y="1037" font-size="9.5" fill="#1f2937">engine accuracy</text>
+<text x="1033" y="1049" font-size="8.5" fill="#7a8390" font-style="normal">after 4.1 · 2.1</text>
+</g>
+<g>
+<rect x="1022" y="1162" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1022" y="1162" width="4" height="64" rx="2" fill="#a16207"/>
+<text x="1033" y="1177" font-size="10.5" font-weight="700" fill="#a16207">Story 4.3</text>
+<text x="1142" y="1177" font-size="8.5" fill="#8b949e" text-anchor="end">FR-15</text>
+<text x="1033" y="1193" font-size="9.5" fill="#1f2937">Smart List placement</text>
+<text x="1033" y="1205" font-size="9.5" fill="#1f2937">is asserted</text>
+<text x="1033" y="1217" font-size="8.5" fill="#7a8390" font-style="normal">after 4.1 · 3.1</text>
+</g>
+<g>
+<rect x="1182" y="1078" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1182" y="1078" width="4" height="64" rx="2" fill="#a16207"/>
+<text x="1193" y="1093" font-size="10.5" font-weight="700" fill="#a16207">Story 4.4</text>
+<text x="1302" y="1093" font-size="8.5" fill="#8b949e" text-anchor="end">SM-1 · SM-C2</text>
+<text x="1193" y="1109" font-size="9.5" fill="#1f2937">CI fails below the</text>
+<text x="1193" y="1121" font-size="9.5" fill="#1f2937">committed floor</text>
+<text x="1193" y="1133" font-size="8.5" fill="#7a8390" font-style="normal">after 4.1 · 4.2</text>
+</g>
+<g>
+<rect x="1182" y="1260" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1182" y="1260" width="4" height="64" rx="2" fill="#b45309"/>
+<text x="1193" y="1275" font-size="10.5" font-weight="700" fill="#b45309">Story 5.1</text>
+<text x="1302" y="1275" font-size="8.5" fill="#8b949e" text-anchor="end">NFR-7 · SM-2</text>
+<text x="1193" y="1291" font-size="9.5" fill="#1f2937">README: fresh clone</text>
+<text x="1193" y="1303" font-size="9.5" fill="#1f2937">to a running app</text>
+<text x="1193" y="1315" font-size="8.5" fill="#7a8390" font-style="normal">after 4.2</text>
+</g>
+<g>
+<rect x="1342" y="1260" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1342" y="1260" width="4" height="64" rx="2" fill="#b45309"/>
+<text x="1353" y="1275" font-size="10.5" font-weight="700" fill="#b45309">Story 5.2</text>
+<text x="1462" y="1275" font-size="8.5" fill="#8b949e" text-anchor="end">NFR-9</text>
+<text x="1353" y="1291" font-size="9.5" fill="#1f2937">README explains the</text>
+<text x="1353" y="1303" font-size="9.5" fill="#1f2937">AI decision</text>
+<text x="1353" y="1315" font-size="8.5" fill="#7a8390" font-style="normal">after 5.1</text>
+</g>
+<g>
+<rect x="1502" y="1260" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1502" y="1260" width="4" height="64" rx="2" fill="#b45309"/>
+<text x="1513" y="1275" font-size="10.5" font-weight="700" fill="#b45309">Story 5.3</text>
+<text x="1622" y="1275" font-size="8.5" fill="#8b949e" text-anchor="end">NFR-9</text>
+<text x="1513" y="1291" font-size="9.5" fill="#1f2937">README carries the</text>
+<text x="1513" y="1303" font-size="9.5" fill="#1f2937">architecture section</text>
+<text x="1513" y="1315" font-size="8.5" fill="#7a8390" font-style="normal">after 5.2</text>
+</g>
+<g>
+<rect x="1662" y="1260" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1662" y="1260" width="4" height="64" rx="2" fill="#b45309"/>
+<text x="1673" y="1275" font-size="10.5" font-weight="700" fill="#b45309">Story 5.4</text>
+<text x="1782" y="1275" font-size="8.5" fill="#8b949e" text-anchor="end">SM-2</text>
+<text x="1673" y="1291" font-size="9.5" fill="#1f2937">SM-2 verified on a</text>
+<text x="1673" y="1303" font-size="9.5" fill="#1f2937">clean machine</text>
+<text x="1673" y="1315" font-size="8.5" fill="#7a8390" font-style="normal">after 5.1 · 5.3</text>
+</g>
+<g>
+<rect x="1022" y="1358" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1022" y="1358" width="4" height="64" rx="2" fill="#6d28d9"/>
+<text x="1033" y="1373" font-size="10.5" font-weight="700" fill="#6d28d9">Story 6.1</text>
+<text x="1142" y="1373" font-size="8.5" fill="#8b949e" text-anchor="end">FR-17</text>
+<text x="1033" y="1389" font-size="9.5" fill="#1f2937">Save and clear my</text>
+<text x="1033" y="1401" font-size="9.5" fill="#1f2937">own API Key</text>
+<text x="1033" y="1413" font-size="8.5" fill="#7a8390" font-style="normal">after 2.6</text>
+</g>
+<g>
+<rect x="1182" y="1358" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1182" y="1358" width="4" height="64" rx="2" fill="#6d28d9"/>
+<text x="1193" y="1373" font-size="10.5" font-weight="700" fill="#6d28d9">Story 6.2</text>
+<text x="1302" y="1373" font-size="8.5" fill="#8b949e" text-anchor="end">FR-18</text>
+<text x="1193" y="1389" font-size="9.5" fill="#1f2937">Turn on Cloud</text>
+<text x="1193" y="1401" font-size="9.5" fill="#1f2937">Suggestions</text>
+<text x="1193" y="1413" font-size="8.5" fill="#7a8390" font-style="normal">after 6.1</text>
+</g>
+<g>
+<rect x="1342" y="1358" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1342" y="1358" width="4" height="64" rx="2" fill="#6d28d9"/>
+<text x="1353" y="1373" font-size="10.5" font-weight="700" fill="#6d28d9">Story 6.3</text>
+<text x="1462" y="1373" font-size="8.5" fill="#8b949e" text-anchor="end">FR-9</text>
+<text x="1353" y="1389" font-size="9.5" fill="#1f2937">Model Engine proposes,</text>
+<text x="1353" y="1401" font-size="9.5" fill="#1f2937">the chip says so</text>
+<text x="1353" y="1413" font-size="8.5" fill="#7a8390" font-style="normal">after 6.2</text>
+</g>
+<g>
+<rect x="1502" y="1358" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1502" y="1358" width="4" height="64" rx="2" fill="#6d28d9"/>
+<text x="1513" y="1373" font-size="10.5" font-weight="700" fill="#6d28d9">Story 6.4</text>
+<text x="1622" y="1373" font-size="8.5" fill="#8b949e" text-anchor="end">FR-9 · NFR-2</text>
+<text x="1513" y="1389" font-size="9.5" fill="#1f2937">Every failure silent,</text>
+<text x="1513" y="1401" font-size="9.5" fill="#1f2937">Rule Engine serves</text>
+<text x="1513" y="1413" font-size="8.5" fill="#7a8390" font-style="normal">after 6.3</text>
+</g>
+<g>
+<rect x="1662" y="1358" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1662" y="1358" width="4" height="64" rx="2" fill="#6d28d9"/>
+<text x="1673" y="1373" font-size="10.5" font-weight="700" fill="#6d28d9">Story 6.5</text>
+<text x="1782" y="1373" font-size="8.5" fill="#8b949e" text-anchor="end">FR-11</text>
+<text x="1673" y="1389" font-size="9.5" fill="#1f2937">Settings explains a</text>
+<text x="1673" y="1401" font-size="9.5" fill="#1f2937">persistent failure</text>
+<text x="1673" y="1413" font-size="8.5" fill="#7a8390" font-style="normal">after 6.4</text>
+</g>
+<g>
+<rect x="1822" y="1358" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1822" y="1358" width="4" height="64" rx="2" fill="#6d28d9"/>
+<text x="1833" y="1373" font-size="10.5" font-weight="700" fill="#6d28d9">Story 6.6</text>
+<text x="1942" y="1373" font-size="8.5" fill="#8b949e" text-anchor="end">NFR-8</text>
+<text x="1833" y="1389" font-size="9.5" fill="#1f2937">Mocked tests cover</text>
+<text x="1833" y="1401" font-size="9.5" fill="#1f2937">every fallback</text>
+<text x="1833" y="1413" font-size="8.5" fill="#7a8390" font-style="normal">after 6.4 · 6.5</text>
+</g>
+<g>
+<rect x="1502" y="1456" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1502" y="1456" width="4" height="64" rx="2" fill="#be185d"/>
+<text x="1513" y="1471" font-size="10.5" font-weight="700" fill="#be185d">Story 7.1</text>
+<text x="1622" y="1471" font-size="8.5" fill="#8b949e" text-anchor="end">FR-21</text>
+<text x="1513" y="1487" font-size="9.5" fill="#1f2937">The harness measures</text>
+<text x="1513" y="1499" font-size="9.5" fill="#1f2937">the Model Engine</text>
+<text x="1513" y="1511" font-size="8.5" fill="#7a8390" font-style="normal">after 4.1 · 4.2 · 6.3</text>
+</g>
+<g>
+<rect x="1662" y="1456" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1662" y="1456" width="4" height="64" rx="2" fill="#be185d"/>
+<text x="1673" y="1471" font-size="10.5" font-weight="700" fill="#be185d">Story 7.2</text>
+<text x="1782" y="1471" font-size="8.5" fill="#8b949e" text-anchor="end">SM-3</text>
+<text x="1673" y="1487" font-size="9.5" fill="#1f2937">The comparison is</text>
+<text x="1673" y="1499" font-size="9.5" fill="#1f2937">committed</text>
+<text x="1673" y="1511" font-size="8.5" fill="#7a8390" font-style="normal">after 4.1 · 7.1</text>
+</g>
+<g>
+<rect x="1822" y="1456" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1822" y="1456" width="4" height="64" rx="2" fill="#be185d"/>
+<text x="1833" y="1471" font-size="10.5" font-weight="700" fill="#be185d">Story 7.3</text>
+<text x="1942" y="1471" font-size="8.5" fill="#8b949e" text-anchor="end">NFR-9</text>
+<text x="1833" y="1487" font-size="9.5" fill="#1f2937">README: measured</text>
+<text x="1833" y="1499" font-size="9.5" fill="#1f2937">results, screenshot</text>
+<text x="1833" y="1511" font-size="8.5" fill="#7a8390" font-style="normal">after 5.2 · 7.2</text>
+</g>
+<g>
+<rect x="862" y="1554" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="862" y="1554" width="4" height="64" rx="2" fill="#57616f"/>
+<text x="873" y="1569" font-size="10.5" font-weight="700" fill="#57616f">Story 8.3</text>
+<text x="982" y="1569" font-size="8.5" fill="#8b949e" text-anchor="end">FR-3</text>
+<text x="873" y="1585" font-size="9.5" fill="#1f2937">Group Tasks under</text>
+<text x="873" y="1597" font-size="9.5" fill="#1f2937">a Project</text>
+<text x="873" y="1609" font-size="8.5" fill="#7a8390" font-style="normal">after 1.5</text>
+</g>
+<g>
+<rect x="1022" y="1554" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1022" y="1554" width="4" height="64" rx="2" fill="#57616f"/>
+<text x="1033" y="1569" font-size="10.5" font-weight="700" fill="#57616f">Story 8.1</text>
+<text x="1142" y="1569" font-size="8.5" fill="#8b949e" text-anchor="end">FR-22</text>
+<text x="1033" y="1585" font-size="9.5" fill="#1f2937">Ask for a fresh</text>
+<text x="1033" y="1597" font-size="9.5" fill="#1f2937">proposal</text>
+<text x="1033" y="1609" font-size="8.5" fill="#7a8390" font-style="normal">after 2.1 · 2.3</text>
+</g>
+<g>
+<rect x="1022" y="1638" width="128" height="64" rx="5" fill="#ffffff" stroke="#cbd2da" stroke-width="1"/>
+<rect x="1022" y="1638" width="4" height="64" rx="2" fill="#57616f"/>
+<text x="1033" y="1653" font-size="10.5" font-weight="700" fill="#57616f">Story 8.2</text>
+<text x="1142" y="1653" font-size="8.5" fill="#8b949e" text-anchor="end">FR-16</text>
+<text x="1033" y="1669" font-size="9.5" fill="#1f2937">Choose how long</text>
+<text x="1033" y="1681" font-size="9.5" fill="#1f2937">completed Tasks stay</text>
+<text x="1033" y="1693" font-size="8.5" fill="#7a8390" font-style="normal">after 3.4 · 2.6</text>
+</g>
+<text x="26" y="1760" font-size="11.5" fill="#4b5563">53 prerequisite edges, all pointing forwards: no story in this figure depends on a story to its right, inside its epic or outside it. Story titles are shortened to fit — <tspan font-family="Consolas, Menlo, monospace" font-size="11">epics.md</tspan> carries the full title, the acceptance criteria and the spine row for each one.</text>
+<text x="26" y="1780" font-size="11.5" fill="#4b5563">Waves are a dependency fact, not a schedule: one builder works one story at a time, and <tspan font-family="Consolas, Menlo, monospace" font-size="11">bmad-sprint-planning</tspan> flattens this graph into the single ordered queue in <tspan font-family="Consolas, Menlo, monospace" font-size="11">sprint-status.md</tspan>.</text>
+<text x="26" y="1800" font-size="10.5" fill="#9aa3ae">Illustrative figure for IBE160 · To-Do-List · drawn 2026-11-22 from the approved epic breakdown. Where this figure and epics.md disagree, epics.md governs.</text>
+</svg>

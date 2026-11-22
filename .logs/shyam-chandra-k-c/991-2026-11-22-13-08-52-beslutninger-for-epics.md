@@ -102,23 +102,38 @@ Fastlåser inneværende uke til 2026-11-16–22, `today`/`tomorrow`/`next week` 
 rollefordelingen: IBE160-oppføringen blir det *vanlige* tilfellet (2026-11-20), kant-tilfellet trenger
 en egen `Monday`-oppføring. PRD FR-19 og §13 rad 25. Lukker punktet fra 2026-11-14.
 
-**To nye funn som følger av beslutningene, og som er brukerens å avgjøre:** «Need Attention» kan ikke
-dekkes av noen Fixture-oppføring (ingen datoord løser til fortid), og `row-height-desktop: 21px` ligger
-under SC 2.5.8s 24px. Begge ført som åpne punkter.
+#### Tredje runde — de to funnene avgjort etter anbefaling
 
-PRD §13 har nå 25 rader; tabellstrukturen er verifisert maskinelt.
+Beslutningene over avdekket to ting ingen av dokumentene hadde tatt stilling til. Brukeren ba om å
+følge anbefalingen for begge.
+
+**8. «Need Attention» dekkes av enhetstester, ikke av Fixturen.** Med referansedatoen låst ble det
+tydelig at ingen datoord i FR-23 løser til fortid, så ingen parset forfallsdato kan være forfalt (og
+søndag kan ikke parses i det hele tatt). Valgt lesning: FR-19 beholder formen — intet ikke-parset
+dato-felt legges til — Fixturen hevder det parsing kan produsere, og FR-12s `isPastDue` pluss FR-16s
+vindu hevdes av enhetstester på `core/selectors.ts` mot innsprøytet referansedato gjennom Clock-porten.
+FR-15s liste er vokabularet for forventede verdier, ikke et dekningskrav. Ført i PRD FR-15, §13 rad 26
+og spine AD-12. Bindende for stories: ingen story får utvide Fixturen hit, og ingen får la regelen
+stå utestet.
+
+**9. `row-height-desktop` hevet 21px → 24px.** AA er bekreftet gulv, en tabellrad er et pekemål, og
+avstands-unntaket i SC 2.5.8 holder ikke for rader stablet mot hverandre. Hevet framfor å hvile på et
+unntak som ikke gjelder. Ført i `DESIGN.md` (token + Layout-seksjonen), `EXPERIENCE.md`, spine AD-17,
+PRD §13 rad 24, PRODUCT.md, `decisions.md` og CE-inngangsfila. Tettheten er fortsatt konseptets poeng —
+24px er gulvet, ikke en invitasjon til å løsne resten.
+
+**Commit:** `87f10e3` — ni filer, 401 innsettinger. PRD §13 har 26 rader; tabellstrukturen og
+radsekvensen er verifisert maskinelt. Ingen krav lagt til, fjernet eller omformulert i noen av de tre
+rundene.
 
 ### Åpne punkter
 
-- «Need Attention» kan ikke dekkes av en Fixture-oppføring: ingen datoord i FR-23 løser til fortid, så
-  ingen parset forfallsdato kan være forfalt (samme for søndag). Billigste lesning er at Fixturen bare
-  hevder det parsing kan produsere og at FR-12s forfalt-regel testes i enhetstester mot innsprøytet
-  klokke; alternativet krever et eksplisitt ikke-parset dato-felt, altså en endring av FR-19s form.
-  Brukerens beslutning.
-- `DESIGN.md`s `row-height-desktop: 21px` er under SC 2.5.8s 24×24 px. Å heve den endrer tettheten
-  konsept 05 «Tett» bevisst valgte. Brukerens beslutning: hev, eller dokumenter at desktop-radene
-  hviler på avstands-unntaket.
-- README-innholdet gjenstår (språket er valgt: engelsk). Det er nå story-bærende arbeid i Tier 1.
+- CE (`bmad-create-epics-and-stories`) er ikke kjørt. Alle rammer ligger i
+  `.docs/planning-artifacts/pre-ce-constraints-2026-11-22.md` med en sjekkliste på ti punkter.
+  Anbefalt kjørt i et friskt kontekstvindu.
+- README-innholdet gjenstår (språket er valgt: engelsk). Nå story-bærende arbeid i Tier 1.
+- OQ-1-målingen gjenstår; PRD-en står `draft` til den finnes.
+- Ingen av beslutningspunktene fra denne økten står åpne. Ni avgjort, ingen krav endret.
 - `bmad-prd` Finalize steg 2/3/5 er ikke kjørt — nå verken på 2026-11-14-endringene eller
   2026-11-22-endringene. `bmad-review lenses=structure,prose` på de berørte passasjene gjenstår hvis
   PRD-en skal gjennomgås før epics.

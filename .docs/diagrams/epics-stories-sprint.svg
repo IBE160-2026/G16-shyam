@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 966" width="1140" height="966"
+     role="img" aria-label="How requirements become shipped code in To-Do-List: approved documents feed bmad-create-epics-and-stories, which groups 23 functional requirements into six epics; one epic breaks into stories carrying acceptance criteria; bmad-sprint-planning flattens the stories into one tier-ordered queue in sprint-status.md; bmad-build takes one story at a time and writes status back to that file."
+     font-family="ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <title>From requirement to shipped code: epics, stories, sprint</title>
+  <desc>Four approved documents (PRD, UX, architecture spine, pre-CE constraints) feed the epics phase. Six candidate epics carry FR ranges and cut tiers. Epic E3 is magnified into three stories with acceptance criteria. Sprint planning produces a single ordered queue; the build phase consumes one story and updates its status.</desc>
+
+  <defs>
+    <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f5d8c"/>
+    </marker>
+    <marker id="arwg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b6b66"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1140" height="966" fill="#fdfdfc"/>
+
+  <text x="25" y="34" font-size="20" font-weight="650" fill="#1b1b1a">From requirement to shipped code: epics, stories, sprint</text>
+  <text x="25" y="56" font-size="12.5" fill="#6b6b66">To-Do-List — how the epics phase and sprint planning turn 23 FRs into one queue a single builder can finish by December</text>
+
+  <!-- ============ BAND 1: approved inputs ============ -->
+  <g fill="#1b1b1a">
+    <rect x="25"  y="78" width="257" height="90" rx="6" fill="#ffffff" stroke="#c9c7c0"/>
+    <rect x="302" y="78" width="257" height="90" rx="6" fill="#ffffff" stroke="#c9c7c0"/>
+    <rect x="579" y="78" width="257" height="90" rx="6" fill="#ffffff" stroke="#c9c7c0"/>
+    <rect x="856" y="78" width="257" height="90" rx="6" fill="#ffffff" stroke="#c9c7c0"/>
+
+    <text x="37"  y="99" font-size="11.5" font-weight="650">PRD — prd.md</text>
+    <text x="37"  y="118" font-size="10.5" fill="#2f5d8c" font-family="ui-monospace, Consolas, 'Courier New', monospace">FR-1 – FR-23 · NFR-1 – NFR-10</text>
+    <text x="37"  y="134" font-size="10.5" fill="#4a4a46">SM-1 – SM-5, §6.3 cut order</text>
+    <text x="37"  y="150" font-size="10.5" fill="#6b6b66">status: draft (only OQ-1 open)</text>
+
+    <text x="314" y="99" font-size="11.5" font-weight="650">UX — DESIGN.md + EXPERIENCE.md</text>
+    <text x="314" y="118" font-size="10.5" fill="#2f5d8c">locked 2026-11-17</text>
+    <text x="314" y="134" font-size="10.5" fill="#4a4a46">tokens, states, review grammar</text>
+    <text x="314" y="150" font-size="10.5" fill="#6b6b66">what a finished story must look like</text>
+
+    <text x="591" y="99" font-size="11.5" font-weight="650">ARCHITECTURE-SPINE.md</text>
+    <text x="591" y="118" font-size="10.5" fill="#2f5d8c" font-family="ui-monospace, Consolas, 'Courier New', monospace">AD-1 – AD-17</text>
+    <text x="591" y="134" font-size="10.5" fill="#4a4a46">localStorage behind a port,</text>
+    <text x="591" y="150" font-size="10.5" fill="#4a4a46">module lines, core/selectors.ts</text>
+
+    <text x="868" y="99" font-size="11" font-weight="650">pre-ce-constraints-2026-11-22.md</text>
+    <text x="868" y="118" font-size="10.5" fill="#2f5d8c">7 decisions · 10-point checklist</text>
+    <text x="868" y="134" font-size="10.5" fill="#4a4a46">tier order, Fixture prerequisite,</text>
+    <text x="868" y="150" font-size="10.5" fill="#6b6b66">the single file the epics phase reads</text>
+  </g>
+
+  <g stroke="#2f5d8c" fill="none" stroke-width="1.2">
+    <path d="M153 168 V186 M430 168 V186 M707 168 V186 M984 168 V186"/>
+    <path d="M153 186 H984"/>
+    <path d="M569 186 V220" marker-end="url(#arw)"/>
+  </g>
+  <text x="585" y="208" font-size="11" fill="#2f5d8c" font-weight="600">CE — bmad-create-epics-and-stories: slice by behaviour, never by layer</text>
+
+  <!-- ============ BAND 2: epics ============ -->
+  <g>
+    <rect x="25"  y="222" width="165" height="104" rx="6" fill="#ffffff" stroke="#2f5d8c" stroke-opacity="0.45"/>
+    <rect x="211" y="222" width="165" height="104" rx="6" fill="#ffffff" stroke="#2f5d8c" stroke-opacity="0.45"/>
+    <rect x="397" y="222" width="165" height="104" rx="6" fill="#ffffff" stroke="#2f5d8c"/>
+    <rect x="583" y="222" width="165" height="104" rx="6" fill="#ffffff" stroke="#2f5d8c" stroke-opacity="0.45"/>
+    <rect x="769" y="222" width="165" height="104" rx="6" fill="#ffffff" stroke="#2f5d8c" stroke-opacity="0.45"/>
+    <rect x="955" y="222" width="165" height="104" rx="6" fill="#ffffff" stroke="#2f5d8c" stroke-opacity="0.45"/>
+
+    <g font-size="11.5" font-weight="650" fill="#1b1b1a">
+      <text x="37"  y="246">E1 · Task Management</text>
+      <text x="223" y="246">E2 · Rule Engine</text>
+      <text x="409" y="246">E3 · Smart Lists</text>
+      <text x="595" y="246">E4 · Fixture</text>
+      <text x="781" y="246">E5 · Cloud Engine</text>
+      <text x="967" y="246">E6 · Archive</text>
+    </g>
+    <g font-size="10" fill="#6b6b66">
+      <text x="37"  y="262">capture → complete</text>
+      <text x="223" y="262">+ review grammar</text>
+      <text x="409" y="262">today, overdue, tags</text>
+      <text x="595" y="262">+ harness</text>
+      <text x="781" y="262">+ key and consent</text>
+      <text x="967" y="262">+ extras</text>
+    </g>
+    <g font-size="10" fill="#2f5d8c" font-family="ui-monospace, Consolas, 'Courier New', monospace">
+      <text x="37"  y="284">FR-1 – FR-5, FR-23</text>
+      <text x="223" y="284">FR-6 – FR-8, FR-10</text>
+      <text x="409" y="284">FR-12 – FR-15</text>
+      <text x="595" y="284">FR-19, FR-20, FR-21</text>
+      <text x="781" y="284">FR-9, FR-11,</text>
+      <text x="781" y="296">FR-17, FR-18</text>
+      <text x="967" y="284">FR-16, FR-22</text>
+    </g>
+
+    <rect x="37"  y="302" width="50" height="15" rx="7.5" fill="#e6f2ec"/>
+    <rect x="223" y="302" width="50" height="15" rx="7.5" fill="#e6f2ec"/>
+    <rect x="409" y="302" width="50" height="15" rx="7.5" fill="#e6f2ec"/>
+    <rect x="595" y="302" width="76" height="15" rx="7.5" fill="#e6f2ec"/>
+    <rect x="781" y="302" width="50" height="15" rx="7.5" fill="#fbf0dd"/>
+    <rect x="967" y="302" width="50" height="15" rx="7.5" fill="#efefec"/>
+    <g font-size="9.5" font-weight="650">
+      <text x="48"  y="313" fill="#1f6f4a">Tier 1</text>
+      <text x="234" y="313" fill="#1f6f4a">Tier 1</text>
+      <text x="420" y="313" fill="#1f6f4a">Tier 1</text>
+      <text x="606" y="313" fill="#1f6f4a">Tier 1, then 2</text>
+      <text x="792" y="313" fill="#8a5a12">Tier 2</text>
+      <text x="978" y="313" fill="#6b6b66">Tier 3</text>
+    </g>
+  </g>
+
+  <!-- zoom into E3 -->
+  <g stroke="#c9c7c0" stroke-dasharray="4 4" fill="none">
+    <path d="M397 326 L25 390"/>
+    <path d="M562 326 L1114 390"/>
+  </g>
+  <text x="569" y="366" font-size="10.5" fill="#6b6b66" text-anchor="middle">one epic, broken down — a story is the smallest thing that can be finished and proven</text>
+
+  <!-- ============ BAND 3: stories ============ -->
+  <g>
+    <rect x="25"  y="390" width="347" height="152" rx="6" fill="#ffffff" stroke="#c9c7c0"/>
+    <rect x="396" y="390" width="347" height="152" rx="6" fill="#ffffff" stroke="#c9c7c0"/>
+    <rect x="767" y="390" width="347" height="152" rx="6" fill="#ffffff" stroke="#c9c7c0"/>
+    <path d="M25 416 h347 M396 416 h347 M767 416 h347" stroke="#c9c7c0" fill="none"/>
+    <g font-size="11" font-weight="650" fill="#1b1b1a">
+      <text x="37"  y="408">S-3.1 · Today / This week / Need Attention</text>
+      <text x="408" y="408">S-3.2 · Priority and tag lists</text>
+      <text x="779" y="408">S-3.3 · Placement proven by the Fixture</text>
+    </g>
+    <g font-size="9.5" fill="#2f5d8c" font-family="ui-monospace, Consolas, 'Courier New', monospace">
+      <text x="37"  y="434">from FR-12 · AD-9</text>
+      <text x="408" y="434">from FR-13, FR-14</text>
+      <text x="779" y="434">from FR-15 · SM-1</text>
+    </g>
+    <g font-size="9" fill="#6b6b66" letter-spacing="0.8" font-weight="650">
+      <text x="37"  y="453">ACCEPTANCE CRITERIA</text>
+      <text x="408" y="453">ACCEPTANCE CRITERIA</text>
+      <text x="779" y="453">ACCEPTANCE CRITERIA</text>
+    </g>
+    <g font-size="10" fill="#1b1b1a">
+      <text x="37" y="472">1 · Today = due today and not done; This week =</text>
+      <text x="48" y="487">the next seven days</text>
+      <text x="37" y="504">2 · Need Attention = due in the past and not done:</text>
+      <text x="48" y="519">the predicate owns membership, the label only</text>
+      <text x="48" y="534">names it</text>
+
+      <text x="408" y="472">1 · Priority list = high priority and not done</text>
+      <text x="408" y="489">2 · One list per tag: school, group, work, personal</text>
+      <text x="408" y="506">3 · An empty list shows its empty state, never a</text>
+      <text x="419" y="521">blank pane</text>
+
+      <text x="779" y="472">1 · Every Fixture entry lands in the list its row</text>
+      <text x="790" y="487">names, run from a clean checkout</text>
+      <text x="779" y="504">2 · A failing row names the task text and both lists</text>
+    </g>
+    <text x="779" y="528" font-size="9.5" font-weight="650" fill="#8a5a12">blocked by S-4.1 — the Fixture (FR-19) comes first</text>
+  </g>
+
+  <g stroke="#2f5d8c" fill="none" stroke-width="1.2">
+    <path d="M198 542 V558 M569 542 V558 M940 542 V558"/>
+    <path d="M198 558 H940"/>
+    <path d="M569 558 V594" marker-end="url(#arw)"/>
+  </g>
+  <text x="585" y="574" font-size="11" font-weight="600" fill="#2f5d8c">SP — bmad-sprint-planning: readiness gate, then one ordered queue</text>
+  <text x="585" y="589" font-size="9.5" fill="#6b6b66">PASS / CONCERNS / FAIL — nothing is queued while a decision is still missing</text>
+
+  <!-- ============ BAND 4: sprint status ============ -->
+  <g>
+    <rect x="25" y="596" width="1090" height="214" rx="6" fill="#ffffff" stroke="#2f5d8c"/>
+    <path d="M25 624 h1090" stroke="#c9c7c0" fill="none"/>
+    <text x="37" y="615" font-size="11.5" font-weight="650" fill="#1b1b1a">implementation-artifacts/sprint-status.md — the one file every build session reads and writes</text>
+    <text x="1103" y="615" font-size="9.5" fill="#6b6b66" text-anchor="end">example state, mid-sprint</text>
+
+    <g font-size="9" fill="#6b6b66" letter-spacing="0.8" font-weight="650">
+      <text x="40"  y="645">#</text>
+      <text x="66"  y="645">STORY</text>
+      <text x="640" y="645">EPIC</text>
+      <text x="712" y="645">TIER</text>
+      <text x="790" y="645">STATUS</text>
+      <text x="900" y="645">NOTE</text>
+    </g>
+    <path d="M37 652 h1066" stroke="#e4e2dc" fill="none"/>
+
+    <g font-size="10.5" fill="#1b1b1a">
+      <text x="40" y="670">1</text><text x="66" y="670">S-1.1 · Create a Task from task text alone</text>
+      <text x="640" y="670" fill="#6b6b66">E1</text><text x="712" y="670" fill="#1f6f4a">T1</text><text x="790" y="670" fill="#1f6f4a" font-weight="650">done</text>
+
+      <text x="40" y="688">2</text><text x="66" y="688">S-1.2 · Parse date words into the due date</text>
+      <text x="640" y="688" fill="#6b6b66">E1</text><text x="712" y="688" fill="#1f6f4a">T1</text><text x="790" y="688" fill="#1f6f4a" font-weight="650">done</text>
+
+      <text x="40" y="706">3</text><text x="66" y="706">S-2.1 · Rule Engine: four tags, fixed keywords</text>
+      <text x="640" y="706" fill="#6b6b66">E2</text><text x="712" y="706" fill="#1f6f4a">T1</text><text x="790" y="706" fill="#8a5a12" font-weight="650">in progress</text>
+
+      <text x="40" y="724">4</text><text x="66" y="724">S-3.1 · Today / This week / Need Attention</text>
+      <text x="640" y="724" fill="#6b6b66">E3</text><text x="712" y="724" fill="#1f6f4a">T1</text><text x="790" y="724" fill="#6b6b66">todo</text>
+
+      <text x="40" y="742">5</text><text x="66" y="742">S-4.1 · Fixture file committed (FR-19)</text>
+      <text x="640" y="742" fill="#6b6b66">E4</text><text x="712" y="742" fill="#1f6f4a">T1</text><text x="790" y="742" fill="#6b6b66">todo</text>
+
+      <text x="40" y="760">6</text><text x="66" y="760">S-4.2 · Harness measures Rule accuracy (FR-20)</text>
+      <text x="640" y="760" fill="#6b6b66">E4</text><text x="712" y="760" fill="#1f6f4a">T1</text><text x="790" y="760" fill="#6b6b66">todo</text>
+      <text x="900" y="760" font-size="9.5" fill="#8a5a12">needs S-4.1</text>
+
+      <text x="40" y="778">7</text><text x="66" y="778">S-5.1 · Model Engine with silent fallback</text>
+      <text x="640" y="778" fill="#6b6b66">E5</text><text x="712" y="778" fill="#8a5a12">T2</text><text x="790" y="778" fill="#6b6b66">todo</text>
+      <text x="900" y="778" font-size="9.5" fill="#6b6b66">opens when T1 closes</text>
+    </g>
+    <text x="66" y="797" font-size="9.5" font-style="italic" fill="#6b6b66">… then the rest of Tier 1, then Tier 2, then Tier 3 — if the schedule compresses you cut from the bottom, never from the middle (§6.3)</text>
+  </g>
+
+  <!-- ============ BAND 5: build loop ============ -->
+  <g stroke="#6b6b66" fill="none" stroke-width="1.2">
+    <path d="M430 810 V844" marker-end="url(#arwg)"/>
+    <path d="M710 846 V812" marker-end="url(#arwg)"/>
+  </g>
+  <text x="422" y="832" font-size="9.5" fill="#4a4a46" text-anchor="end">next story + its ACs</text>
+  <text x="718" y="832" font-size="9.5" fill="#4a4a46">status, notes, follow-ups</text>
+
+  <rect x="295" y="846" width="550" height="66" rx="6" fill="#ffffff" stroke="#c9c7c0"/>
+  <text x="311" y="870" font-size="11.5" font-weight="650" fill="#1b1b1a">BD — bmad-build: one story at a time</text>
+  <text x="311" y="887" font-size="10" fill="#6b6b66">clarify intent → plan → implement → review → present</text>
+  <text x="311" y="903" font-size="9.5" fill="#2f5d8c" font-family="ui-monospace, Consolas, 'Courier New', monospace">reads: one story, its ACs, the ADs it touches · decides: nothing about scope</text>
+
+  <text x="25" y="936" font-size="10" fill="#1b1b1a">Every acceptance criterion traces to an FR, and every FR reaches code through exactly one story. Docs — README (NFR-7, NFR-9, SM-2) — are Tier-1 stories too, not a leftover.</text>
+  <text x="25" y="953" font-size="9.5" font-style="italic" fill="#6b6b66">Illustrative: bmad-create-epics-and-stories has not run yet, so the epic and story ids are candidates read off PRD §4 and §6.3 — not the real breakdown.</text>
+</svg>

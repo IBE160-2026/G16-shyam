@@ -222,9 +222,10 @@ and be wrong on a reload.
 Archive is therefore `completedAt !== null && dayDiff(today, completedAt) > retentionDays`, making
 FR-16's "changing the window re-evaluates existing completed Tasks" a different argument rather than
 a migration. Restore clears `completedAt`, reusing FR-5's un-complete; the punched controls survive,
-and **the completion date does not** — an accepted loss, flagged to the product owner. PRD §3 lists
-archived and completed state among the Task's *fields*; here both are computed from `completedAt`, a
-deliberate divergence owed a PRD §3 and §13 amendment.
+and **the completion date does not** — an accepted loss, flagged to the product owner. PRD §3 already
+carries this: `completion date` is the stored field, and completed and archived state are stated there
+as derived from it, recorded as PRD §13 item 17. The amendment this paragraph once said was owed has
+landed; the two documents agree.
 
 ### AD-8 — The API Key has two homes, and neither is the bundle  `[ADOPTED]`
 

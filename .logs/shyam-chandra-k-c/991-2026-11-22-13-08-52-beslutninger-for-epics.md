@@ -78,18 +78,47 @@ ligger bare i `reviews/` og `.memlog.md`, som er referater og skal stå); `§13`
 i rekkefølge med intakt cellestruktur; alle fire kryssreferanser (`item 19`–`item 22`) peker på rader
 som finnes. Ingen tester kjørt — ingen kode i repoet ennå.
 
-**CE er ikke startet**, etter instruks, fordi tre punkter krever brukerens beslutning (se under).
+**CE er ikke startet**, etter instruks.
+
+#### Andre runde — de tre punktene brukeren avgjorde samme dag
+
+**5. README skrives på engelsk.** Lukker den siste delen av språkspørsmålet §6.1 holdt åpent (UI-språk
+var avgjort 2026-11-18, men PRD-en hadde det ikke nedfelt — den sa fortsatt at grensesnittspråk «is a
+separate question»). Nå: PRD §6.1 og §13 rad 23. Alt en sensor leser er ett språk; `.logs/` forblir
+norsk som byggerens eget arkiv.
+
+**6. WCAG 2.2 AA bekreftet som gulv** — AA, ikke AAA, billigste implementasjon som oppfyller kravet.
+Dette lukket **begge** de gjenstående `[OPEN]`-punktene i PRODUCT.md på én gang: farge-alene er
+standardens eget SC 1.4.1, altså et krav og ikke lenger en antakelse. Ført i PRD NFR-4 og §13 rad 24,
+spine AD-17 (med de tre AA-kriteriene som treffer dette konseptet), PRODUCT.md to steder, EXPERIENCE.md
+(tilgjengelighetsgulvet + Open Decisions) og `ux-designs/decisions.md`. **Én rammeendring ble tvunget
+av standarden:** in-panel-mål fra 20px til 24px (SC 2.5.8) — `DESIGN.md`s `button-height` og
+EXPERIENCE.md-gulvet. Formuleringen er bundet: «built to WCAG 2.2 AA, checked with axe-core», aldri
+«conformant» — axe-core dekker bare en delmengde av AA.
+
+**7. Fixturens referansedato: mandag 2026-11-16.** Samme dato FR-7s eksempel alt brukte, så eksempelet
+*er* en Fixture-oppføring framfor et parallelt tilfelle, og §6.2s kryssreferanse holder bokstavelig.
+Fastlåser inneværende uke til 2026-11-16–22, `today`/`tomorrow`/`next week` til 16./17./23., og avgjør
+rollefordelingen: IBE160-oppføringen blir det *vanlige* tilfellet (2026-11-20), kant-tilfellet trenger
+en egen `Monday`-oppføring. PRD FR-19 og §13 rad 25. Lukker punktet fra 2026-11-14.
+
+**To nye funn som følger av beslutningene, og som er brukerens å avgjøre:** «Need Attention» kan ikke
+dekkes av noen Fixture-oppføring (ingen datoord løser til fortid), og `row-height-desktop: 21px` ligger
+under SC 2.5.8s 24px. Begge ført som åpne punkter.
+
+PRD §13 har nå 25 rader; tabellstrukturen er verifisert maskinelt.
 
 ### Åpne punkter
 
-- README-språk: `README.md` er en sju-linjers norsk stubbe, mens PRD, DESIGN, EXPERIENCE og spinen er
-  engelske. Språket må velges før README-storyene skrives.
-- `PRODUCT.md`s to gjenstående `[OPEN]`: WCAG 2.2 AA som forpliktet gulv, og om prioritet/motor-
-  proveniens kan bæres av farge alene. EXPERIENCE.md har *allerede* forpliktet seg til begge i et
-  låst dokument — beslutningen er å bekrefte det eller overstyre det.
-- Fixturens egen referansedato avgjør om «Submit assignment in IBE160 Friday» blir det vanlige eller
-  det tvetydige ukedagstilfellet. Hører til FR-19-storyen, men er brukerens valg, ikke
-  story-forfatterens.
+- «Need Attention» kan ikke dekkes av en Fixture-oppføring: ingen datoord i FR-23 løser til fortid, så
+  ingen parset forfallsdato kan være forfalt (samme for søndag). Billigste lesning er at Fixturen bare
+  hevder det parsing kan produsere og at FR-12s forfalt-regel testes i enhetstester mot innsprøytet
+  klokke; alternativet krever et eksplisitt ikke-parset dato-felt, altså en endring av FR-19s form.
+  Brukerens beslutning.
+- `DESIGN.md`s `row-height-desktop: 21px` er under SC 2.5.8s 24×24 px. Å heve den endrer tettheten
+  konsept 05 «Tett» bevisst valgte. Brukerens beslutning: hev, eller dokumenter at desktop-radene
+  hviler på avstands-unntaket.
+- README-innholdet gjenstår (språket er valgt: engelsk). Det er nå story-bærende arbeid i Tier 1.
 - `bmad-prd` Finalize steg 2/3/5 er ikke kjørt — nå verken på 2026-11-14-endringene eller
   2026-11-22-endringene. `bmad-review lenses=structure,prose` på de berørte passasjene gjenstår hvis
   PRD-en skal gjennomgås før epics.

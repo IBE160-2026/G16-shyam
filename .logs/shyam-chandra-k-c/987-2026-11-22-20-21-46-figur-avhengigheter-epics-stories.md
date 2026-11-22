@@ -42,19 +42,18 @@ starter allerede i wave 5, parallelt med Tier 1s slutt; Epic 7 er den eneste epi
 røtter (harnessen *og* adapteren); Epic 8 har ingen utgående piler i det hele tatt — derfor er den
 trygg å kutte først.
 
-**Generator:** `gen-dag.mjs` (Node, ~420 linjer) med data, ruting og egne konsistenssjekker
-(ingen boks-overlapp, ingen bakovervendt pil, hver skinne tildelt et spor). Den ligger foreløpig i
-scratchpad, ikke i repoet — se åpne punkter.
+**Generator: `.docs/diagrams/epics-stories-dependencies.gen.mjs`** (Node, 435 linjer) med data,
+ruting og egne konsistenssjekker (ingen boks-overlapp, ingen bakovervendt pil, hver skinne tildelt
+et spor). Den ligger ved siden av figuren i repoet, med en header som forklarer kjøring og at
+`epics.md` styrer.
 
 **Verifisering:** rendret med headless Chrome i to bredder og inspisert; sjekkene i generatoren
 rapporterer `checks: ok` for 38 noder og 53 kanter. Avhengighetene er lest direkte ut av
 `epics.md`s 38 `**Prerequisites:**`-linjer, ikke gjenskapt.
 
-**Ikke committet.** `epics-stories-dependencies.svg` står utracket i arbeidstreet.
+**Committet og pushet: `2aac45b` «Figur: avhengigheter mellom alle epics og stories»** — SVG-en og
+generatoren. Pushet `23208cb..2aac45b` til `origin/main`; arbeidstreet er rent.
 
 ### Åpne punkter
-- Generatoren `gen-dag.mjs` ligger bare i scratchpad. Endres `epics.md`, må figuren enten
-  regenereres fra et skript som ikke finnes i repoet lenger, eller tegnes på nytt. Vurder å legge
-  den ved siden av SVG-en i `.docs/diagrams/`.
 - Figuren er et øyeblikksbilde av `epics.md` slik den sto 2026-11-22. Den har ingen automatisk
   kobling til dokumentet, og ingen CI-sjekk oppdager at de kommer ut av takt.

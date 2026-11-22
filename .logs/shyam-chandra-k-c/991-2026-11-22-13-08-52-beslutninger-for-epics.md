@@ -139,3 +139,32 @@ rundene.
   PRD-en skal gjennomgås før epics.
 - OQ-1-målingen gjenstår (krever nøkkel med kreditt, ~5 øre). Lukker PRD-ens `draft`-status, binder
   NFR-2 til 6 s eller 10 s og bekrefter leverandøren.
+
+## 2026-11-22 kl. 14:33 — Shyam Chandra K C
+
+### Oppgave
+Pushe de fire ukommitterte-men-lokale commitene fra `main` til `origin`, slik at
+beslutningsrunden for epics og stories og loggene fra den ligger på fjernlageret.
+
+### Plan
+- Verifisere hva som faktisk lå upushet (`git status -sb`, `git log origin/main..main`) og mot
+  hvilket remote.
+- `git push origin main`.
+- Bekrefte at `main` og `origin/main` står likt etterpå.
+
+### Resultat
+Fire commits pushet til `origin` (`https://github.com/IBE160-2026/G16-shyam.git`),
+`ba79cc7..fa22eac` på `main`:
+
+- `bda8dfe` Logg: beslutninger for epics og stories
+- `166d554` Logg: beslutninger for epics og stories - runde 2
+- `87f10e3` Sju beslutninger for epics og stories, med konsistenssjekk (ni filer, 401 innsettinger)
+- `fa22eac` Logg: beslutninger for epics og stories - runde 3
+
+`git status -sb` viser nå `## main...origin/main` — ingen avvik, og arbeidstreet var og er rent.
+Ingen filer endret i denne økten utover denne loggen; ingen av de åpne punktene fra kl. 13:08
+er berørt.
+
+### Åpne punkter
+Ingen nye. De som sto åpne etter kl. 13:08-økten (CE ikke kjørt, README-innhold, OQ-1-målingen,
+`bmad-prd` Finalize 2/3/5) står uendret og ligger i `issues.md`.

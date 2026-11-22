@@ -43,7 +43,10 @@ endret av dette arbeidet — ingen andre filer er rørt.
 
 **Verifisert.** Rendret med headless Chrome til PNG og inspisert: ingen tekstoverlapp, alle bånd
 innenfor `viewBox`. Én rettelse etter inspeksjonen: `⋮` i køens siste linje rendret som et løst
-kolon og ble byttet til `…`.
+kolon og ble byttet til `…`. Deretter åpnet i brukerens standardnettleser på brukerens forespørsel.
+
+**Committet og pushet** på brukerens forespørsel: `fae7f4c` «Figur: epics, stories og sprint
+planning», kun SVG-fila (221 linjer), pushet til `origin/main`. Arbeidstreet er rent.
 
 ### Åpne punkter
 - Når `bmad-create-epics-and-stories` faktisk har kjørt: oppdater

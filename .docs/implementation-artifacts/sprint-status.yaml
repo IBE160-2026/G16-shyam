@@ -1,0 +1,98 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 11-24-2026 18:15
+last_updated: 11-24-2026 18:15
+project: To-Do-List
+project_key: NOKEY
+tracking_system: file-system
+story_location: .docs/implementation-artifacts
+development_status:
+  epic-1: backlog
+  1-1-run-the-app-from-a-clean-clone-and-see-the-first-run-surface: backlog
+  1-2-create-a-task-from-one-sentence: backlog
+  1-3-see-the-due-date-the-date-word-named: backlog
+  1-4-read-the-list-and-open-a-task: backlog
+  1-5-edit-any-field-of-a-task: backlog
+  1-6-complete-and-un-complete-a-task: backlog
+  1-7-delete-a-task: backlog
+  1-8-install-the-app-and-open-it-offline: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-the-rule-engine-proposes-tags-priority-and-a-summary: backlog
+  2-2-capture-never-waits-for-the-proposal: backlog
+  2-3-punch-edit-or-strike-one-control: backlog
+  2-4-undo-the-punch-i-just-made: backlog
+  2-5-punch-all-and-strike-all: backlog
+  2-6-settings-tells-the-truth-with-no-key: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-today-shows-the-three-derived-lists: backlog
+  3-2-a-list-per-tag-and-every-list-in-one-place: backlog
+  3-3-the-legend-publishes-what-every-mark-means: backlog
+  3-4-completed-work-leaves-the-list-and-lands-in-archive: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-the-fixture-is-committed: backlog
+  4-2-one-command-reports-rule-engine-accuracy: backlog
+  4-3-smart-list-placement-is-asserted-against-the-fixture: backlog
+  4-4-ci-fails-below-the-committed-floor: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-the-readme-takes-a-fresh-clone-to-a-running-app: backlog
+  5-2-the-readme-explains-the-ai-decision: backlog
+  5-3-the-readme-carries-the-architecture-section: backlog
+  5-4-sm-2-is-verified-on-a-clean-machine: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-save-and-clear-my-own-api-key: backlog
+  6-2-turn-on-cloud-suggestions-having-been-told-what-it-means: backlog
+  6-3-the-model-engine-proposes-and-the-chip-says-so: backlog
+  6-4-every-failure-is-silent-and-the-rule-engine-serves: backlog
+  6-5-settings-explains-a-persistent-failure-and-only-settings: backlog
+  6-6-every-fallback-path-is-covered-by-mocked-tests: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-the-harness-measures-the-model-engine-on-the-same-fixture: backlog
+  7-2-the-comparison-is-committed: backlog
+  7-3-the-readme-carries-the-measured-results-and-the-attributed-s: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-ask-for-a-fresh-proposal: backlog
+  8-2-choose-how-long-completed-tasks-stay: backlog
+  8-3-group-tasks-under-a-project: backlog
+  epic-8-retrospective: optional

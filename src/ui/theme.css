@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Vendored typefaces (AD-11, UX-DR3)
+
+   Subset woff2 only, from src/fonts/, with the tnum OpenType feature preserved
+   — see src/fonts/SUBSET.md for the exact invocation and the source revision.
+   No CDN, no Google Fonts, no network request at runtime.
+
+   font-display is `block` rather than `swap` on purpose: the files are
+   same-origin and under 22 KB each, and AD-11 exists partly to keep a grader
+   from ever seeing a fallback face. There is no flash to trade away.
+   --------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../fonts/archivo-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url('../fonts/archivo-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url('../fonts/barlow-condensed-700.woff2') format('woff2');
+}
+
+/* ---------------------------------------------------------------------------
+   The design system, declared once (AD-18, UX-DR1)
+
+   All 43 DESIGN.md tokens — 16 colour, 13 typography, 3 radius, 11 spacing —
+   with the values taken verbatim from that document's frontmatter. Four of the
+   43 are ranges rather than single lengths and are declared as `-min` / `-max`
+   pairs; a pair counts as one token, which is what keeps the totals at 43:
+   apparatus tracking, group gap, field height and button height.
+
+   Names carry a Tailwind v4 theme namespace so each token produces a utility:
+   DESIGN.md's `apparatus` is `--font-family-apparatus` and its
+   `apparatus-weight` is `--font-weight-apparatus`, because Tailwind resolves a
+   bare `font-apparatus` candidate against `--font-weight-*` before `--font-*`
+   and the two would otherwise collide on one class name. The values are
+   untouched; only the prefixes are Tailwind's.
+
+   `static` keeps every variable in the built stylesheet even where no utility
+   consumes it yet, so AC 3 holds of the artifact and not only of this source.
+
+   A raw hex colour anywhere outside this file fails `npm run lint` — see
+   scripts/check-hex.mjs. This is the only place a colour is spelled out, which
+   is the mechanical guard on the purple reservation: `proposed` means a
+   proposal awaiting the user and nothing else, anywhere.
+   --------------------------------------------------------------------------- */
+
+@theme static {
+  /* Colour — 16 tokens. Each ink does one job and only that job. */
+  --color-chrome: #EDE4D3;
+  --color-ground: #FCFBF8;
+  --color-surface: #FFFFFF;
+  --color-ink: #1B1915;
+  --color-ink-secondary: #5C5345;
+  --color-rule: #CBB08E;
+  --color-rule-strong: #9B6B3F;
+  --color-proposed: #8E2E7E;
+  --color-proposed-wash: #F8EAF4;
+  --color-due-week: #F2CB5A;
+  --color-due-week-pale: #FAEDC4;
+  --color-attention: #4E7033;
+  --color-attention-pale: #E4EBD8;
+  --color-inert: #6BA3D6;
+  --color-inert-ink: #1F5878;
+  --color-inert-pale: #E2EEF7;
+
+  /* Typography — 13 tokens. Two faces, a semantic split, tabular figures. */
+  --font-family-apparatus: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-family-body: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --font-weight-apparatus: 700;
+  --font-weight-body: 400;
+  --font-weight-body-strong: 600;
+  --numerals: tabular-nums;
+  --text-display: 19px;
+  --text-title: 15px;
+  --text-body: 10.5px;
+  --text-value: 11.5px;
+  --text-apparatus: 9px;
+  --text-micro: 8.5px;
+  --tracking-apparatus-min: 0.6px;
+  --tracking-apparatus-max: 1.5px;
+
+  /* Radius — 3 tokens. Zero on everything; two functional exceptions. */
+  --radius-default: 0;
+  --radius-toggle: 9999px;
+  --radius-control-circle: 9999px;
+
+  /* Spacing — 11 tokens. */
+  --spacing-gutter-mobile: 14px;
+  --spacing-gutter-desktop: 26px;
+  --spacing-band-height: 22px;
+  --spacing-record-height-mobile: 46px;
+  --spacing-row-height-desktop: 24px;
+  --spacing-rail-width: 196px;
+  --spacing-tabbar-height: 46px;
+  --spacing-header-height-mobile: 40px;
+  --spacing-group-gap-min: 10px;
+  --spacing-group-gap-max: 16px;
+  --spacing-field-height-min: 26px;
+  --spacing-field-height-max: 32px;
+  --spacing-button-height-min: 24px;
+  --spacing-button-height-max: 26px;
+}

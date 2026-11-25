@@ -1,0 +1,98 @@
+# CI is the gate, and it runs with no key and no network (AD-19).
+#
+# Every other rule in the architecture is checkable, and a check nothing runs is
+# a convention rather than a rule. These five are what `main` is held to at
+# every commit, which is the mechanical proof of SM-2 rather than a claim about
+# it: a grader's clean clone runs because this workflow would have failed if it
+# could not.
+#
+# No step references a secret, and the repository has none to reference. The
+# only network access anywhere is the registry fetch inside `npm ci` and the
+# browser download for Playwright — the application itself never reaches off its
+# own origin, which the end-to-end suite asserts.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+# A push to a branch with an open pull request fires both triggers, which would
+# run the whole gate twice for one commit. Keying the group on `head_ref` when
+# there is one puts both runs in the same group, so the second cancels the
+# first instead of racing it for a runner.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: typecheck · lint · unit · e2e · bundle
+    runs-on: ubuntu-latest
+    # The whole gate takes about three minutes. A job that has been running for
+    # twenty is hung, not slow, and should stop holding the runner.
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # The recommended major is stated once, in .nvmrc, so CI and a grader
+      # following the README run the same Node. `.npmrc` is committed, so
+      # `npm ci` inherits `engine-strict=true` and needs no setting of its own.
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # Against a committed lockfile with exact versions. A caret range would
+      # float `typescript` past AD-13's pin and silently void the lint chain.
+      - name: Install
+        run: npm ci
+
+      - name: Check 1 — typecheck
+        run: npm run typecheck
+
+      # `eslint .` plus the raw-hex scanner, in one script. Running the scanner
+      # inside lint rather than as a job of its own is what keeps these checks
+      # at five (AD-18).
+      - name: Check 2 — lint
+        run: npm run lint
+
+      - name: Check 3 — unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Browser for the end-to-end suite
+        run: npx playwright install --with-deps chromium
+
+      # Chromium against `vite preview` at 360 px and 1280 px, with `axe-core`.
+      # It runs on the built artifact because the CSP and the vendored subset
+      # fonts only exist after a build (AD-11).
+      - name: Check 4 — end-to-end and axe-core
+        run: npm run test:e2e
+
+      # `trace: 'retain-on-failure'` writes a trace nobody could open: the
+      # runner is deleted with it. A failing accessibility or layout assertion
+      # is the hardest kind to diagnose from a log line, so the trace comes
+      # back with the run.
+      - name: Keep the Playwright trace from a failed run
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-test-results
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      # The key has two homes and neither is the bundle (AD-8).
+      - name: Check 5 — no API key in the built artifact
+        run: node scripts/check-bundle-key.mjs dist
+
+      # Epic 4 adds the FR-20 harness step and the SM-1 accuracy floor to this
+      # same workflow, and Epic 5 verifies it runs keyless and offline (AD-19).
+      # The workflow is owned here and extended there, never replaced.

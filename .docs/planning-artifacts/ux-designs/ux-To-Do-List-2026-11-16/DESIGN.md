@@ -4,7 +4,7 @@ status: final
 stage: locked
 concept: "06 Kurs"
 created: 2026-11-16
-updated: 2026-11-22
+updated: 2026-11-25
 sources:
   - ../../prds/prd-To-Do-List-2026-10-31/prd.md
   - ../../briefs/brief-To-Do-List-2026-09-08/brief.md
@@ -48,7 +48,8 @@ typography:
   scale-value: "11.5px"
   scale-apparatus: "9px"
   scale-micro: "8.5px"
-  apparatus-tracking: "0.6–1.5px, uppercase"
+  apparatus-tracking-min: "0.6px"
+  apparatus-tracking-max: "1.5px"
 
 rounded:
   default: "0"
@@ -64,9 +65,12 @@ spacing:
   rail-width: "196px"
   tabbar-height: "46px"
   header-height-mobile: "40px"
-  group-gap: "10–16px"
-  field-height: "26–32px"
-  button-height: "24–26px"
+  group-gap-min: "10px"
+  group-gap-max: "16px"
+  field-height-min: "26px"
+  field-height-max: "32px"
+  button-height-min: "24px"
+  button-height-max: "26px"
 
 components:
   band: "22px section header; colour names the list; 1.2px rule-strong beneath"
@@ -82,6 +86,12 @@ components:
 ---
 
 # DESIGN: To-Do-List
+
+**Token count.** Four of the 43 are ranges rather than single lengths, and each is declared as a
+`-min` / `-max` pair of custom properties. **A pair counts as one token**, so the totals stand at
+16 colour, 13 typography, 3 radius, 11 spacing — 43. The `uppercase` formerly carried inside
+`apparatus-tracking` is not a tracking value and is not a token: it is `text-transform: uppercase`
+on the apparatus type style, where the Typography section has always stated it.
 
 Written at finish, from the built world — concept **06 "Kurs"**, locked 2026-11-17 and drawn across
 17 surfaces in `mockups/kurs/`. Those frames are the reference; where this document and a frame

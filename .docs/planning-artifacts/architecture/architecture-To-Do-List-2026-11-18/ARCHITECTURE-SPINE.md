@@ -7,7 +7,7 @@ paradigm: 'ports and adapters (hexagonal) with a pure domain core'
 scope: 'To-Do-List v1, whole system: one responsive PWA, browser-local storage, two Suggestion Engines behind one interface, and the Fixture harness that measures them.'
 status: final
 created: '2026-11-18'
-updated: '2026-11-22'
+updated: '2026-11-25'
 binds:
   - FR-1..FR-23
   - NFR-1..NFR-10
@@ -306,12 +306,21 @@ independently from the other direction.
   not. The provider's name appears in exactly one string constant in `src/ui/labels.ts`, because FR-18's
   disclosure must name a provider before OQ-1 confirms one. This is
   **enforced mechanically by a Content-Security-Policy `connect-src`** limited to that host, not left
-  to review. The service worker precaches the app shell with `registerType` set to `autoUpdate`, so a
+  to review. The policy is **injected into the built `index.html` by the Vite config
+  (`transformIndexHtml` with `apply: 'build'`)**, never authored as a static meta tag: a tag applies in
+  development too, where the React plugin injects inline react-refresh, Tailwind injects a `<style>`
+  element and HMR opens a `ws://` connection, so a dev-time policy breaks `npm run dev` — the command
+  Story 1.1 AC 1 is measured on. The shipped artifact carries the policy; the dev server does not.
+  The service worker precaches the app shell with `registerType` set to `autoUpdate`, so a
   cold offline open serves the real app, and it **must not intercept or cache `api.anthropic.com`**
   under any route. Typefaces, icons and every other asset are vendored into the repository — no
   Google Fonts, no CDN, no analytics, no telemetry, no third-party script. Font subsetting **must
   preserve the `tnum` OpenType feature**, because DESIGN.md specifies tabular numerals and aggressive
-  `woff2` subsetting strips it silently.
+  `woff2` subsetting strips it silently. Subsetters omit `tnum` from their default layout-feature set,
+  so the feature must be **requested explicitly** — with `pyftsubset`, `--layout-features=+tnum`. The
+  proof is the **GSUB table of the committed `woff2`**, not a computed style:
+  `font-variant-numeric: tabular-nums` computes as set even when the font no longer carries the
+  feature, so CSS cannot witness its own failure here.
   **Secure context:** `crypto.randomUUID()` and service-worker registration both require one, so
   identifier generation falls back to a documented non-crypto generator when it is absent, and manual
   device testing or a PWA install demo must use `localhost`, an HTTPS dev server, or port forwarding —
@@ -426,7 +435,12 @@ independently from the other direction.
   promise — purple means *proposed* and nothing else — resting on memory
 - **Rule:** all **43** DESIGN.md tokens (16 colour, 13 typography, 3 radius, 11 spacing) are declared
   in `src/ui/theme.css` under Tailwind v4's `@theme`, the spacing and radius values included. **A raw
-  hex colour outside `theme.css` fails CI** — the mechanical guard on the purple reservation.
+  hex colour outside `theme.css` fails CI** — the mechanical guard on the purple reservation. ESLint
+  cannot be that guard: it does not parse `.css` without a language plugin, and adding one would widen
+  the lint chain AD-13 and AD-19 pin. The enforcer is a repository scanner, **`scripts/check-hex.mjs`,
+  run inside `npm run lint` as `eslint . && node scripts/check-hex.mjs`** — plain Node, no new
+  dependency. Running it inside `lint` rather than as a separate job is deliberate: it keeps Story 1.1
+  AC 4's five named CI checks at five.
   `shadcn/ui` and Radix are **declined** against `technology.md`: a primitive library's value is its
   defaults, and a bespoke orienteering-notation system with zero-radius geometry overrides every one
   of them, while EXPERIENCE.md already requires standard focusable web controls (AD-17). An animation
@@ -443,7 +457,10 @@ independently from the other direction.
   pattern. **It runs with no API Key and no network**, which is the mechanical proof of SM-2 rather
   than a claim about it, and it fails the build when the harness drops below the SM-1 floor. Installs
   use `npm ci` against a committed lockfile with exact versions — a caret range would float
-  `typescript` past AD-13's pin and silently void the lint chain.
+  `typescript` past AD-13's pin and silently void the lint chain. The workflow selects Node with
+  `actions/setup-node` using **`node-version-file: .nvmrc`**, so CI and a grader following the README
+  run the same major and the recommended version is stated once. CI needs no `engine-strict` setting of
+  its own: `.npmrc` is committed, so `npm ci` inherits the gate.
 
 ### AD-20 — The app never shows the grader a blank page
 
@@ -497,21 +514,30 @@ independently from the other direction.
 | eslint | 10.15.0 |
 | typescript-eslint | 8.73.0 |
 | tsx (harness runner) | 4.23.15 |
-| Node | 26 LTS recommended; 22.12 minimum; majors 23 and 25 unsupported |
+| Node | 26 LTS recommended; `^22.13.0 \|\| ^24.0.0 \|\| >=26.0.0`; 22.13 is the floor because `eslint@10.15.0` requires `^22.13.0`; majors 23 and 25 unsupported (Vitest) |
 
 Verified against the npm registry, the GitHub releases API and unpkg on 2026-11-18. In Tailwind v4
 the Vite integration **is** `@tailwindcss/vite`, which depends on `tailwindcss`; listing the latter
 alone compiles nothing. `workbox-build` and `workbox-window` are **non-optional** peers of
-`vite-plugin-pwa@2.0.0`. Vitest's `engines` excludes odd Node majors, so the floor is pinned in
-`package.json` `engines` plus an `.nvmrc` — a grader arriving on Node 23 must get a clear message,
-not a mystery failure.
+`vite-plugin-pwa@2.0.0`. Vitest's `engines` excludes odd Node majors and `eslint@10.15.0` raises the
+22-line floor to `^22.13.0`, so the supported set is the intersection of all 18 pinned packages:
+**`^22.13.0 || ^24.0.0 || >=26.0.0`**, declared verbatim in `package.json` `engines`. `engines` alone
+does not enforce it — npm treats a mismatch as the warning `EBADENGINE` and installs anyway. The
+repository therefore commits an **`.npmrc` carrying `engine-strict=true`**, which turns that warning
+into a failed `npm ci` naming the required range. `.nvmrc` carries the **recommended** major, `26`, so
+a grader using `nvm` lands inside the range rather than on its edge. A grader arriving on Node 23 or
+25 gets that message instead of a mystery failure. Verified by install on 2026-11-25: the full pinned
+set resolves 473 packages under `engine-strict=true` on Node 26.12.1 with no `EBADENGINE`.
 
 ## Structural Seed
 
 ```text
 To-Do-List/
-  index.html                 # CSP meta: connect-src limited to the Anthropic host (AD-11)
+  index.html                 # no CSP tag — the policy is build-injected by vite.config.ts (AD-11)
   package.json  package-lock.json  vite.config.ts  tsconfig.json  eslint.config.js  .nvmrc
+  .npmrc                     # engine-strict=true — makes the engines floor a failure, not a warning (AD-13)
+  scripts/
+    check-hex.mjs            # raw-hex scanner, run inside `npm run lint` (AD-18)
   .gitignore                 # excludes .env and any real key file — PRD §8's named mechanism (AD-8)
   README.md                  # FR-19's Fixture path, NFR-7's clean-clone steps, NFR-9's prose
   .env.example               # ANTHROPIC_API_KEY — harness only; the app never reads it

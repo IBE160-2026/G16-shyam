@@ -1,13 +1,14 @@
 ---
 title: "Sprint Change Proposal — four documentation defects found by implementing Story 1.1"
 date: 2026-11-25
-status: proposed
-approved_by: pending
+status: approved and applied — 2026-11-25
+approved_by: Shyam
 trigger: "Implementation and review of Story 1.1, 2026-11-25 (commit 2cdf292)"
 scope_classification: minor
 mode: batch
 author: Shyam
 supersedes: none
+applied: "4.1 – 4.6, all 6 edits; 2 files, 28 insertions in the spine, 39 in the spec; commit 428bbc6"
 relates_to: sprint-change-proposal-2026-11-25.md (approved and applied earlier the same day)
 sources:
   - .docs/planning-artifacts/architecture/architecture-To-Do-List-2026-11-18/ARCHITECTURE-SPINE.md

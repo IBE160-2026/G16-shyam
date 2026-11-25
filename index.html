@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta
+      name="description"
+      content="{{appDescription}}"
+    />
+    <title>{{appName}}</title>
+    <!--
+      No Content-Security-Policy tag here, deliberately (AD-11).
+
+      The policy is injected into the *built* index.html by vite.config.ts, with
+      `apply: 'build'`. A static tag would apply in development too, where the
+      React plugin injects inline react-refresh, Tailwind injects a <style>
+      element and HMR opens a ws:// connection — so it would break
+      `npm run dev`, which is the command Story 1.1 AC 1 is measured on.
+    -->
+  </head>
+  <body class="bg-ground font-family-body text-ink">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

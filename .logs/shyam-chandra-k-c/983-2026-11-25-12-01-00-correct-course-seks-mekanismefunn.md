@@ -115,3 +115,58 @@ eskalering. `workflow.on_complete` er tom.
   deretter `bmad-build` på Story 1.1.
 - `ux-To-Do-List-2026-11-16/mydecisions.md` er fortsatt en tom **katalog** som ikke lar seg slette;
   låst av en annen prosess. Lukk mappa i VS Code og slett den. (Uendret fra logg `984`.)
+
+## 2026-11-25 kl. 12:45 — Shyam Chandra K C
+
+### Oppgave
+Fortsettelse samme økt. Etter at Correct Course var committet og pushet: kjøre
+`bmad-project-context`. Brukeren avviste `AGENTS.md` («læreren bruker den også») og valgte i stedet
+at blokka legges i den eksisterende `CLAUDE.md`, med vilkåret «hvis det ikke ødelegger prosjekt».
+
+### Plan
+- Deteksjon: `adopt`, ikke `setup` — `CLAUDE.md` hadde reelt innhold (Sesjonslogg-regelen), så den
+  er baseline og går i ledgeren. Brukerens oppgitte intent ble flagget, ikke stilltiende fulgt.
+- Greenfield: kommandoer skrives som eksplisitte TODO-er som navngir den besluttede stacken, aldri
+  som gjettede påkallinger.
+- Sti-sjekke hver påstand i blokka før skriving.
+
+### Resultat
+
+**Correct Course committet og pushet** som `a276dc7` (4 filer, 634 innsettinger — 580 av dem er
+proposalet). `8b58459..a276dc7`. Treet er rent og i sync med `origin/main`.
+
+**18 linjer project context lagt i `CLAUDE.md`** mellom `bmad:context`-markørene (linje 5–60).
+Sesjonslogg-regelen står urørt **utenfor** markørene — ledger-beslutning `retain`, fordi managed
+block erstattes ved refresh og regelen da ville vært i skillens varetekt i stedet for brukerens.
+Provenance: `Verified 2026-11-25 against 95ba588`. Alle åtte stier blokka nevner er sti-sjekket.
+**Ikke committet** — `bmad-project-context` committer aldri.
+
+Seksjoner: Orientation · Policy (frosne dokumenter, branch-regel `story/<epic>-<story>-<slug>` →
+`main`, nøkkel-forbudet) · Where things are (fire pekere) · Running and verifying (`uv --python`-
+påkallingen + npm-TODO) · Conventions (`.logs/` norsk vs. engelske leveranser, AD-1s renhetsregel) ·
+Known pitfalls (CRLF mot `eol=lf`).
+
+**Bevisst utelatt:** gjettede npm-kommandoer, repo-oversikt/katalogtre/stack-liste (utledes ferskere
+direkte), gjentakelse av AD-10s tier-regler, og IBE160-emnekrav — brukeren svarte ikke på det
+spørsmålet, så ingen ble skrevet. Én justering mot forslaget brukeren så: «implementation has not
+started» strøket, fordi den råtner idet Story 1.1 lander.
+
+To linjer bærer sin egen utløpsdato: AD-1-linja («this line goes once that check is live», Story 1.1
+AC 5) og npm-TODO-en. Begge forsvinner ved første `refresh` etter Story 1.1.
+
+**Funnet, ikke rettet:** `PRODUCT.md` linje 20–21 sier stacken er `[OPEN]` og at arkitekturfasen
+«has not run». Den kjørte 18. november, og `DESIGN.md` lister `PRODUCT.md` som kilde. Brukeren
+godkjente ingen rettelse, så fila er urørt — i stedet advarer blokka om den under *Where things are*.
+Tilbudet om å rette seksjonen står.
+
+### Åpne punkter
+- `CLAUDE.md`s blokk er **ukommittert**; brukeren ser over og committer selv.
+- `PRODUCT.md`s Stack-seksjon er foreldet (sier arkitekturfasen ikke har kjørt). Blokka advarer om
+  den, men fila er ikke rettet — avgjør om seksjonen skal oppdateres.
+- `CLAUDE.md`s Sesjonslogg-regel slutter med «Gruppens egne regler for commit og språk gjelder foran
+  dette». Prosjektet er solo, så klausulen viker for noe som ikke finnes. Foreslått strøket; brukeren
+  svarte ikke, så den står (sletting krever hans ord).
+- Første `refresh` etter Story 1.1 må verifisere npm-kommandoene og fjerne AD-1-linja hvis
+  lint-regelen fra AC 5 er på plass.
+- Ingen `goal`-kommando finnes installert i repoet — søkt i `bmad-help.csv`, skill-katalogene og
+  etter `.claude/commands/`. Brukeren har nevnt den to ganger; avklar hva den sikter til.

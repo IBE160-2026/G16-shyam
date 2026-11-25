@@ -317,7 +317,11 @@ independently from the other direction.
   Google Fonts, no CDN, no analytics, no telemetry, no third-party script. Font subsetting **must
   preserve the `tnum` OpenType feature**, because DESIGN.md specifies tabular numerals and aggressive
   `woff2` subsetting strips it silently. Subsetters omit `tnum` from their default layout-feature set,
-  so the feature must be **requested explicitly** — with `pyftsubset`, `--layout-features=+tnum`. The
+  so the feature must be **requested explicitly** — with `pyftsubset`, `--layout-features+=tnum`.
+  The `+=` is load-bearing: `--layout-features=+tnum` *replaces* the feature set with a one-element
+  list holding the literal string `+tnum`, which matches no feature tag, so fontTools drops every
+  layout feature — `tnum` included — and writes an empty `GSUB` FeatureList without warning. Verified
+  against fontTools 4.62.0 during Story 1.1, where the first subset run produced exactly that font. The
   proof is the **GSUB table of the committed `woff2`**, not a computed style:
   `font-variant-numeric: tabular-nums` computes as set even when the font no longer carries the
   feature, so CSS cannot witness its own failure here.
@@ -519,15 +523,29 @@ independently from the other direction.
 Verified against the npm registry, the GitHub releases API and unpkg on 2026-11-18. In Tailwind v4
 the Vite integration **is** `@tailwindcss/vite`, which depends on `tailwindcss`; listing the latter
 alone compiles nothing. `workbox-build` and `workbox-window` are **non-optional** peers of
-`vite-plugin-pwa@2.0.0`. Vitest's `engines` excludes odd Node majors and `eslint@10.15.0` raises the
-22-line floor to `^22.13.0`, so the supported set is the intersection of all 18 pinned packages:
-**`^22.13.0 || ^24.0.0 || >=26.0.0`**, declared verbatim in `package.json` `engines`. `engines` alone
+`vite-plugin-pwa@2.0.0`. React 19 ships **no type declarations**, so three type-only packages are
+required for `npm run typecheck` — Story 1.1 AC 1's first check and AC 4's first CI check — to run at
+all: `@types/react`, `@types/react-dom` and `@types/node`, pinned exactly like everything else. They
+are development types rather than stack choices and are **not** counted among the 18 pinned packages,
+so every "18 pins" reference elsewhere stands as written. `vitest@5.1.1` declares `^22.12.0 || ^24.0.0 || >=26.0.0` and `eslint@10.15.0` raises the 22-line
+floor to `^22.13.0`, so the supported set is the intersection of all 18 pinned packages:
+**`^22.13.0 || ^24.0.0 || >=26.0.0`**, declared verbatim in `package.json` `engines`. Note what the
+upper bound does and does not say: odd majors are excluded *below* 26 because Vitest enumerates
+`^22`/`^24`, but `>=26.0.0` is open, so 27 and 29 are admitted — by Vitest's own declaration, not by a
+choice made here. The range is deliberately left as the faithful intersection: narrowing it to
+`^26.0.0` would make this project stricter than every dependency it has and, with
+`engine-strict=true` committed, would fail `npm ci` on Node 28 LTS for no reason the stack supports.
+Revisit if Vitest tightens its own range. `engines` alone
 does not enforce it — npm treats a mismatch as the warning `EBADENGINE` and installs anyway. The
 repository therefore commits an **`.npmrc` carrying `engine-strict=true`**, which turns that warning
 into a failed `npm ci` naming the required range. `.nvmrc` carries the **recommended** major, `26`, so
 a grader using `nvm` lands inside the range rather than on its edge. A grader arriving on Node 23 or
 25 gets that message instead of a mystery failure. Verified by install on 2026-11-25: the full pinned
-set resolves 473 packages under `engine-strict=true` on Node 26.12.1 with no `EBADENGINE`.
+set installs under `engine-strict=true` on Node 26.12.1 with no `EBADENGINE`. A clean `npm ci` reports
+*added 472 packages, and audited 479* (measured twice from a deleted `node_modules` during Story 1.1,
+including the three type packages above). The earlier figure of 473 came from `npm install`; the two
+commands do not resolve optional platform packages identically, so **the package count is a property
+of the npm invocation and is not a figure anything should assert.**
 
 ## Structural Seed
 

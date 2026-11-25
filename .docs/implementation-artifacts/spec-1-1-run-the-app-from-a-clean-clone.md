@@ -64,7 +64,7 @@ needs are created; the rest of the Structural Seed arrives with the stories that
 
 | Scenario | Input / State | Expected Output / Behavior | Error Handling |
 |---|---|---|---|
-| Supported Node | Node 22.13+/24/26+, clean clone | `npm ci` installs 473 packages; `npm run dev` serves on localhost | N/A |
+| Supported Node | Node 22.13+/24/26+, clean clone | `npm ci` installs with no `EBADENGINE`; `npm run dev` serves on localhost | N/A |
 | Unsupported Node | Node 23 or 25 | `npm ci` fails naming the required range | `engine-strict=true`, not a warning |
 | No tasks | App opens | `m9` first run renders: wordmark, date, `NOTHING ON FILE YET` / `0 TASKS`, the 19px line, the two prose lines, the offline line, Today | N/A |
 | Header date | Clock port reads the system calendar | header reads `MON 16 NOV` in tabular numerals | formatter is pure; the e2e asserts the format, never a value |
@@ -160,6 +160,32 @@ Not to change: every file under `.docs/planning-artifacts/` and `.logs/`.
       build fails if any check fails -- AC 4, AD-19
 
 **Acceptance Criteria:**
+
+The seven acceptance criteria, from `epics.md`:
+
+1. **Given** a clean clone on a supported Node — `^22.13.0 || ^24.0.0 || >=26.0.0`, 26 LTS
+   recommended — **When** I run `npm ci` and `npm run dev` **Then** the app serves on localhost
+   **And** no API key, account or network access was required **And** an unsupported version fails
+   `npm ci` with a message naming the required range rather than installing (SM-2, NFR-7, AD-13).
+2. **Given** the app has no Tasks **When** it opens **Then** the first run surface `m9` renders,
+   stating what the product is **And** it is the only empty state in the product (UX-DR22).
+3. **Given** the first run surface **When** it renders **Then** all 43 `DESIGN.md` tokens are declared
+   in `src/ui/theme.css` under Tailwind v4 `@theme` and every colour on screen resolves from them
+   **And** both typefaces are vendored subset `woff2` with the `tnum` feature preserved **And** every
+   number uses `font-variant-numeric: tabular-nums` (UX-DR1, UX-DR3, UX-DR4, AD-18).
+4. **Given** the repository **When** CI runs on push **Then** typecheck, lint, Vitest, Playwright with
+   `axe-core` at 360 px and 1280 px, and a grep of the built bundle for an API-key pattern all run
+   **And** they run with no API key and no network **And** the build fails if any of them fails
+   (AD-19, AD-8).
+5. **Given** a module under `src/core/` **When** it references `window`, `document`, `localStorage`,
+   `fetch`, `process`, `navigator`, `performance`, `crypto`, `Math.random`, React, a Vite-injected
+   value, `Date.now()` or a zero-argument `new Date()` **Then** lint fails (AD-1).
+6. **Given** a raw hex colour outside `src/ui/theme.css` **When** CI runs **Then** it fails (AD-18).
+7. **Given** the first run surface at 360 px and at 1280 px **When** `axe-core` runs **Then** it
+   reports no violations **And** there is no horizontal scrolling at either width (NFR-4, UX-DR20).
+
+Additional checks this story is held to:
+
 - Given a clean clone on Node 26, when `npm ci && npm run dev` runs, then the app serves on localhost
   with no key, account or network access.
 - Given Node 23 or 25, when `npm ci` runs, then it fails naming `^22.13.0 || ^24.0.0 || >=26.0.0`.
@@ -239,6 +265,17 @@ binary through the platform optional dependency regardless, and the build, unit 
 end-to-end suite all pass.
 
 ## Spec Change Log
+
+- 2026-11-25 — **Frozen-section renegotiation**, authorised by the human on approval of
+  `.docs/planning-artifacts/sprint-change-proposal-2026-11-25-2.md` (edits 4.5 and 4.6). The I/O
+  matrix's first row no longer asserts a package count: a clean `npm ci` measures *added 472, audited
+  479*, and per that proposal's §4.4 the count is a property of the npm invocation rather than of the
+  dependency set, so nothing should assert it. The row now reads `npm ci` installs with no
+  `EBADENGINE`, which is what the matrix was really testing and what CI executes. Separately, the
+  Acceptance Criteria section — outside the frozen block — now carries Story 1.1's seven acceptance
+  criteria verbatim from `epics.md`; four of the seven had been referenced by number throughout the
+  document while never being written into it. All seven were verified as met during the walkthrough.
+  No other frozen text changed.
 
 - 2026-11-25 — Execution checkboxes ticked; Implementation Notes written. No change to any frozen
   section. Two items in frozen text are contradicted by what the build showed and are recorded above

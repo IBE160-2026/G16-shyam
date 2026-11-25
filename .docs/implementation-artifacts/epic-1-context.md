@@ -9,8 +9,8 @@ closed and reopened, editable in every field, completable, deletable, with the d
 parsed from the date word they wrote. The epic also lays the substrate the other seven stand on —
 directory tree, pinned toolchain, the purity boundary around `src/core/`, the Clock / Storage / Id
 ports, the 43 design tokens, hash routing, the error boundary, the PWA shell and the CI gate — all
-built *inside* these vertical slices, never as a setup story. There is no starter template.
-Standalone outcome: a working single-user task list with no intelligence in it at all.
+built *inside* these vertical slices, never as a setup story. There is no starter template. The
+standalone outcome is a working single-user task list with no intelligence in it at all.
 
 ## Stories
 
@@ -26,13 +26,13 @@ Standalone outcome: a working single-user task list with no intelligence in it a
 ## Requirements & Constraints
 
 - **Nothing here needs a key, an account or a network.** A clean clone must install and serve; an
-  unsupported Node major must fail the install naming the required range, not install anyway.
+  unsupported Node major must fail the install naming the required range rather than installing.
 - **Capture is sovereign.** A Task is created from task text alone, persisting with Priority
   `medium`, no Tags, no Summary. Create-to-visible stays under 100 ms, asserted by Playwright
   against a Fixture-sized document, with no network request.
-- **Read model.** Default view shows every non-archived Task including completed-but-unarchived
-  ones. Task detail shows every field: task text, due date, notes, Tags, Priority, Summary,
-  completion date. The Project field is deliberately absent here (later tier).
+- **Read model.** The default view shows every non-archived Task, completed-but-unarchived ones
+  included. Task detail shows every field: task text, due date, notes, Tags, Priority, Summary,
+  completion date. The Project field is deliberately absent here (Tier 3, Epic 8).
 - **Edit model.** Each field changes independently and persists. Nothing re-runs a Suggestion Engine
   — not a text edit, not a reload, not navigation. The user's sentence is quoted unchanged, never
   paraphrased. Priority is exactly `high`/`medium`/`low`, lowercase, defaulting to `medium`.
@@ -60,9 +60,9 @@ Standalone outcome: a working single-user task list with no intelligence in it a
 
 - **Ports and adapters, dependencies strictly inward.** `core/` depends on nothing; `ports/` on core
   types only; `adapters/` and `app/` on ports and core; `ui/` on app, ports and core. Composition
-  happens once per runtime; nothing else constructs an adapter. Modules are organized by layer, not
-  feature, because one pure core serves both the browser and a Node harness — but stories stay
-  vertical.
+  happens once per runtime and nothing else constructs an adapter. Modules are organized by layer,
+  not feature, because one pure core serves both the browser and a Node harness — but stories stay
+  vertical and end in observable behaviour.
 - **`core/` purity is a lint failure.** No module under `src/core/` may reference `window`,
   `document`, `localStorage`, `fetch`, `process`, `navigator`, `performance`, `crypto`,
   `Math.random`, React, a Vite-injected value, `Date.now()` or a zero-argument `new Date()`. It
@@ -75,12 +75,12 @@ Standalone outcome: a working single-user task list with no intelligence in it a
 - **Ids** come from an Id port — never `core`, never the store. `crypto.randomUUID()` with a
   documented non-crypto fallback outside a secure context; tests inject a counter.
 - **Persistence: one synchronous port, one writer.** Only the storage adapter names a key; this epic
-  writes only the task document, with a `schemaVersion` read and written solely by the adapter. Every
-  mutation is a named action on a single `useReducer`-plus-context store, and the reducer is the only
-  writer to storage; no component holds derived state. Storage operations return a result and never
-  throw. Free-text edits persist on blur or a debounce, never per keystroke — the whole document is
-  re-serialized per write. Missing or unmigratable documents resolve through one named defaults
-  factory, never a call-site fallback.
+  writes only the task document, carrying a `schemaVersion` read and written solely by the adapter.
+  Every mutation is a named action on a single `useReducer`-plus-context store, the reducer is the
+  only writer to storage, and no component holds derived state. Storage operations return a result
+  and never throw. Free-text edits persist on blur or a debounce, never per keystroke — the whole
+  document is re-serialized per write. Missing or unmigratable documents resolve through one named
+  defaults factory, never a call-site fallback.
 - **Derived versus recorded.** Completion, archive status and list membership are computed, never
   stored: the Task persists `completedAt` as a `LocalDate` or null — never a `completed` boolean,
   never an `archived` flag. Archive is `completedAt !== null && dayDiff(today, completedAt) >
@@ -91,35 +91,52 @@ Standalone outcome: a working single-user task list with no intelligence in it a
   Attention`, singular — the plural must not enter code, UI strings or test selectors.
 - **Vocabulary.** Glossary words take no synonyms: `Task`, `Tag`, `Priority`, `Summary`,
   `Suggestion`, `Project` — no "todo", "item", "label", "category". Modules kebab-case; PascalCase
-  for React components only.
+  for React component files only.
 - **Navigation.** Every destination plus Task detail is a hash route; surface state lives in the URL
-  hash, never component-local state, and Back must leave Task detail rather than exit the app. A
+  hash, never in component-local state, and Back must leave Task detail rather than exit the app. A
   minimal hand-rolled router is replaceable seed; the invariant is URL-as-state.
 - **Design system declared once, enforced in CI.** All 43 tokens live in `src/ui/theme.css` under
   Tailwind v4 `@theme` (four are `-min`/`-max` pairs counting as one token each). A raw hex outside
-  that file fails CI via a plain-Node scanner run inside the lint script. No headless/primitive
-  component library and no animation library — CSS transitions carry motion, `prefers-reduced-motion`
-  is honoured, and every control is a native focusable element with a visible ink-themed focus ring.
+  that file fails CI via a plain-Node scanner run inside the lint script — deliberately inside
+  `lint` so the CI check count stays at five. No headless or primitive component library and no
+  animation library: CSS transitions carry motion, `prefers-reduced-motion` is honoured, and every
+  control is a native focusable element with a visible ink-themed focus ring.
 - **One network host, no third parties.** The only request the app may issue is to the Anthropic
   host, from one adapter, enforced by a CSP `connect-src` that must be **build-injected** into
   `index.html` by the Vite config — a static meta tag breaks `npm run dev`, which Story 1.1 is
   measured on. Fonts, icons and all assets are vendored: no CDN, no Google Fonts, no analytics, no
-  telemetry, no third-party script. Subsetting must explicitly preserve the `tnum` feature, proven in
-  the committed `woff2`'s feature table, because the CSS property computes as set even when the font
-  lacks it. The service worker precaches the shell with auto-update and must never intercept or cache
-  the Anthropic host.
-- **No logging, no runtime configuration.** Nothing in the shipped app logs; no `console` in
-  committed code outside the harness. Constants live in a core constants module.
+  telemetry, no third-party script. The service worker precaches the shell with auto-update and must
+  never intercept or cache the Anthropic host.
+- **Font subsetting must request `tnum` explicitly, with the right spelling.** With `pyftsubset` the
+  flag is `--layout-features+=tnum`; the `+=` is load-bearing. `--layout-features=+tnum` *replaces*
+  the feature set with the literal string `+tnum`, which matches no feature tag, so fontTools drops
+  every layout feature and writes an empty `GSUB` FeatureList with no warning. The proof is the
+  `GSUB` table of the committed `woff2`, never a computed style: `font-variant-numeric:
+  tabular-nums` computes as set even when the font no longer carries the feature.
+- **Toolchain pins.** Exact versions throughout, `npm ci` against a committed lockfile; TypeScript
+  stays on 6.0.3 because the lint chain's peer range caps it. React 19 ships **no type
+  declarations**, so `@types/react`, `@types/react-dom` and `@types/node` are required for
+  typecheck to run at all — pinned exactly like everything else, but development types rather than
+  stack choices, and **not** counted among the 18 pinned packages. Do not assert an installed
+  package count anywhere: it is a property of the npm invocation, not of the project.
+- **Node range.** `^22.13.0 || ^24.0.0 || >=26.0.0`, declared verbatim in `engines`, with 26
+  recommended via `.nvmrc`. This is the faithful intersection of all 18 pinned packages and is
+  **deliberately not narrowed** — tightening it to `^26.0.0` would make the project stricter than
+  any dependency it has and, with the committed `engine-strict=true`, would fail `npm ci` on Node 28
+  LTS for no supported reason. Odd majors below 26 are excluded because Vitest enumerates them that
+  way; `>=26.0.0` is open by the same declaration. `engines` alone only warns, so the committed
+  `.npmrc` is what turns a mismatch into a failed install naming the range.
+- **No logging, no runtime configuration.** Nothing in the shipped app logs and no `console` appears
+  in committed code outside the harness. Constants live in a core constants module.
 - **CI is the gate and runs with no key and no network:** typecheck, lint, Vitest, Playwright with
-  `axe-core` at both widths, and a grep of the built bundle for an API-key pattern. `npm ci` against
-  a committed exact-version lockfile; Node from the committed version file; the committed npm config
-  turns the engines range from a warning into a failed install. Vitest for core and adapters,
-  port-level fakes for service flow, Playwright end-to-end.
+  `axe-core` at both widths, and a grep of the built bundle for an API-key pattern. Node is selected
+  from the committed version file so CI and a grader run the same major. Vitest covers core and
+  adapters, port-level fakes cover service flow, Playwright covers end-to-end.
 
 ## UX & Interaction Patterns
 
-- **Surfaces in scope:** first run, Today (capture field plus records — bands come later), Task
-  detail. Today is the default destination.
+- **Surfaces in scope:** first run, Today (capture field plus records — bands arrive in Epic 3), and
+  Task detail. Today is the default destination.
 - **First run is the only empty state in the product**; every other list that would be empty reports
   a count of zero instead.
 - **Record**, 46 px on mobile: checkbox · sentence in Archivo · tag patch · priority ladder with its
@@ -128,14 +145,14 @@ Standalone outcome: a working single-user task list with no intelligence in it a
 - **Shell:** bottom tab bar at 360 px (one column, 14 px gutters, 40 px header, 46 px tab bar); left
   nav rail at 1280 px (196 px rail, 26 px gutters, two-column mosaic, 24 px dense rows). It offers
   only Today for now, and later epics add to the same component rather than replacing it.
-- **Typography is a semantic split:** Barlow Condensed 700, uppercase and tracked, for everything the
-  app says about itself; Archivo 400–600 for everything the user wrote or will accept. No second
+- **Typography is a semantic split:** Barlow Condensed 700, uppercase and tracked, for everything
+  the app says about itself; Archivo 400–600 for everything the user wrote or will accept. No second
   display face. `font-variant-numeric: tabular-nums` on every date, count and control number.
 - **Ink reservation.** Purple means a proposal awaiting the user and nothing else anywhere; olive
   means past-due-and-not-completed; yellow means due inside the current week; white means settled.
   Radius zero except the control circle and the one settings toggle. No shadow, glass, blur or
-  gradient — depth is overlap and offset. 1 px hairline row separators, 1.2 px block bounds, never
-  card edges, never a box inside a box.
+  gradient — depth is overlap and offset. 1 px hairline row separators and 1.2 px block bounds
+  instead of card edges; never a box inside a box.
 - **Voice:** plain, specific, never alarming. An absence is a fact followed by what *is* happening,
   never an error; never a claim of correctness. All UI language is English.
 - **"Current week"** is Monday–Sunday inclusive, defined once and reused by the parser's `next week`.
@@ -145,13 +162,13 @@ Standalone outcome: a working single-user task list with no intelligence in it a
 - **Within the epic:** 1.1 is the substrate every other story inherits. 1.2 needs 1.1; 1.3, 1.4 and
   1.6 need 1.2; 1.5 and 1.7 need 1.4; 1.8 needs 1.1. No outside prerequisite, and no later epic is
   required for this one to function.
-- **Owned here, imported (never re-implemented) later:** the single whole-word case-insensitive
+- **Owned here, imported and never re-implemented later:** the single whole-word case-insensitive
   tokenizer; `isCompleted` / `isArchived` and the week definition (Epic 3 adds the Smart List
   predicates and Archive to the same module, Epic 4 asserts them); the record component with its
   triangle slot; `ui/labels.ts` and `ui/theme.css`; the CI workflow (Epic 4 adds the harness step and
-  accuracy floor, Epic 5 verifies it runs keyless and offline).
-- **Hooks left deliberately:** the date parser must return the matched span alongside the resolved
-  date, so Epic 2's Summary truncation has a defined input. The in-app install offer belongs to
-  Settings, which arrives in Epic 2 — this epic delivers only the browser's own install affordance.
-  The Project field waits for Epic 8 as an optional property no Tier 1 selector reads. The README is
+  the accuracy floor, Epic 5 verifies it runs keyless and offline).
+- **Hooks left deliberately:** the date parser returns the matched span alongside the resolved date,
+  so Epic 2's Summary truncation has a defined input. The in-app install offer belongs to Settings,
+  which arrives in Epic 2 — this epic delivers only the browser's own install affordance. The
+  Project field waits for Epic 8 as an optional property no Tier 1 selector reads. The README is
   written whole in Epic 5.

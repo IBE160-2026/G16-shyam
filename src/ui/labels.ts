@@ -45,6 +45,77 @@ export const labels = {
   },
 
   /**
+   * The capture field (FR-1, UX-DR22).
+   *
+   * Two wordings, one per bound width, exactly as `m1`, `m9` and `d1` draw
+   * them: the phone has room for the short sentence and the three-letter
+   * button, the desktop for the full one. Nothing here has an error wording,
+   * because capture has no error state — not on an empty submit, not when
+   * storage is full, not ever.
+   */
+  capture: {
+    /**
+     * The field's accessible name. The placeholder is not one: it disappears
+     * the moment anything is typed, and a field whose only name is its
+     * placeholder has no name while it is being used (AD-17).
+     */
+    fieldLabel: 'Task text',
+    /** 360 px, as `m1` and `m9` draw it. */
+    placeholderMobile: 'Type a task the way you say it',
+    /** 1280 px, as `d1` draws it. */
+    placeholderDesktop: 'Type a task the way you say it out loud',
+    /** The submit button, apparatus type at both widths. */
+    submitMobile: 'ADD',
+    submitDesktop: 'ADD TASK',
+  },
+
+  /**
+   * Today — the default destination, and the one surface that renders records
+   * in this story (UX-DR15).
+   *
+   * `m1`'s meta line is two halves: what date everything on screen was computed
+   * against, and how much is on file. The reference date is stated because
+   * every derived list in this product is a function of it, and a list you
+   * cannot date is a list you have to trust blindly.
+   */
+  today: {
+    /** Precedes the reference date: `REFERENCE DATE MON 16 NOV 2026`. */
+    referenceDate: 'REFERENCE DATE',
+    /** Follows the count: `10 ON FILE`. Zero is a number, not an absence. */
+    onFile: 'ON FILE',
+    /** Names the list of records for assistive technology. */
+    listLabel: 'Tasks on file',
+  },
+
+  /**
+   * The record — 46 px of anatomy, five slots and a sixth held open
+   * (UX-DR6, UX-DR10, UX-DR12).
+   *
+   * Every state here is carried by a word as well as by an ink, which is the
+   * accessibility floor rather than a stylistic choice (UX-DR20): the ladder is
+   * unreadable to anyone who cannot compare three bar heights, so the Priority
+   * is also spelled out, and an absent Tag or due date is named rather than
+   * left as a gap the reader has to interpret.
+   */
+  record: {
+    /** No Tag is a valid outcome, not a failure (UX-DR21). `d1` says it this way. */
+    noTag: 'NO TAG',
+    /** The due pill, outlined, when the Task has no due date (UX-DR12). */
+    noDueDate: 'NO DUE DATE',
+    /**
+     * The Priority words, beside the ladder. Lowercase in the data, uppercase
+     * on screen because apparatus type is uppercase (UX-DR3) — the casing is
+     * the type style's, and `Priority` itself is still exactly `high`,
+     * `medium` or `low`.
+     */
+    priority: {
+      high: 'HIGH',
+      medium: 'MEDIUM',
+      low: 'LOW',
+    },
+  },
+
+  /**
    * First run — the only empty state in the product (UX-DR22). Every other list
    * that would be empty reports a count of zero instead, which is why no other
    * surface needs copy like this.

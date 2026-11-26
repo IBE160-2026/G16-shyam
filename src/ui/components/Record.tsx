@@ -77,12 +77,16 @@ const DUE_SLOT =
  */
 function DuePill({ dueDate }: { dueDate: LocalDate | null }) {
   if (dueDate === null) {
-    // An absence is a fact, never an error and never a prompt (UX-DR21) — and
-    // here it is drawn rather than worded, which is the one place this record
-    // does that. The frame is explicit about it: an em-dash, no pill.
+    // An absence is a fact, never an error and never a prompt (UX-DR21). The
+    // frame is explicit about how it is drawn — an em-dash, no pill — and
+    // UX-DR12 is equally explicit that it is still named: the glyph is
+    // decorative and the word is the accessible content, the same mark-plus-word
+    // split `PriorityLadder` and the checkbox glyph already use. Neither span is
+    // a control; nothing in the record is focusable (AD-17).
     return (
       <span data-slot="due-pill" data-due="none" className={`${DUE_SLOT} text-ink-secondary`}>
-        {labels.record.noDueDate}
+        <span aria-hidden="true">{labels.record.noDueDate}</span>
+        <span className="sr-only">{labels.record.noDueDateSpoken}</span>
       </span>
     );
   }

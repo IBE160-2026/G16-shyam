@@ -230,7 +230,8 @@ purple-ruled table module inside the desktop mosaic.
 **Engine chip.** A 10px box carrying `R` or `M`, followed by the engine name spelled out.
 
 **Due pill / tag patch.** A due date in the ink of its window — yellow inside the week, olive past
-due, outlined when there is none. A tag is a terrain patch in `attention-pale` naming its context.
+due, outlined beyond it. No date draws no pill: an em-dash, decorative, with “No due date” as its
+accessible name. A tag is a terrain patch in `attention-pale` naming its context.
 
 **Standard controls.** Buttons (solid ink for primary, outlined for everything else, purple-outlined
 for Accept), text fields, selects, checkboxes, segmented controls, one toggle. All square, all

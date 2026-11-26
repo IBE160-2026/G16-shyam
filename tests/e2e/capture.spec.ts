@@ -700,7 +700,9 @@ test.describe('the record', () => {
     // no-date treatment: an em-dash, and no pill drawn at all (UX-DR12).
     const pill = record.locator('[data-slot="due-pill"]');
     await expect(pill).toHaveAttribute('data-due', 'none');
-    await expect(pill).toHaveText(labels.record.noDueDate);
+    // The glyph, not the pill: the word a screen reader reads is a sibling of
+    // it, so the pill's own text content now carries both (UX-DR12).
+    await expect(pill.locator('[aria-hidden="true"]')).toHaveText(labels.record.noDueDate);
     await expect(pill).toHaveCSS('border-top-width', '0px');
 
     // The start triangle slot: present, reserved, and false. Epic 2 wires it.
@@ -789,11 +791,32 @@ test.describe('the record', () => {
 
     const undated = records.nth(1).locator('[data-slot="due-pill"]');
     await expect(undated).toHaveAttribute('data-due', 'none');
-    await expect(undated).toHaveText(EM_DASH);
     await expect(undated).toHaveCSS('border-top-width', '0px');
     // And the dash is the absence, at secondary strength — the one ink that
     // separates it from a date (`d1` draws the dash in `ink-secondary`).
     await expect(undated).toHaveCSS('color', await tokenColour(page, '--color-ink-secondary'));
+
+    // One state, two renderings (UX-DR12, UX-DR20). The em-dash is what is
+    // drawn and is `aria-hidden`; the word is what is read and is visually
+    // hidden. Story 1.3 first shipped the glyph alone, which took the only text
+    // a screen reader had — the regression this asserts against.
+    const glyph = undated.locator('[aria-hidden="true"]');
+    await expect(glyph).toHaveText(EM_DASH);
+    await expect(glyph).toBeVisible();
+
+    const spoken = undated.locator('.sr-only');
+    await expect(spoken).toHaveText(labels.record.noDueDateSpoken);
+    // Visually hidden, not display:none — removed from the page's visible
+    // layout while staying in the accessibility tree.
+    const box = await spoken.boundingBox();
+    expect(box?.width ?? 99).toBeLessThanOrEqual(2);
+    expect(box?.height ?? 99).toBeLessThanOrEqual(2);
+
+    // And the proof in the tree the assistive technology actually reads: the
+    // word is there, the decorative glyph is not.
+    const tree = await records.nth(1).ariaSnapshot();
+    expect(tree).toContain(labels.record.noDueDateSpoken);
+    expect(tree).not.toContain(EM_DASH);
 
     // The two window inks are Epic 3's: nothing here is yellow or olive yet,
     // which is what `deferred-work.md` records as knowingly incomplete.
@@ -862,7 +885,7 @@ test.describe('the record', () => {
 
     const pill = record.locator('[data-slot="due-pill"]');
     await expect(pill).toHaveAttribute('data-due', 'none');
-    await expect(pill).toHaveText(labels.record.noDueDate);
+    await expect(pill.locator('[aria-hidden="true"]')).toHaveText(labels.record.noDueDate);
 
     // Capture has no error state, ever (UX-DR22) — an unrecognised date word
     // is not a near miss to be reported.

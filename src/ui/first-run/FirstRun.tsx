@@ -8,15 +8,21 @@ import { labels } from '../labels';
  * what *is* happening: nothing is on file, nothing has to be set up, and here is
  * what will happen when you type (UX-DR18).
  *
- * What this surface does *not* carry is deliberate. The capture field and
- * records belong to Story 1.2; the course panel and its three controls belong
- * to Epic 2. Nothing here is purple, because purple means a proposal awaiting
- * the user and there is nothing yet to propose.
+ * The capture field `m9` draws above this copy is rendered by `Today`, which
+ * holds it **outside** the zero-Tasks branch so the one element survives the
+ * switch to the populated surface. Rendering a second one here would unmount
+ * the input the user had just typed into on their very first capture — the
+ * caret would land on `body` and a phone keyboard would close. The field is
+ * drawn on this surface; it is not owned by it.
+ *
+ * What this surface still does *not* carry is deliberate: the course panel and
+ * its three controls belong to Epic 2. Nothing here is purple, because purple
+ * means a proposal awaiting the user and there is nothing yet to propose.
  */
 export function FirstRun() {
   return (
     <section className="flex flex-1 flex-col">
-      <div className="flex items-baseline justify-between gap-group-gap-min">
+      <div className="mt-group-gap-max flex items-baseline justify-between gap-group-gap-min">
         <h2 className="font-family-apparatus font-apparatus text-apparatus uppercase tracking-apparatus-min text-ink-secondary">
           {labels.firstRun.state}
         </h2>

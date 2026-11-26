@@ -4,6 +4,7 @@ import { systemClock } from './adapters/system-clock';
 import { webIds } from './adapters/id';
 import { browserStorage, createTaskStorage } from './adapters/local-storage';
 import { StoreProvider } from './app/store';
+import { useToday } from './app/use-today';
 import { Shell } from './ui/shell/Shell';
 import { Today } from './ui/today/Today';
 import { ErrorBoundary } from './ui/components/ErrorBoundary';
@@ -30,23 +31,50 @@ if (container === null) {
   throw new Error('Mount point #root is missing from index.html.');
 }
 
-// Read once, and passed to both the chrome and the work area so the header's
-// date and the reference date every list is computed against cannot disagree.
-const today = systemClock.today();
-
 // A `null` backing store is not an error path: it is the in-memory session that
 // AC 5 requires, and the adapter answers for it the same way it answers for a
 // refused write.
 const taskStorage = createTaskStorage(browserStorage());
 
+/**
+ * The composition: one reference date, handed to everything that needs one.
+ *
+ * It is a component rather than a module-scope `systemClock.today()` because
+ * the value has to stay current. `today` is the date FR-23 resolves `Friday`
+ * against and *persists* into `dueDate`, so a read taken once at page load
+ * would, in a tab left open past local midnight, store a date a week off
+ * (AD-2). `useToday` holds it in state and re-reads the port; everything below
+ * still receives a plain string, so no surface and nothing on the capture path
+ * reads a clock.
+ *
+ * Reading it once and passing it to the chrome, the store and the work area
+ * alike is still the point: the header's date, the reference date the list is
+ * computed against, and the date a capture parses against cannot disagree.
+ *
+ * The adapters are constructed outside, at module scope, so a re-render never
+ * builds a second one — `storage` identity is what the store's reducer is
+ * memoised on.
+ */
+function App() {
+  const today = useToday(systemClock);
+
+  return (
+    <StoreProvider storage={taskStorage} ids={webIds} today={today}>
+      <Shell today={today}>
+        <Today today={today} />
+      </Shell>
+    </StoreProvider>
+  );
+}
+
 createRoot(container).render(
   <StrictMode>
+    {/*
+      The boundary is outside `App` so it also stands under the composition
+      itself, not only under the surfaces inside it (AD-20).
+    */}
     <ErrorBoundary>
-      <StoreProvider storage={taskStorage} ids={webIds}>
-        <Shell today={today}>
-          <Today today={today} />
-        </Shell>
-      </StoreProvider>
+      <App />
     </ErrorBoundary>
   </StrictMode>,
 );

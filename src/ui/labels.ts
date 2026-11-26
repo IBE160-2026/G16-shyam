@@ -94,14 +94,25 @@ export const labels = {
    * Every state here is carried by a word as well as by an ink, which is the
    * accessibility floor rather than a stylistic choice (UX-DR20): the ladder is
    * unreadable to anyone who cannot compare three bar heights, so the Priority
-   * is also spelled out, and an absent Tag or due date is named rather than
-   * left as a gap the reader has to interpret.
+   * is also spelled out, and an absent Tag is named rather than left as a gap
+   * the reader has to interpret. The one exception is the missing due date,
+   * which UX-DR12 draws as an em-dash — a mark, and the frame's own choice.
    */
   record: {
     /** No Tag is a valid outcome, not a failure (UX-DR21). `d1` says it this way. */
     noTag: 'NO TAG',
-    /** The due pill, outlined, when the Task has no due date (UX-DR12). */
-    noDueDate: 'NO DUE DATE',
+    /**
+     * No due date: an em-dash, and no pill drawn at all (UX-DR12, corrected
+     * 2026-11-26).
+     *
+     * A mark rather than a word, which is the one place this record departs
+     * from naming an absence — the approved Today frame draws it that way, and
+     * the correct-course of 2026-11-26 made the four-state pill the authority.
+     * It is still a string and still lives here, because the alternative is a
+     * character literal in a component (AD-9), and `—` is a word the product
+     * says even if it is only one glyph long.
+     */
+    noDueDate: '—',
     /**
      * The Priority words, beside the ladder. Lowercase in the data, uppercase
      * on screen because apparatus type is uppercase (UX-DR3) — the casing is

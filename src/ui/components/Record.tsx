@@ -1,3 +1,4 @@
+import { formatHeaderDate, type LocalDate } from '../../core/localdate';
 import type { Task } from '../../core/task';
 import { labels } from '../labels';
 import { PriorityLadder } from './PriorityLadder';
@@ -41,22 +42,58 @@ function CheckboxGlyph() {
 }
 
 /**
- * The due pill, outlined because there is no date (UX-DR12).
+ * Everything the pill and the dash share: apparatus type and the same slot.
  *
- * This story creates every Task with `dueDate: null` — date words are parsed in
- * Story 1.3 — so the pill is only ever in its outlined state here, and the
- * window inks it takes when it has a date (yellow inside the week, olive past
- * due) arrive with those stories. It carries words, not a dash: the pill is
- * state, and state is never a mark alone (UX-DR20).
+ * The ink is deliberately *not* here. `d1` draws a dated pill's text in `ink`
+ * and the em-dash in `ink-secondary`: a date is something the user set, and the
+ * dash is the absence of one, so they are not the same weight. Sharing a single
+ * ink here once rendered every date at secondary strength.
  */
-function DuePill() {
+const DUE_SLOT =
+  'shrink-0 px-[5px] py-[1px] font-family-apparatus font-apparatus text-apparatus uppercase tracking-apparatus-min tabular-nums';
+
+/**
+ * The due pill — two of its four treatments (UX-DR12, corrected 2026-11-26).
+ *
+ * A date gets the **outlined** pill: `surface` fill, one `rule` hairline, the
+ * date in apparatus type with tabular figures, formatted exactly as `d1` draws
+ * every pill — `FRI 20 NOV`, weekday, zero-padded day, month, no year. No date
+ * gets an **em-dash and no rect at all**, right where the pill would have been,
+ * so a column of records keeps its rhythm whether the dates are there or not.
+ *
+ * **The two window inks are Epic 3's, deliberately.** UX-DR12 names four
+ * treatments: `due-week` yellow inside the current week and `attention` olive
+ * with `surface` text for past due, on top of these two. Both need the window
+ * computation that `core/selectors.ts` grows in Epic 3, and `epics.md`
+ * annotates the inks as completed there. The accepted consequence, recorded in
+ * `deferred-work.md` rather than left to be rediscovered: until then a Task due
+ * tomorrow and one due next month look the same, and a past-due Task carries no
+ * mark. Nothing here needs undoing when they land — the fills are additive on
+ * this component and on the same `data-due` hook.
+ *
+ * The date is formatted with `core/localdate.ts`'s `formatHeaderDate` rather
+ * than a second formatter, because `MON 16 NOV` is already the pill's format;
+ * the words come from `labels.dates` like every other string (AD-9).
+ */
+function DuePill({ dueDate }: { dueDate: LocalDate | null }) {
+  if (dueDate === null) {
+    // An absence is a fact, never an error and never a prompt (UX-DR21) — and
+    // here it is drawn rather than worded, which is the one place this record
+    // does that. The frame is explicit about it: an em-dash, no pill.
+    return (
+      <span data-slot="due-pill" data-due="none" className={`${DUE_SLOT} text-ink-secondary`}>
+        {labels.record.noDueDate}
+      </span>
+    );
+  }
+
   return (
     <span
       data-slot="due-pill"
-      data-due="none"
-      className="shrink-0 border border-rule bg-surface px-[5px] py-[1px] font-family-apparatus font-apparatus text-apparatus uppercase tracking-apparatus-min text-ink-secondary tabular-nums"
+      data-due="date"
+      className={`${DUE_SLOT} border border-rule bg-surface text-ink`}
     >
-      {labels.record.noDueDate}
+      {formatHeaderDate(dueDate, labels.dates)}
     </span>
   );
 }
@@ -109,7 +146,7 @@ export function Record({ task }: RecordProps) {
 
           <PriorityLadder priority={task.priority} />
 
-          <DuePill />
+          <DuePill dueDate={task.dueDate} />
         </div>
       </div>
 

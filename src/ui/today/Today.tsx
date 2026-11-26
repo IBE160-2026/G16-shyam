@@ -10,9 +10,11 @@ import { Capture } from './Capture';
  * Today — the default destination, and `m1`'s work area (UX-DR15).
  *
  * **One flat list this story.** No bands, no Smart List predicates, no counts
- * per window: the three derived lists and their 22 px band headers are Epic 3,
- * and `core/selectors.ts` is Story 1.4's. What is here is the spine the bands
- * will group — capture, the meta line, and records.
+ * per window: the three derived lists and their 22 px band headers are Epic 3.
+ * `core/selectors.ts` exists as of Story 1.3 but holds only the week
+ * definition; Story 1.4 adds the completed and archived predicates to it and
+ * Epic 3 the Smart List and due-window ones. What is here is the spine the
+ * bands will group — capture, the meta line, and records.
  *
  * **First run is count-based.** Zero Tasks renders the first run surface; one or
  * more renders this one. There is no persisted flag, so `schemaVersion` is not

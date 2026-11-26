@@ -94,6 +94,48 @@ function priorityDocument(priorities: readonly Priority[]): string {
   });
 }
 
+/**
+ * A document whose Tasks carry exactly these due dates, newest first.
+ *
+ * Seeding rather than capturing is the only way to assert a pill's *text*: the
+ * browser runs against the real clock, so a captured `Friday` lands on whatever
+ * Friday follows the day the gate happens to run. A stored date is a fixed one,
+ * which is the same reason every unit test here passes a literal (NFR-10).
+ */
+function dueDateDocument(dueDates: readonly (string | null)[]): string {
+  return JSON.stringify({
+    schemaVersion: TASK_SCHEMA_VERSION,
+    tasks: dueDates.map((dueDate, index) => ({ ...fixtureTask(index), dueDate })),
+  });
+}
+
+/**
+ * A colour token's value, as the browser serializes a colour.
+ *
+ * Read off `:root` rather than spelled here. A literal would put the palette in
+ * a second place, outside `theme.css` where `scripts/check-hex.mjs` cannot see
+ * it — and would keep passing after the token changed, which is the one thing
+ * these assertions exist to notice.
+ */
+async function tokenColour(page: Page, token: string): Promise<string> {
+  return page.evaluate((name) => {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const digits = raw.replace('#', '');
+    // The build's CSS minifier shortens a six-digit hex whose pairs repeat to
+    // the three-digit form, so both lengths have to be read — three digits is
+    // the same colour with each digit doubled. (Spelling either form out here
+    // would be a raw colour outside theme.css, which lint forbids.)
+    const hex =
+      digits.length === 3
+        ? [...digits].map((digit) => `${digit}${digit}`).join('')
+        : digits;
+    if (hex.length !== 6) throw new Error(`${name} is not a hex colour: "${raw}"`);
+    const channel = (at: number): number => Number.parseInt(hex.slice(at, at + 2), 16);
+    // The serialization a browser reports a colour in.
+    return `rgb(${String(channel(0))}, ${String(channel(2))}, ${String(channel(4))})`;
+  }, token);
+}
+
 /** Seeds a document under the real key before any application code runs. */
 async function seed(page: Page, raw: string): Promise<void> {
   await page.addInitScript(
@@ -330,6 +372,35 @@ test.describe('persistence', () => {
     }
   });
 
+  test('keeps a parsed due date across a reload, pill unchanged', async ({ page }) => {
+    // The write side of `dueDate` is new in this story, so the round trip is
+    // too: every other assertion about a non-null due date reads a document
+    // this suite seeded by hand, which proves the read path and not the trip.
+    // The clock is fixed at Monday 2026-11-16 so the pill's text can be
+    // written out rather than matched by shape.
+    await page.clock.install({ time: new Date(2026, 10, 16, 9, 0, 0) });
+    await page.goto('/');
+    await capture(page, `${SENTENCE} Friday`);
+
+    const pill = page.locator('[data-record] [data-slot="due-pill"]');
+    await expect(pill).toHaveText('FRI 20 NOV');
+    expect(await storedItems(page)).toBeTruthy();
+
+    await page.reload();
+
+    await expect(page.locator('[data-record]')).toHaveCount(1);
+    await expect(page.locator('[data-slot="sentence"]')).toHaveText(`${SENTENCE} Friday`);
+    // Byte-identical through a validator that rejects a malformed date: the
+    // same pill, not a re-parse and not an em-dash.
+    await expect(pill).toHaveAttribute('data-due', 'date');
+    await expect(pill).toHaveText('FRI 20 NOV');
+
+    const document = JSON.parse(
+      (await storedItems(page))[STORAGE_KEYS.tasks] ?? '',
+    ) as { tasks: { dueDate: string | null }[] };
+    expect(document.tasks[0]?.dueDate).toBe('2026-11-20');
+  });
+
   test('reads a Fixture-sized document back whole', async ({ page }) => {
     await seed(page, fixtureDocument());
     await page.goto('/');
@@ -360,6 +431,87 @@ test.describe('persistence', () => {
       'aria-label',
       labels.today.listLabel,
     );
+  });
+});
+
+test.describe('the reference date stays current', () => {
+  /**
+   * The defect these close: Story 1.1 read the Clock port once at module
+   * scope. While nothing depended on the value that was cosmetic — a stale
+   * header label. From Story 1.3 the same value decides what `next week` means
+   * and is *persisted* into `dueDate`, so a tab left open past local midnight
+   * would store a date a week off with nothing on screen to suggest it.
+   *
+   * The **browser's** clock is faked rather than the app's, so `systemClock`
+   * and `useToday` are exercised exactly as they ship with no test-only seam.
+   * It is installed at a fixed local time so the expected dates can be written
+   * out: Sunday 2026-11-22 at 23:50, ten minutes before the crossing.
+   */
+  const BEFORE_MIDNIGHT = new Date(2026, 10, 22, 23, 50, 0);
+
+  /** The stored due date of the one Task with this text. */
+  async function storedDueDate(page: Page, text: string): Promise<string | null | undefined> {
+    const items = await storedItems(page);
+    const document = JSON.parse(items[STORAGE_KEYS.tasks] ?? '') as {
+      tasks: { text: string; dueDate: string | null }[];
+    };
+    return document.tasks.find((task) => task.text === text)?.dueDate;
+  }
+
+  test('the interval carries a visible tab across local midnight', async ({ page }) => {
+    await page.clock.install({ time: BEFORE_MIDNIGHT });
+    await seed(page, fixtureDocument(2));
+    await page.goto('/');
+
+    const headerDate = page.locator('header time');
+    await expect(headerDate).toHaveAttribute('datetime', '2026-11-22');
+
+    // Twenty minutes, which the 30 s interval crosses. `fastForward` fires
+    // every timer it passes, which is what a tab that stayed visible does.
+    await page.clock.fastForward('00:20:00');
+    await expect(headerDate).toHaveAttribute('datetime', '2026-11-23');
+
+    // The meta line moved with it: the chrome and the work area read one value.
+    await expect(page.locator('[data-today="reference-date"]')).toContainText('MON 23 NOV 2026');
+
+    // And a capture made after the crossing resolves against the new day —
+    // the half that reaches the document. `next week` is the sharpest probe:
+    // on Sunday it means the Monday two days on, and on Monday it means the
+    // Monday seven days on, so a stale reference date gives a visibly
+    // different answer rather than the same one.
+    await capture(page, 'Plan next week');
+    await expect(page.locator('[data-record]')).toHaveCount(3);
+    expect(await storedDueDate(page, 'Plan next week')).toBe('2026-11-30');
+
+    await capture(page, 'Call today');
+    expect(await storedDueDate(page, 'Call today')).toBe('2026-11-23');
+  });
+
+  test('visibilitychange carries a tab whose timers were suspended', async ({ page }) => {
+    await page.clock.install({ time: BEFORE_MIDNIGHT });
+    await seed(page, fixtureDocument(2));
+    await page.goto('/');
+
+    const headerDate = page.locator('header time');
+    await expect(headerDate).toHaveAttribute('datetime', '2026-11-22');
+
+    // `setSystemTime` moves the clock **without firing a single timer** —
+    // which is the backgrounded, frozen or bfcache-restored tab, where a
+    // browser suspends intervals. Without the `visibilitychange` listener
+    // nothing re-reads here, and the interval test above would still pass
+    // because `fastForward` fires it thousands of times.
+    await page.clock.setSystemTime(new Date(2026, 10, 23, 7, 30, 0));
+    await expect(headerDate).toHaveAttribute('datetime', '2026-11-22');
+
+    await page.evaluate(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    await expect(headerDate).toHaveAttribute('datetime', '2026-11-23');
+    await expect(page.locator('[data-today="reference-date"]')).toContainText('MON 23 NOV 2026');
+
+    await capture(page, 'Plan next week');
+    expect(await storedDueDate(page, 'Plan next week')).toBe('2026-11-30');
   });
 });
 
@@ -544,11 +696,12 @@ test.describe('the record', () => {
       labels.record.priority.medium,
     );
 
-    // The due pill area, outlined because there is no date yet (Story 1.3
-    // parses the date word that puts one there).
+    // The due pill area. `SENTENCE` carries no date word, so this is the
+    // no-date treatment: an em-dash, and no pill drawn at all (UX-DR12).
     const pill = record.locator('[data-slot="due-pill"]');
     await expect(pill).toHaveAttribute('data-due', 'none');
     await expect(pill).toHaveText(labels.record.noDueDate);
+    await expect(pill).toHaveCSS('border-top-width', '0px');
 
     // The start triangle slot: present, reserved, and false. Epic 2 wires it.
     const triangle = record.locator('[data-slot="start-triangle"]');
@@ -595,6 +748,132 @@ test.describe('the record', () => {
     // And the three words are three different words, so a labels table that
     // collapsed two of them could not pass the loop above by accident.
     expect(new Set(expected.map((row) => row.word)).size).toBe(3);
+  });
+
+  test('draws the outlined pill for a date and an em-dash for none', async ({ page }) => {
+    // Two stored dates, so the pill's own text can be asserted exactly: the
+    // first Task is due Friday 2026-11-20, the second has no date at all.
+    await seed(page, dueDateDocument(['2026-11-20', null]));
+    await page.goto('/');
+
+    const records = page.locator('[data-record]');
+    await expect(records).toHaveCount(2);
+
+    // The date case: the outlined treatment — `surface` fill, one `rule`
+    // hairline — carrying the date in `d1`'s own format, weekday first, day
+    // zero-padded, no year.
+    const dated = records.nth(0).locator('[data-slot="due-pill"]');
+    await expect(dated).toHaveAttribute('data-due', 'date');
+    await expect(dated).toHaveText('FRI 20 NOV');
+    await expect(dated).toHaveCSS('background-color', await tokenColour(page, '--color-surface'));
+    await expect(dated).toHaveCSS('border-top-color', await tokenColour(page, '--color-rule'));
+    await expect(dated).toHaveCSS('border-top-width', '1px');
+    // The date is set by the user, so it carries full `ink` — the strength `d1`
+    // draws every dated pill at. Secondary ink here would read as an absence.
+    await expect(dated).toHaveCSS('color', await tokenColour(page, '--color-ink'));
+    // Apparatus type with tabular figures, like every date in the product
+    // (UX-DR3, UX-DR4).
+    await expect(dated).toHaveCSS('font-family', /Barlow Condensed/);
+    await expect(dated).toHaveCSS('font-variant-numeric', /tabular-nums/);
+
+    // The no-date case: an em-dash where the pill would have been, and no rect
+    // at all around it.
+    //
+    // The literal is pinned here rather than compared against the label the
+    // component already imports — the way `tests/unit/theme-tokens.test.ts`
+    // pins token values. Asserting `labels.record.noDueDate` alone would keep
+    // passing if the label reverted to `NO DUE DATE`, silently undoing the
+    // 2026-11-26 correction to UX-DR12 with the whole gate green.
+    const EM_DASH = '—';
+    expect(labels.record.noDueDate, 'the no-date pill must be an em-dash').toBe(EM_DASH);
+
+    const undated = records.nth(1).locator('[data-slot="due-pill"]');
+    await expect(undated).toHaveAttribute('data-due', 'none');
+    await expect(undated).toHaveText(EM_DASH);
+    await expect(undated).toHaveCSS('border-top-width', '0px');
+    // And the dash is the absence, at secondary strength — the one ink that
+    // separates it from a date (`d1` draws the dash in `ink-secondary`).
+    await expect(undated).toHaveCSS('color', await tokenColour(page, '--color-ink-secondary'));
+
+    // The two window inks are Epic 3's: nothing here is yellow or olive yet,
+    // which is what `deferred-work.md` records as knowingly incomplete.
+    for (const token of ['--color-due-week', '--color-attention']) {
+      const ink = await tokenColour(page, token);
+      await expect(dated, token).not.toHaveCSS('background-color', ink);
+    }
+
+    // The pill is a `span`, not a control: the record still contains nothing
+    // focusable, and the scan is clean with a date on screen (NFR-4).
+    await expect(records.locator('input, button, a, [tabindex]')).toHaveCount(0);
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(
+      results.violations.map((violation) => `${violation.id}: ${violation.help}`),
+      'axe-core is evidence, never a conformance claim',
+    ).toEqual([]);
+
+    // And neither treatment pushes the row wide at either bound width.
+    const overflow = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth);
+  });
+
+  test('puts the date word the user typed into the pill, and leaves the sentence alone', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await capture(page, `${SENTENCE} Friday`);
+
+    const record = page.locator('[data-record]');
+    await expect(record).toHaveCount(1);
+
+    // The sentence is unchanged — `Friday` included. Parsing is a read, and
+    // the app does not rewrite your sentence (AC 1, FR-23).
+    await expect(record.locator('[data-slot="sentence"]')).toHaveText(`${SENTENCE} Friday`);
+
+    // The clock here is the real clock, so the *shape* is asserted and not the
+    // value: whichever Friday follows today, the pill reads a Friday. That is
+    // the same reason the reference-date line is matched by pattern.
+    const pill = record.locator('[data-slot="due-pill"]');
+    await expect(pill).toHaveAttribute('data-due', 'date');
+    await expect(pill).toHaveText(/^FRI \d{2} [A-Z]{3}$/);
+
+    // And it reached the document, not only the screen: a parsed date is
+    // applied directly and persisted with the Task (AC 6, PRD §13 item 2).
+    const items = await storedItems(page);
+    const document = JSON.parse(items[STORAGE_KEYS.tasks] ?? '') as {
+      tasks: { text: string; dueDate: string | null }[];
+    };
+    expect(document.tasks[0]?.text).toBe(`${SENTENCE} Friday`);
+    expect(document.tasks[0]?.dueDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  test('leaves the pill empty for a sentence it does not recognise', async ({ page }) => {
+    // Norwegian, and the matrix's byte-identical row. No date, no error, and a
+    // Task all the same (AC 4, §6.2).
+    const norwegian = 'Pay RENT på fredag';
+    await page.goto('/');
+    await capture(page, norwegian);
+
+    const record = page.locator('[data-record]');
+    await expect(record).toHaveCount(1);
+    await expect(record.locator('[data-slot="sentence"]')).toHaveText(norwegian);
+
+    const pill = record.locator('[data-slot="due-pill"]');
+    await expect(pill).toHaveAttribute('data-due', 'none');
+    await expect(pill).toHaveText(labels.record.noDueDate);
+
+    // Capture has no error state, ever (UX-DR22) — an unrecognised date word
+    // is not a near miss to be reported.
+    await expect(page.locator('[role="alert"], [role="status"]')).toHaveCount(0);
+
+    const items = await storedItems(page);
+    const document = JSON.parse(items[STORAGE_KEYS.tasks] ?? '') as {
+      tasks: { text: string; dueDate: string | null }[];
+    };
+    expect(document.tasks[0]?.text).toBe(norwegian);
+    expect(document.tasks[0]?.dueDate).toBeNull();
   });
 
   test('renders no native control that does nothing', async ({ page }) => {

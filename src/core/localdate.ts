@@ -20,6 +20,17 @@
 export type LocalDate = string;
 
 /**
+ * The number of days in a week.
+ *
+ * It lives here rather than in `core/selectors.ts` — which owns the week's
+ * *boundaries* — because `dayOfWeek` below needs it and `selectors.ts` imports
+ * this module, so the other direction would be a cycle. `selectors.ts`
+ * re-exports it, so "declared once" is true of the value and not only of the
+ * name.
+ */
+export const DAYS_PER_WEEK = 7;
+
+/**
  * Calendar words, supplied by the caller.
  *
  * `core/` holds no user-visible string — those live only in `src/ui/labels.ts`
@@ -100,6 +111,57 @@ function daysFromCivil(parts: LocalDateParts): number {
 }
 
 /**
+ * The inverse of `daysFromCivil`: the civil date `days` after 1970-01-01.
+ *
+ * Hinnant's `civil_from_days`, and the reason `addDays` can be written as
+ * integer arithmetic rather than as a month-by-month carry loop — which is
+ * where an off-by-one lives on 31 December and in February of a leap year.
+ * Total for every integer, including negative ones.
+ */
+function civilFromDays(days: number): LocalDateParts {
+  const shifted = days + 719468;
+  const era = Math.floor(shifted / 146097);
+  const dayOfEra = shifted - era * 146097;
+  const yearOfEra = Math.floor(
+    (dayOfEra - Math.floor(dayOfEra / 1460) + Math.floor(dayOfEra / 36524) -
+      Math.floor(dayOfEra / 146096)) /
+      365,
+  );
+  const year = yearOfEra + era * 400;
+  const dayOfYear =
+    dayOfEra - (365 * yearOfEra + Math.floor(yearOfEra / 4) - Math.floor(yearOfEra / 100));
+  const shiftedMonth = Math.floor((5 * dayOfYear + 2) / 153);
+  const day = dayOfYear - Math.floor((153 * shiftedMonth + 2) / 5) + 1;
+  const month = shiftedMonth + (shiftedMonth < 10 ? 3 : -9);
+  return { year: month <= 2 ? year + 1 : year, month, day };
+}
+
+/**
+ * `date` shifted by `days`, which may be negative or zero.
+ *
+ * The one piece of `LocalDate → LocalDate` arithmetic in the product, and the
+ * reason it is here: this is the module that owns the calendar (AD-1), so
+ * FR-23's `tomorrow` and `next week` compose it rather than each counting days
+ * of their own.
+ *
+ * Returns `null` on a date this module cannot read, like every other function
+ * here — `core` is total and hands no caller an exception. It also returns
+ * `null` when the *result* is not a `LocalDate`, which is the only honest
+ * answer in three cases the type alone cannot exclude: a shift past
+ * `9999-12-31`, a shift before `0000-01-01`, and a non-integer or `NaN`
+ * `days`. All three would otherwise produce a string typed `LocalDate` that
+ * `isLocalDate` rejects — and a value that fails its own validator would be
+ * stored in `dueDate` and then make the whole document unreadable on the next
+ * read (AD-6).
+ */
+export function addDays(date: LocalDate, days: number): LocalDate | null {
+  const parts = parseParts(date);
+  if (parts === null) return null;
+  const moved = formatParts(civilFromDays(daysFromCivil(parts) + days));
+  return isLocalDate(moved) ? moved : null;
+}
+
+/**
  * The weekday of `date` as an index into `DateNames.weekdays`: 0 is Monday and
  * 6 is Sunday, which is the week DESIGN.md and FR-23's `next week` both use.
  * Returns `null` when `date` is not a `LocalDate`.
@@ -110,11 +172,25 @@ export function dayOfWeek(date: LocalDate): number | null {
   // Day 0 — 1970-01-01 — was a Thursday, which is index 3 on a Monday-first
   // week. The modulo is taken twice so negative days (before 1970) still land
   // in 0..6.
-  return (((daysFromCivil(parts) + 3) % 7) + 7) % 7;
+  return (((daysFromCivil(parts) + 3) % DAYS_PER_WEEK) + DAYS_PER_WEEK) % DAYS_PER_WEEK;
 }
 
 function twoDigits(value: number): string {
   return value < 10 ? `0${String(value)}` : String(value);
+}
+
+/**
+ * Parts back to the `YYYY-MM-DD` string.
+ *
+ * The year is padded to four digits so that a year between 1 and 999 comes out
+ * in the shape `isLocalDate` accepts rather than as `999-…`. Padding is not a
+ * guarantee of that shape, though: a five-digit year, a negative one or a `NaN`
+ * part all pass through here unchanged. Producing the string and *checking* it
+ * is `addDays`' job — this function only formats.
+ */
+function formatParts(parts: LocalDateParts): LocalDate {
+  const year = String(parts.year).padStart(4, '0');
+  return `${year}-${twoDigits(parts.month)}-${twoDigits(parts.day)}`;
 }
 
 /**

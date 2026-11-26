@@ -119,14 +119,21 @@ Everything from Story 1.1 is on `main` at `454fc36` and is reused, not rebuilt.
   at 360 px and the 196 px rail at 1280 px. Today is the one destination and stays inert here.
 - `src/ui/theme.css` — all 43 tokens. A raw hex anywhere else fails `npm run lint`. Add no token.
 - `src/ui/labels.ts` — extend the existing `labels` object; invent no string elsewhere.
-- `src/ui/components/ErrorBoundary.tsx`, `src/main.tsx` — the one composition root, where every
-  adapter is constructed.
+- `src/ui/components/ErrorBoundary.tsx` — reuse as-is.
+- `src/main.tsx` — **changed by this story**, not reused unchanged: it is the one composition root, so
+  the Storage and Id adapters are constructed here beside the Clock and the tree is wrapped in the
+  store provider. (Corrected 2026-11-26: this line sat under "Reuse as-is — do not change" while an
+  execution task required the change. Review found it; triage may not fix a finding by editing its own
+  spec, so it is corrected here by hand for Story 1.3's continuity read.)
 - `eslint.config.js` — the `src/core/**` override already bans the whole AD-1 list, `globalThis` and
   `self` included. New `core` modules inherit it with no config change.
 
 **New, with its documented home:**
 - `src/core/task.ts` — the `Task` type and the persisted document shape, plus the validator. Pure.
-- `src/core/constants.ts` — the retention default's documented home; this story adds only what it needs.
+- `src/core/constants.ts` — the documented home for core constants. This story adds only `TASK_SCHEMA_VERSION`;
+  the retention default belongs to the story that first reads it (Epic 3's Archive), not here. (Corrected
+  2026-11-26: the original line called this "the retention default's documented home", which the file
+  deliberately does not carry.)
 - `src/ports/storage.ts`, `src/adapters/local-storage.ts` — the synchronous port and the only file
   naming a key.
 - `src/ports/id.ts`, `src/adapters/id.ts` — `crypto.randomUUID()` with AD-11's non-secure-context

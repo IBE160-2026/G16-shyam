@@ -80,7 +80,7 @@ components:
   start-triangle: "outlined triangle marking a task with a control still open"
   priority-ladder: "three bars filled to level, beside the word"
   engine-chip: "boxed R or M plus the engine name spelled out"
-  due-pill: "due date in the ink of its window"
+  due-pill: "due date in the ink of its window — yellow inside the week, olive past due, outlined beyond it; an em-dash, not a pill, when there is no date"
   tag-patch: "terrain-patch rectangle naming a context"
   legend: "published key for every ink and every mark"
 ---

@@ -1,4 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useReducer, type ReactNode } from 'react';
+import { parseDateWord } from '../core/date-words';
+import type { LocalDate } from '../core/localdate';
 import { createTask, type Task } from '../core/task';
 import type { Ids } from '../ports/id';
 import type { StorageFailure, TaskStorage } from '../ports/storage';
@@ -134,10 +136,28 @@ export function initialStoreState(storage: TaskStorage): StoreState {
  * `trim` decides *whether* to create, and never *what* to store: the text is
  * passed through untouched, because the app does not rewrite your sentence
  * (FR-23).
+ *
+ * **The date word is parsed here, at capture, and applied directly** (FR-23,
+ * PRD §13 item 2). It is not a Suggestion: there is nothing to review, nothing
+ * to accept, and no purple anywhere near it — the user typed the date, so the
+ * app is not proposing it. It is parsed synchronously, in the same call that
+ * creates the Task, which is why a parsed date cannot arrive one render after
+ * the record it belongs to.
+ *
+ * `today` is the reference date FR-23 resolves against and the only reason this
+ * function takes a third argument. It comes from the Clock port through
+ * `src/app/use-today.ts` (AD-2) — never from a clock read here, so this stays a
+ * function whose answer is identical on any machine.
  */
-export function captureTask(ids: Ids, text: string): Task | null {
+export function captureTask(ids: Ids, text: string, today: LocalDate): Task | null {
   if (text.trim() === '') return null;
-  return createTask(ids.newId(), text);
+  const task = createTask(ids.newId(), text);
+  const parsed = parseDateWord(text, today);
+  // No date word is the ordinary case, not a failure: the Task is created
+  // exactly as it would have been (AC 4). `createTask` already set `dueDate`
+  // to `null`, so there is nothing to undo and no second default to keep in
+  // step with `core/task.ts`.
+  return parsed === null ? task : { ...task, dueDate: parsed.date };
 }
 
 interface StoreValue {
@@ -152,21 +172,29 @@ export interface StoreProviderProps {
   storage: TaskStorage;
   /** The Id port. The store receives it; it never reaches for one (AD-1). */
   ids: Ids;
+  /**
+   * The reference date FR-23's date words resolve against, from the Clock port
+   * (AD-2). A prop rather than a clock the store holds: the value is already a
+   * string by the time anything is captured, so nothing on the capture path
+   * reads a runtime, and the composition root stays the only place an adapter
+   * is constructed.
+   */
+  today: LocalDate;
   children: ReactNode;
 }
 
-export function StoreProvider({ storage, ids, children }: StoreProviderProps) {
+export function StoreProvider({ storage, ids, today, children }: StoreProviderProps) {
   const reducer = useMemo(() => createPersistingReducer(storage), [storage]);
   const [state, dispatch] = useReducer(reducer, storage, initialStoreState);
 
   const createTaskFromText = useCallback(
     (text: string): Task | null => {
-      const task = captureTask(ids, text);
+      const task = captureTask(ids, text, today);
       if (task === null) return null;
       dispatch({ type: 'task/created', task });
       return task;
     },
-    [ids],
+    [ids, today],
   );
 
   const value = useMemo<StoreValue>(

@@ -94,14 +94,39 @@ export const labels = {
    * Every state here is carried by a word as well as by an ink, which is the
    * accessibility floor rather than a stylistic choice (UX-DR20): the ladder is
    * unreadable to anyone who cannot compare three bar heights, so the Priority
-   * is also spelled out, and an absent Tag or due date is named rather than
-   * left as a gap the reader has to interpret.
+   * is also spelled out, and an absent Tag is named rather than left as a gap
+   * the reader has to interpret. The missing due date is no exception: UX-DR12
+   * draws it as an em-dash and names it “No due date” for a screen reader, so
+   * the mark and the word are two renderings of one state, as everywhere else.
    */
   record: {
     /** No Tag is a valid outcome, not a failure (UX-DR21). `d1` says it this way. */
     noTag: 'NO TAG',
-    /** The due pill, outlined, when the Task has no due date (UX-DR12). */
-    noDueDate: 'NO DUE DATE',
+    /**
+     * No due date, for the eye: an em-dash, and no pill drawn at all (UX-DR12,
+     * corrected 2026-11-26).
+     *
+     * The approved Today frame draws the absence as a mark, and the
+     * correct-course of 2026-11-26 made the four-state pill the authority. It
+     * is still a string and still lives here, because the alternative is a
+     * character literal in a component (AD-9). It is rendered `aria-hidden`:
+     * the glyph is decorative, and `noDueDateSpoken` carries the meaning.
+     */
+    noDueDate: '—',
+    /**
+     * The same absence, for a screen reader (UX-DR12, UX-DR20).
+     *
+     * A second key rather than one, because the glyph and the word are
+     * different strings and AD-9 forbids either as a literal in a component.
+     * Sentence case, not the apparatus uppercase the pill is set in: this text
+     * is never displayed, and some screen readers spell all-caps out letter by
+     * letter. The same split `priority` already uses, where the data is
+     * lowercase and the casing belongs to the type style.
+     *
+     * The wording is Story 1.2's own, restored. It is not a label on a control
+     * — nothing in the record is focusable (UX-DR6, AD-17).
+     */
+    noDueDateSpoken: 'No due date',
     /**
      * The Priority words, beside the ladder. Lowercase in the data, uppercase
      * on screen because apparatus type is uppercase (UX-DR3) — the casing is

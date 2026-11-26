@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  addDays,
   dayOfWeek,
   daysInMonth,
   formatHeaderDate,
@@ -97,6 +98,98 @@ describe('dayOfWeek', () => {
 
   it('returns null rather than raising on an unreadable date', () => {
     expect(dayOfWeek('2026-02-30')).toBeNull();
+  });
+});
+
+describe('addDays', () => {
+  it('shifts a date forward and back within one month', () => {
+    expect(addDays('2026-11-16', 0)).toBe('2026-11-16');
+    expect(addDays('2026-11-16', 4)).toBe('2026-11-20');
+    expect(addDays('2026-11-16', -1)).toBe('2026-11-15');
+  });
+
+  it('crosses a month boundary in both directions', () => {
+    expect(addDays('2026-11-30', 1)).toBe('2026-12-01');
+    expect(addDays('2026-12-01', -1)).toBe('2026-11-30');
+    // 30-day month into 31-day month and back.
+    expect(addDays('2026-04-30', 1)).toBe('2026-05-01');
+    expect(addDays('2026-05-01', -1)).toBe('2026-04-30');
+  });
+
+  it('crosses a year boundary in both directions', () => {
+    expect(addDays('2026-12-31', 1)).toBe('2027-01-01');
+    expect(addDays('2027-01-01', -1)).toBe('2026-12-31');
+    expect(addDays('2026-12-28', 7)).toBe('2027-01-04');
+  });
+
+  it('knows February in a leap year and in a common one', () => {
+    expect(addDays('2024-02-28', 1)).toBe('2024-02-29');
+    expect(addDays('2024-02-29', 1)).toBe('2024-03-01');
+    expect(addDays('2026-02-28', 1)).toBe('2026-03-01');
+    // Backwards over the leap day, which is where a month-by-month carry loop
+    // written by hand gets it wrong.
+    expect(addDays('2024-03-01', -1)).toBe('2024-02-29');
+    expect(addDays('2026-03-01', -1)).toBe('2026-02-28');
+  });
+
+  it('knows the century leap exceptions', () => {
+    // 1900 was not a leap year; 2000 was.
+    expect(addDays('1900-02-28', 1)).toBe('1900-03-01');
+    expect(addDays('2000-02-28', 1)).toBe('2000-02-29');
+  });
+
+  it('is exact over a long span, in both directions', () => {
+    // 2024 is a leap year, so a year is 366 days from this date.
+    expect(addDays('2024-01-01', 366)).toBe('2025-01-01');
+    expect(addDays('2025-01-01', -366)).toBe('2024-01-01');
+    expect(addDays('2026-11-16', 365 * 4 + 1)).toBe('2030-11-16');
+  });
+
+  it('round-trips: adding then subtracting returns the same date', () => {
+    for (const date of ['2026-01-31', '2024-02-29', '2026-11-16', '2026-12-31']) {
+      for (const days of [1, 7, 30, 365, -1, -7, -400]) {
+        const moved = addDays(date, days);
+        expect(moved, `${date} + ${String(days)}`).not.toBeNull();
+        expect(addDays(moved ?? '', -days), `${date} + ${String(days)} back`).toBe(date);
+      }
+    }
+  });
+
+  it('always produces something isLocalDate accepts', () => {
+    for (const days of [-100000, -1, 0, 1, 100000]) {
+      const moved = addDays('2026-11-16', days);
+      expect(isLocalDate(moved ?? ''), String(days)).toBe(true);
+    }
+  });
+
+  it('agrees with dayOfWeek: seven days on is the same weekday', () => {
+    const start = '2026-11-16';
+    expect(dayOfWeek(addDays(start, 7) ?? '')).toBe(dayOfWeek(start));
+    expect(dayOfWeek(addDays(start, 1) ?? '')).toBe(1);
+  });
+
+  it('returns null rather than raising on an unreadable date', () => {
+    // core is total: a caller decides what an unreadable date means, and is
+    // never handed an exception for one (conventions).
+    expect(addDays('2026-02-30', 1)).toBeNull();
+    expect(addDays('', 1)).toBeNull();
+    expect(addDays('nope', 0)).toBeNull();
+  });
+
+  it('returns null rather than a date outside the four-digit year', () => {
+    // A result `isLocalDate` would reject must not be returned typed as one:
+    // it would be stored in `dueDate` and make the whole document unreadable
+    // on the next read (AD-6).
+    expect(addDays('9999-12-31', 0)).toBe('9999-12-31');
+    expect(addDays('9999-12-31', 1)).toBeNull();
+    expect(addDays('0000-01-01', 0)).toBe('0000-01-01');
+    expect(addDays('0000-01-01', -1)).toBeNull();
+  });
+
+  it('returns null on a shift that is not a whole number of days', () => {
+    for (const days of [0.5, -1.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(addDays('2026-11-16', days), String(days)).toBeNull();
+    }
   });
 });
 

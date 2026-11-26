@@ -99,6 +99,15 @@ function recordingStorage(initial: readonly Task[] = []): RecordingStorage {
 
 const EMPTY: StoreState = { tasks: [], readFailure: null, writeFailure: null };
 
+/**
+ * Monday 2026-11-16 — the reference date, passed in as the argument it is.
+ *
+ * `captureTask` takes it because FR-23 resolves date words against it (AD-2).
+ * Nothing here reads a clock, so every assertion below is identical on any day,
+ * in any zone, on any machine (NFR-10, AC 7).
+ */
+const MONDAY = '2026-11-16';
+
 describe('the named actions', () => {
   it('has exactly the mutations this story can perform', () => {
     // One action, because this story can do one thing. Completion (1.6),
@@ -136,7 +145,7 @@ describe('the named actions', () => {
 
 describe('capture', () => {
   it('creates a Task at FR-1 defaults with an id from the port', () => {
-    const task = captureTask(countingIds(), 'Submit assignment in IBE160');
+    const task = captureTask(countingIds(), 'Submit assignment in IBE160', MONDAY);
     expect(task).toEqual({
       id: 'id-1',
       text: 'Submit assignment in IBE160',
@@ -152,15 +161,63 @@ describe('capture', () => {
   it('creates nothing from a whitespace-only sentence, and says nothing', () => {
     const ids = countingIds();
     for (const blank of ['', ' ', '   ', '\t', '\n', ' \t\n ']) {
-      expect(captureTask(ids, blank)).toBeNull();
+      expect(captureTask(ids, blank, MONDAY)).toBeNull();
     }
     // The id port was never asked either: nothing was created, so nothing was
     // allocated.
-    expect(captureTask(ids, 'real')?.id).toBe('id-1');
+    expect(captureTask(ids, 'real', MONDAY)?.id).toBe('id-1');
   });
 
   it('stores the text verbatim even when it has edge whitespace', () => {
-    expect(captureTask(countingIds(), '  Pay rent  ')?.text).toBe('  Pay rent  ');
+    expect(captureTask(countingIds(), '  Pay rent  ', MONDAY)?.text).toBe('  Pay rent  ');
+  });
+});
+
+describe('the date word, applied at capture (FR-23)', () => {
+  it('sets the due date from the date word the user already typed', () => {
+    // AC 1, through the only funnel from text to Task there is. The reference
+    // date is an argument, never a clock read, so this holds on any day.
+    const task = captureTask(countingIds(), 'Submit assignment in IBE160 Friday', MONDAY);
+    expect(task?.dueDate).toBe('2026-11-20');
+  });
+
+  it('leaves the sentence byte-identical, date word included', () => {
+    const text = '  Pay RENT on Friday  ';
+    const task = captureTask(countingIds(), text, MONDAY);
+    // Parsing is a read. The date word is not consumed, stripped or normalised
+    // out of the text it came from (FR-23).
+    expect(task?.text).toBe(text);
+    expect(task?.dueDate).toBe('2026-11-20');
+  });
+
+  it('creates the Task with no due date when nothing is recognised', () => {
+    // AC 4: no date, no error, and a Task all the same.
+    const task = captureTask(countingIds(), 'Pay RENT på fredag', MONDAY);
+    expect(task?.text).toBe('Pay RENT på fredag');
+    expect(task?.dueDate).toBeNull();
+  });
+
+  it('applies it directly rather than proposing it', () => {
+    // PRD §13 item 2: the user typed the date, so there is nothing to review.
+    // A Suggestion would arrive as its own action and leave `dueDate` null
+    // here — this Task is complete the moment it is created.
+    const task = captureTask(countingIds(), 'Call tomorrow', MONDAY);
+    expect(task?.dueDate).toBe('2026-11-17');
+    expect(task?.summary).toBeNull();
+  });
+
+  it('resolves against the reference date it is given, and no other', () => {
+    // The same sentence, two reference dates, two answers — the mechanical
+    // form of "the clock reaches capture as an argument" (AD-2). A module-scope
+    // clock read would make these two equal.
+    const dueDateOn = (today: string): string | null | undefined =>
+      captureTask(countingIds(), 'Email Monday', today)?.dueDate;
+    expect(dueDateOn(MONDAY)).toBe('2026-11-16');
+    expect(dueDateOn('2026-11-19')).toBe('2026-11-23');
+  });
+
+  it('refuses a whitespace-only sentence even when it carries a date word', () => {
+    expect(captureTask(countingIds(), '  \t  ', MONDAY)).toBeNull();
   });
 });
 
@@ -217,9 +274,23 @@ describe('the single writer', () => {
 });
 
 describe('the capture path is synchronous', () => {
-  /** Submit to render: the store, the field, the surface and the adapter. */
+  /**
+   * Submit to render: the store, the field, the surface, the adapters — and,
+   * since Story 1.3, the four `core` modules the date-word parse runs through.
+   *
+   * The parse happens inside `captureTask`, between the id and the Task, so a
+   * `Promise` or a deferral introduced anywhere in that chain would put a
+   * persisted `dueDate` one render behind the record it belongs to. The whole
+   * chain is listed rather than its entry point, because that is where such a
+   * thing would be added.
+   */
   const CAPTURE_PATH = [
     join('app', 'store.tsx'),
+    join('core', 'date-words.ts'),
+    join('core', 'tokenize.ts'),
+    join('core', 'selectors.ts'),
+    join('core', 'localdate.ts'),
+    join('core', 'task.ts'),
     join('adapters', 'local-storage.ts'),
     join('adapters', 'id.ts'),
     join('ui', 'today', 'Capture.tsx'),
@@ -241,7 +312,12 @@ describe('the capture path is synchronous', () => {
       expect(source).not.toMatch(/\basync\b/);
       expect(source).not.toMatch(/\bawait\b/);
       expect(source).not.toMatch(/\bPromise\b/);
-      expect(source).not.toMatch(/\b(setTimeout|requestIdleCallback|queueMicrotask)\b/);
+      // `setInterval` and `requestAnimationFrame` are named too: the interval
+      // is the timer Story 1.3 introduced, and it lives in
+      // `src/app/use-today.ts` precisely because it may not live here.
+      expect(source).not.toMatch(
+        /\b(setTimeout|setInterval|requestAnimationFrame|requestIdleCallback|queueMicrotask)\b/,
+      );
     });
   }
 });
@@ -275,7 +351,7 @@ describe('when storage will not take the write', () => {
 
     const ids = countingIds();
     for (const text of ['one', 'two', 'three']) {
-      const task = captureTask(ids, text);
+      const task = captureTask(ids, text, MONDAY);
       if (task === null) throw new Error(`capture refused ${text}`);
       state = reducer(state, { type: 'task/created', task });
     }

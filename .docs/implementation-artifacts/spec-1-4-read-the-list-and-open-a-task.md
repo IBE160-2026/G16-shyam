@@ -2,9 +2,45 @@
 title: 'Story 1.4 — Read the list and open a Task'
 type: 'feature'
 created: '2026-11-26'
-status: 'ready-for-dev'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
+baseline_revision: '69c0858c8b4156fd778a957635c5dc39768061dc'
+followup_review_recommended: true
+deferred:
+  - summary: >-
+      sprint-status.yaml still records Story 1.4 as ready-for-dev while the story spec
+      reaches done, so the file CLAUDE.md names as the status authority disagrees with it.
+    evidence: |-
+      CLAUDE.md names .docs/implementation-artifacts/sprint-status.yaml as the authority on
+      "what to build next, and every story's status"; this run moved the spec's own
+      frontmatter from ready-for-dev to done and left that file untouched. Not routed to a
+      patch because sprint-status.yaml is the orchestration layer's tracking file -
+      bmad-sprint-planning owns it, and this workflow is told not to read or write the
+      caller's checkpoint fields. Settled by running bmad-sprint-planning, or by a
+      one-field edit if the human prefers.
+    location: >-
+      .docs/implementation-artifacts/sprint-status.yaml
+    severity: low
+  - summary: >-
+      Two deferred-work.md entries targeted at Story 1.4 are now settled by it and still
+      read as open, and a third is now imprecise.
+    evidence: |-
+      The entry at line 68 routed the desktop-year question here and warned against adding
+      a year inside the shared formatHeaderDate; this story settled it with a separate
+      formatFullDate. The entry at line 72 routed the missing retention default here; this
+      story added DEFAULT_RETENTION_DAYS. The entry at line 76 records the accepted
+      consequence as a user reaching Task detail with "no drawn affordance to return",
+      which is now imprecise at 360 px: AC 5's tab bar renders on Task detail with a live
+      TODAY link, so there is a drawn way to Today - just not a Back control, which is
+      what the CHECKPOINT decision actually prohibited. Not patched because
+      deferred-work.md states "Append-only: entries are never edited or deduplicated" in
+      its own header, while one existing entry was edited on 2026-11-26 to carry a
+      RESOLVED prefix - the file contradicts itself on whether editing is allowed, and
+      picking a side is a human call. Settled by deciding that convention once.
+    location: >-
+      .docs/implementation-artifacts/deferred-work.md:68,72,76
+    severity: low
 context: ['{project-root}/.docs/implementation-artifacts/epic-1-context.md']
 ---
 
@@ -202,36 +238,36 @@ purple, focus rings and `::before`/`::after` included.
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `src/core/localdate.ts` -- `dayDiff`, plus the desktop-title and detail date formatters beside
+- [x] `src/core/localdate.ts` -- `dayDiff`, plus the desktop-title and detail date formatters beside
       `formatHeaderDate`; zero imports preserved -- AC 1, AC 2, the shared-formatter trap
-- [ ] `src/core/constants.ts` -- the 30-day retention default -- AC 1, FR-16, AD-6
-- [ ] `src/core/selectors.ts` -- `isCompleted` and `isArchived`, pure, reference date and retention
+- [x] `src/core/constants.ts` -- the 30-day retention default -- AC 1, FR-16, AD-6
+- [x] `src/core/selectors.ts` -- `isCompleted` and `isArchived`, pure, reference date and retention
       as arguments -- AC 1, AC 6, AD-7
-- [ ] `src/app/` router -- hash parse and format as pure functions, plus the `hashchange`
+- [x] `src/app/` router -- hash parse and format as pure functions, plus the `hashchange`
       subscription; absent and unknown hashes normalise to Today -- AC 3, AC 4, AD-16
-- [ ] `src/ui/labels.ts` -- the Task-detail strings and the destination title, in the per-surface
+- [x] `src/ui/labels.ts` -- the Task-detail strings and the destination title, in the per-surface
       idiom -- AC 2, AC 6, AD-9
-- [ ] `src/ui/shell/Shell.tsx` -- route-derived current destination, title and markers; the
+- [x] `src/ui/shell/Shell.tsx` -- route-derived current destination, title and markers; the
       destination becomes a native `<a>`; header and tab-bar geometry unchanged -- AC 4, AC 5, AD-17
-- [ ] `src/ui/` Task detail -- AC 2's seven field rows from `m6`/`d5`, each absence named, nothing
+- [x] `src/ui/` Task detail -- AC 2's seven field rows from `m6`/`d5`, each absence named, nothing
       purple, no `PROJECT`, no `CREATED`, no course table -- AC 2, UX-DR6, UX-DR2
-- [ ] `src/ui/components/Record.tsx` -- the sentence opens Task detail, at a target the accessibility
+- [x] `src/ui/components/Record.tsx` -- the sentence opens Task detail, at a target the accessibility
       floor accepts, without foreclosing Story 1.6's second target -- AC 2, UX-DR6, UX-DR20
-- [ ] `src/ui/today/Today.tsx` -- the list and its count become the non-archived Tasks -- AC 1
-- [ ] `src/main.tsx` -- render the current route inside the shell, each surface in its own boundary
+- [x] `src/ui/today/Today.tsx` -- the list and its count become the non-archived Tasks -- AC 1
+- [x] `src/main.tsx` -- render the current route inside the shell, each surface in its own boundary
       -- AC 4, AD-20
-- [ ] `tests/unit/selectors.test.ts` -- `isCompleted` and `isArchived` against a literal reference
+- [x] `tests/unit/selectors.test.ts` -- `isCompleted` and `isArchived` against a literal reference
       date, including the retention boundary at exactly 30 and 31 days -- AC 1, NFR-10
-- [ ] `tests/unit/localdate.test.ts` -- `dayDiff` across month, year and leap boundaries, and the two
+- [x] `tests/unit/localdate.test.ts` -- `dayDiff` across month, year and leap boundaries, and the two
       new formatters -- NFR-10
-- [ ] `tests/unit/` router -- the pure hash parse and format, including absent, unknown and
+- [x] `tests/unit/` router -- the pure hash parse and format, including absent, unknown and
       malformed hashes -- AC 4
-- [ ] `tests/unit/store.test.ts` -- extend `CAPTURE_PATH` with any new file on the capture path -- NFR-1
-- [ ] `tests/e2e/` shared helpers -- extract `seed`, the document builders, `tokenColour` and
+- [x] `tests/unit/store.test.ts` -- extend `CAPTURE_PATH` with any new file on the capture path -- NFR-1
+- [x] `tests/e2e/` shared helpers -- extract `seed`, the document builders, `tokenColour` and
       `capture` from `capture.spec.ts`, and add a builder for completed and archived Tasks -- AC 1
-- [ ] `tests/e2e/capture.spec.ts` -- rewrite the three inertness assertions and the record's aria
+- [x] `tests/e2e/capture.spec.ts` -- rewrite the three inertness assertions and the record's aria
       snapshot for the control that now exists -- AC 2
-- [ ] `tests/e2e/` Task detail -- open from a record, every field row, Back returns to Today, deep
+- [x] `tests/e2e/` Task detail -- open from a record, every field row, Back returns to Today, deep
       link and unknown id, archived Tasks absent, `axe-core` clean and no horizontal scroll at both
       widths -- AC 1, AC 2, AC 3, AC 4
 
@@ -258,9 +294,350 @@ The six acceptance criteria, from `epics.md`:
 
 ## Implementation Notes
 
+Implemented 2026-11-27 on `story/1-4-read-the-list-and-open-a-task`, from
+`69c0858`. Every AC, every frozen decision and every Never-list item held; no
+planning was reopened and the story was not split, so the pre-decided cut
+(AC 1 + AC 6) was not taken.
+
+**New files.** `src/app/router.ts` (the hash router, named by the spine's source
+tree), `src/ui/task-detail/TaskDetail.tsx` (likewise), `tests/e2e/helpers.ts`,
+`tests/e2e/task-detail.spec.ts`, `tests/unit/router.test.ts`. No dependency was
+added; `package.json` is untouched.
+
+**Three judgement calls the spec left open, and how they were settled.**
+
+1. **The record's action is a row-sized overlay anchor, not a stretched
+   pseudo-element.** The Design Note proposed "a link covering the row from
+   inside it — a stretched pseudo-element". Built that way first, and it is
+   wrong for a reason the note could not have known: `axe-core` measures an
+   element's own client rects, and a pseudo-element does not extend them. The
+   sentence link would have measured 13 px and passed `target-size` only by
+   claiming the spacing exception — which AD-17 explicitly denies to rows
+   stacked against each other. It would also have been clipped by `truncate`'s
+   `overflow: hidden`. What ships instead is an empty `<a data-slot="open">` at
+   `absolute inset-0`, named by the sentence through `aria-labelledby`. This
+   satisfies the note's actual requirement in full: the target is the whole row,
+   the checkbox is **not** inside the link, and Story 1.6 raises it above the
+   overlay with a `z-index` and nothing else. The due pill stays outside the
+   link too, so a date is still read as a date rather than as part of a link's
+   name. The row measures 46 px and the overlay 45 px — `inset-0` spans the
+   padding box, and the 1 px `border-b` is the rule between records.
+
+2. **Label wording and row order, where `m6` and `d5` disagree.** Corrected
+   during review, where the original wording of this note was found to
+   misdescribe the frames. The accurate account: `m6` is the only frame that
+   draws all seven fields as plain rows — `d5`'s field block is four rows
+   (`TASK TEXT`, `DUE DATE`, `PROJECT`, `NOTES`), with Tags, Priority and
+   Summary appearing only inside the Epic 2 course table, and it carries no
+   `COMPLETED` label at all. So **`m6` supplies the order and the `COMPLETED`
+   label**, and `d5` supplies the two wordings it has: `TASK TEXT` over `m6`'s
+   `THE TASK`, and `Not completed` over `m6`'s `No`. `d5`'s section heading
+   (`THE TASK, FIELD BY FIELD`) renders at 1280 px only, because `m6` draws no
+   such line, and at the 10.5 px primary-ink class `d5` actually draws it in —
+   the first build used the 9 px secondary class `d5` reserves for annotation
+   captions, also corrected during review.
+
+3. **The recovery panel now goes where it says.** `labels.recovery.action` is
+   `BACK TO TODAY`, and before this story rebuilding the one surface *was*
+   going back. With a per-surface boundary over Task detail, rebuilding would
+   re-render the surface that just failed and the label would be a lie — so
+   `recover()` sets the hash to Today as well as bumping the rebuild key. The
+   key still carries the outer boundary, where the composition itself failed and
+   no route change would be read by anything. No approved copy changed.
+
+**Two existing assertions had to change, beyond the four the spec named.**
+`tests/e2e/first-run.spec.ts`'s `HEADER_DATE` became two shapes, one per width:
+the matrix requires the year at 1280 px, so the old single regex was asserting
+that `d1` and `d5` had not been built. And `tests/unit/store.test.ts`'s
+`CAPTURE_PATH` gained `core/constants.ts` as well as `app/router.ts` — Today
+reads the retention window from it, and the record asks the router for an href,
+so both are now on the submit-to-render path.
+
+**Reuse.** `Today.tsx`'s private `referenceDate()` helper is gone: it composed
+exactly what `formatFullDate` now does, so the meta line calls the shared
+formatter instead of a local duplicate. `formatHeaderDate` is untouched, as the
+spec requires. `tests/e2e/capture.spec.ts` lost its four private document
+builders, `seed`, `storedItems`, `tokenColour`, `capture` and `isDesktop` to
+`tests/e2e/helpers.ts`, and two hand-rolled horizontal-scroll checks to
+`expectNoHorizontalScroll`; `fixtureTask` now takes an overrides object rather
+than a bare `priority`, which collapsed three builders into one.
+
+**Verification.** `npm run typecheck`, `npm run lint`, `npm test`
+(278 unit tests, 14 files), `npm run build`, `npm run test:e2e` (129 tests
+across `mobile-360`, `desktop-1280` and `dev-server`) and
+`node scripts/check-bundle-key.mjs dist` all pass. All 18 I/O matrix rows have a
+covering test that ran; the archive boundary is proved arithmetically in
+`tests/unit/selectors.test.ts` at exactly 30 and 31 days, and applied in
+`tests/e2e/task-detail.spec.ts`.
+
+**One defect found and fixed in review of the diff:** a literal NUL byte had
+been written into `tests/unit/router.test.ts`'s hostile-input list where a space
+was intended, which made Git treat the file as binary and put it outside
+`.gitattributes`' `eol=lf` normalisation. Replaced with the intended space.
+
 ## Spec Change Log
 
+Nothing in the intent contract changed. The spec was followed as approved; the
+one place the implementation departs from a **Design Note** rather than from the
+contract is the record's overlay anchor, recorded as item 1 of the
+Implementation Notes above with the measurement that forced it.
+
 ## Review Triage Log
+
+### 2026-11-27 - Review pass
+
+- verdicts: 38 findings - high 0, medium 3, low 28, false 7, maybe-false 0
+  (of the 28 low: 14 patched, 12 rejected, 2 deferred)
+- layers: blind-hunter (13), verification-gap (2 gap + 4 other), intent-alignment
+  (8 divergences, D1-D8), edge-case-hunter (11)
+- findings:
+  - `[medium]` `[patch]` `days()` in the archive e2e test mixed local arithmetic with a UTC
+    output string, so the 30/31-day boundary flips in any positive-offset zone early in the
+    local day - verified: `setDate(getDate() - n)` is local, `toISOString()` is UTC, and
+    `src/adapters/system-clock.ts` reads the local calendar. Fixed: added `localDaysAgo` to
+    `tests/e2e/helpers.ts` and used it at all three seeded-date sites.
+  - `[medium]` `[patch]` `DEFAULT_RETENTION_DAYS` was pinned nowhere - the unit test carried
+    its own literal 30 and only the (flaky) e2e test touched the constant - verified by grep.
+    Fixed: the unit suite imports it, asserts it is 30, and derives its boundary cases from
+    it; the e2e boundary rows derive from it too.
+  - `[medium]` `[patch]` The per-route ErrorBoundary keys had no covering test: the existing
+    recovery test presses BACK TO TODAY, which clears `failed` on the same instance and so
+    passes with or without keys - verified by deleting both keys. Fixed: added a case that
+    leaves the failed surface by the shell destination link, and confirmed it fails at both
+    widths without the keys and passes with them.
+  - `[low]` `[patch]` `isCompleted`'s docstring claimed to be the rule's "only expression"
+    while Task detail reads `completedAt` directly - verified. Fixed the docstring; the
+    predicate is required by the spec's own task list and its first behavioural reader is
+    Story 1.6.
+  - `[low]` `[patch]` Record.tsx's li comment still described the rejected stretched
+    pseudo-element - verified. Fixed to describe the overlay anchor that ships.
+  - `[low]` `[patch]` `headerDateFor` hard-coded `width < 1280`, the third spelling of the
+    breakpoint that `isDesktop` was extracted to remove - verified. Fixed to use `isDesktop`.
+  - `[low]` `[patch]` Task detail used `??`, so a stored blank summary or notes rendered a
+    labelled empty row and blank tags a bare separator - verified against `validateTask`,
+    which admits `summary: ""`, `notes: ""` and `tags: [""]`. Fixed with `presentText` and
+    `presentTags`, plus a covering e2e case.
+  - `[low]` `[patch]` `aria-labelledby` interpolated a raw `task.id`; `validateTask` admits an
+    id containing a space, which would split the token list and strip the link's accessible
+    name - verified. Fixed by percent-encoding the DOM id.
+  - `[low]` `[patch]` `useRoute` trusted its render-time seed and normalised only on mount, so
+    a hashchange in the gap before the listener attached was missed and a later bare # was
+    left un-canonicalised - verified against `use-today.ts`, which documents the same trap.
+    Fixed: sync runs after the listener attaches, and normalises on every call.
+  - `[low]` `[patch]` The recovery test's `expect(before).toContain(...)` compared a locally
+    built string to its own input and could never fail - verified. Fixed to compare the stored
+    document byte-for-byte against the seeded string.
+  - `[low]` `[patch]` The "carries the year" test's comment claimed to check the record's pill
+    but asserted a Task-detail row after navigating - verified. Fixed to assert the pill on
+    Today before opening, then the detail row.
+  - `[low]` `[patch]` Shell keyed its destination list items on translatable label text -
+    verified. Fixed to key on the destination's own route hash.
+  - `[low]` `[patch]` Task detail's section heading rendered at 9 px in ink-secondary, the
+    class d5 reserves for annotation captions; d5 draws this heading at 10.5 px in primary
+    ink, the same class as ALL TASKS - verified in the SVG. Fixed.
+  - `[low]` `[patch]` The labels.ts docstring claimed the rows are "in the order m6 and d5
+    both stack them" and that d5's wording won "in both places" - verified wrong: d5's field
+    block is four rows and carries no COMPLETED label. Fixed to state that m6 supplies the
+    order and the COMPLETED label while d5 supplies the two wordings it has.
+  - `[low]` `[patch]` No test exercised AC 2's literal wording - every path clicked the
+    overlay by its own hook - verified. Added a case that clicks at the sentence's own
+    coordinates.
+  - `[low]` `[reject]` Back from a cold-open deep link exits the app rather than returning to
+    Today. Real, but correct: AC 3 scopes Back to a surface "entered from a record", the
+    matrix's deep-link row sets no Back expectation, and the proposed fix fabricates a Today
+    history entry the user never visited.
+  - `[low]` `[reject]` `isArchived` does not reject a NaN, negative or non-integer
+    retentionDays. No settings document exists until Epic 2, so this guards state never shown
+    reachable; validating a settings value belongs to AD-6's defaults factory, not to a pure
+    predicate.
+  - `[low]` `[reject]` `isCurrent` compares only route.kind. With the current closed union,
+    kind is identity; the fix guards a future sub-route shape that does not exist.
+  - `[low]` `[reject]` Field's `slot` is an untyped string, so the specs carry a one-line
+    camelCase-to-kebab ternary. Typing it would require renaming label keys or attributes -
+    more than a direct correction, for a negligible gain.
+  - `[low]` `[reject]` No focus management on route change: focus falls to body. No WCAG 2.2 AA
+    success criterion requires route-change focus handling, axe-core is clean at both widths,
+    and the fix adds refs, effects and a focus target the spec does not settle.
+  - `[low]` `[reject]` ErrorBoundary.recover writes window.location.hash directly rather than
+    through a router navigate(), pushes an entry even for the outer boundary where no route
+    change is readable, and costs one extra caught throw because setState flushes before
+    hashchange. All verified; all invisible to the user, inside an already-rare crash path.
+    The fixes either add a prop to a deliberately unexported props type or redesign recovery.
+  - `[false]` AC 2's expectation is at the sentence while the change and its tests are at the
+    row. The spec's own Design Notes make "the record's full 46 px row" the pointer target, so
+    row-as-target is the intent's elaboration of "tap its sentence", not a divergence from it.
+  - `[false]` The overlay forecloses Story 1.6's split. It does not: the checkbox is not nested
+    in the link, and 1.6 raises it with a z-index - the one thing the Boundaries item requires.
+  - `[false]` RoutedSurface's effective route is navigation state living outside the URL. It is
+    a pure per-render derivation of hash plus document, persisted nowhere, and the matrix's
+    unknown-id row mandates the fallback.
+  - `[false]` useRoute's useState hash mirror violates "never component-local state". It is a
+    subscription cache of the URL, the same shape as use-today.ts; the URL remains the source.
+  - `[false]` The record's aria-snapshot assertion was relaxed from a whole-shape comparison.
+    The pre-existing assertion was already toContain/not.toContain; this change added one.
+  - `[false]` The spec claims unknown hashes normalise to Today but the address is left alone.
+    "Normalise to Today" refers to the resolved route; the only address rewrite the matrix
+    requires is for the absent or bare hash, which is implemented.
+  - `[false]` The Review Triage Log is empty. It is written by this step; it was empty because
+    the review had not yet run.
+  - `[low]` `[defer]` sprint-status.yaml still says ready-for-dev - recorded in frontmatter
+    `deferred`.
+  - `[low]` `[defer]` deferred-work.md entries 68 and 72 are settled by this story and entry 76
+    is now imprecise - recorded in frontmatter `deferred`; the file's own append-only rule
+    contradicts an existing edited entry, so the convention is a human call.
+  - `[low]` `[reject]` Intent D7's structural reading (at 1280 px, "d5 minus Epic 2" is four
+    rows). AC 2 enumerates seven fields and m6 draws all seven as field rows; shipping four at
+    desktop would fail AC 2. The stated justification was wrong and was patched above.
+  - `[low]` `[reject]` Intent D5: the tab bar's TODAY link means the recorded "no way off the
+    surface" consequence is no longer strictly true. The CHECKPOINT decision prohibits a Back
+    control; AC 5 independently requires the destination. The record's imprecision is deferred
+    above rather than resolved by removing a control AC 5 mandates.
+  - `[low]` `[reject]` Intent D6: recovery semantics changed for both mount points while only
+    the Task-detail one is exercised. The outer boundary is now covered in substance by the
+    keyed per-surface test added above; a composition-root crash cannot be injected without a
+    test-only seam in shipped code.
+  - `[low]` `[reject]` Intent D8: both date strings live in the DOM with one hidden, so the
+    matrix holds for painted text and the accessibility tree but not for textContent. The
+    alternative - branching on a media query in JS - puts the breakpoint in a second place.
+  - `[false]` Intent D2: membership is spelled as a negation at the call site, so half the
+    decision lives in Today.tsx. Composing a named predicate with ! is what AC 6 requires; the
+    condition itself is nowhere but core/selectors.ts.
+  - `[low]` `[reject]` Intent D3: the archive matrix rows are proved only at the core surface.
+    They are proved at both - arithmetically in the unit suite and on the rendered surface in
+    the e2e gate; the UTC defect that weakened the latter was patched above.
+  - `[low]` `[reject]` Intent D4 restated at the shell: the chrome and the address deliberately
+    disagree for an unknown id. Mandated by the matrix's unknown-id row and asserted on purpose.
+  - `[low]` `[reject]` Edge: a hashchange between seed and listener attachment leaves a stale
+    route. Patched above as part of the useRoute fix; the row is kept so the count is complete.
+
+
+## Auto Run Result
+
+Status: done
+Branch: `story/1-4-read-the-list-and-open-a-task`, from `69c0858`.
+
+### What was implemented
+
+Story 1.4 in full: all six ACs, no planning reopened, no split, and the
+pre-decided cut (AC 1 + AC 6) not taken. The app gains the hash router the
+architecture has always specified, a second surface to reach, the record's first
+action, and the archive filter — so Today is a list you can look things up in
+rather than a capture box.
+
+### Files changed
+
+**New**
+- `src/app/router.ts` — the hand-rolled hash router: `parseRoute`/`formatRoute`
+  as total pure functions, plus the `hashchange` subscription and the
+  `replaceState` normalisation.
+- `src/ui/task-detail/TaskDetail.tsx` — AC 2's seven field rows, each absence
+  named, nothing purple.
+- `tests/e2e/helpers.ts` — the shared seed/capture/document builders extracted
+  from `capture.spec.ts`, plus `localDaysAgo` and `expectNoHorizontalScroll`.
+- `tests/e2e/task-detail.spec.ts` — Task detail, Back, deep links, the shell
+  across routes, the archive filter, a thrown surface, the accessibility floor.
+- `tests/unit/router.test.ts` — the router's pure half, including every hostile
+  hash.
+
+**Changed**
+- `src/core/localdate.ts` — `dayDiff` and `formatFullDate`; `formatHeaderDate`
+  untouched, as the spec requires.
+- `src/core/constants.ts` — `DEFAULT_RETENTION_DAYS`.
+- `src/core/selectors.ts` — `isCompleted` and `isArchived`, both pure, both
+  taking the reference date and the window as arguments.
+- `src/main.tsx` — reads the route, resolves it against the document, renders
+  each surface in its own boundary keyed by route.
+- `src/ui/shell/Shell.tsx` — route-derived title, current-destination mark and
+  `aria-current`; the destination is now a native anchor; one `<time>` carrying
+  a per-width rendering of the date.
+- `src/ui/components/Record.tsx` — the row-sized overlay anchor that opens Task
+  detail, named by the sentence.
+- `src/ui/components/ErrorBoundary.tsx` — recovery now goes to Today, which is
+  what its label promises once routes exist.
+- `src/ui/today/Today.tsx` — the list and its count are the non-archived Tasks;
+  the local date helper gave way to the shared formatter.
+- `src/ui/labels.ts` — the Task-detail strings, the `TASK` title, and the
+  sentence-cased calendar words.
+- `tests/unit/{selectors,localdate,store}.test.ts`, `tests/e2e/{capture,first-run}.spec.ts`
+  — extended, and in four places rewritten where an assertion existed to be
+  undone by this story.
+
+No dependency added; `package.json` is untouched.
+
+### Review findings
+
+Four layers ran in parallel: blind-hunter (13 findings), verification-gap
+(2 gap + 4 other), intent-alignment (8 divergences), edge-case-hunter (11).
+38 findings, every one logged in `## Review Triage Log` above.
+
+- **15 patched** — 2 grouped entries at `medium` (the retention window's
+  verification, and the untested per-route boundary keys) and 13 at `low`.
+  Three were real behavioural defects in shipped code: a blank stored
+  `summary`/`notes`/`tags` rendered an unexplained empty row; a `task.id`
+  containing a space would have stripped the record link's accessible name; and
+  `useRoute` trusted its render-time seed, so a `hashchange` racing the listener
+  was dropped. The rest were test and comment defects, including one assertion
+  that compared a string to its own input and could never fail.
+- **2 deferred** — `sprint-status.yaml` still reads `ready-for-dev`, and three
+  `deferred-work.md` entries are now settled or imprecise. Both are recorded in
+  frontmatter `deferred`. Neither was patched because each belongs to a file
+  this workflow does not own: the first is the orchestrator's tracking file, and
+  the second states "Append-only: entries are never edited" in its own header
+  while an existing entry was edited on 2026-11-26 to add a `RESOLVED` prefix —
+  the file contradicts itself, so the convention is a human call.
+- **7 rejected as false** — chiefly the reading that AC 2's "tap its sentence"
+  is violated by a row-sized target (the spec's own Design Notes make the full
+  46 px row the target), that the effective-route derivation is state outside
+  the URL (it is a per-render derivation the matrix's unknown-id row mandates),
+  and that the record's aria-snapshot assertion was relaxed (it was already
+  containment-based before this story).
+- **14 rejected as low** — each with its reason in the log. The substantive
+  ones: no focus management on route change (no AA success criterion requires
+  it, `axe-core` clean, and the fix adds structure the spec does not settle);
+  `isArchived` not validating a NaN or negative window (no settings document
+  exists until Epic 2, and validating one belongs to AD-6's factory); and three
+  warts in `ErrorBoundary.recover` whose fixes would add a prop to a
+  deliberately unexported props type.
+
+### Verification
+
+Run after patching, all passing:
+- `npm run typecheck` — exit 0
+- `npm run lint` — exit 0, `eslint` and the hex scanner both
+- `npm test` — 279 tests, 14 files
+- `npm run build` — exit 0
+- `npm run test:e2e` — 139 tests across `mobile-360`, `desktop-1280` and
+  `dev-server`; `axe-core` clean on every surface at both widths, no console
+  output on the built artifact
+- `node scripts/check-bundle-key.mjs dist` — exit 0
+
+All 18 I/O matrix rows have a covering test that ran; none is skipped, and
+`forbidOnly` is on. Three of the new tests were checked for teeth by
+reintroducing the defect they guard — the per-route boundary keys, the
+late-hash canonicalisation, and the percent-encoded DOM id — and each failed at
+both widths before passing again.
+
+### Residual risks
+
+- **Task detail's typography is asserted by no test.** The heading's 10.5 px
+  primary ink was read off `d5`'s SVG by inspection; the gate proves only that
+  nothing is purple, nothing overflows and `axe-core` is clean. This matches the
+  codebase's existing level of coverage for type, but it means a fidelity
+  regression here would be silent.
+- **Two of this pass's three `medium` findings were weaknesses in the
+  verification layer itself** — the gate was green while two of its own checks
+  were unsound. The remaining clock-dependent e2e assertions are the place a
+  further pass should look first.
+- The record's overlay means every part of the row navigates, including the
+  checkbox glyph. That is the approved target (EXPERIENCE.md) and Story 1.6
+  raises the checkbox above it, but 1.6 must not forget to.
+
+### Follow-up review recommendation
+
+`true`. Two `medium` entries were patched on a first pass, which is the
+threshold. The specific unverified risk is the first item above: the design
+fidelity of the new surface rests on one reading of an SVG and no assertion.
+
 
 ## Design Notes
 

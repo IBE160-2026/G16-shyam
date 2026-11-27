@@ -1,3 +1,4 @@
+import { formatRoute } from '../../app/router';
 import { formatHeaderDate, type LocalDate } from '../../core/localdate';
 import type { Task } from '../../core/task';
 import { labels } from '../labels';
@@ -8,20 +9,37 @@ import { PriorityLadder } from './PriorityLadder';
  * tag patch · priority ladder with its word · due pill, and the start triangle
  * slot at the right edge.
  *
- * **The checkbox and the sentence render but do not act.** Story 1.6 owns "tap
- * the checkbox completes in place" and Story 1.4 owns "tap the sentence opens
- * Task detail"; neither exists yet. AD-17 asks for native focusable controls,
- * and a native `input type="checkbox"` that does nothing is worse than a drawn
- * one — it is announced, tabbed to, and lies about being operable. So they are
- * marked as the visuals they are and become real controls in the stories that
- * give them something to do, which is the precedent Story 1.1 set with the
- * inert Today destination.
+ * **The sentence acts; the checkbox still does not.** Tapping the sentence
+ * opens Task detail — the record's first action, and the whole of it. Story 1.6
+ * owns "tap the checkbox completes in place", so the checkbox stays the drawn
+ * glyph it was: AD-17 asks for native focusable controls, and a native
+ * `input type="checkbox"` that does nothing is worse than a drawn one — it is
+ * announced, tabbed to, and lies about being operable.
  *
- * The same reasoning keeps every pointer target honest: this record contains no
- * control at all, so there is nothing for SC 2.5.8's 24 px minimum to measure
- * and nothing for `axe-core` to find undersized. How the 46 px row divides into
- * two targets once it has two actions is Story 1.6's question — both actions
- * exist at once for the first time there.
+ * **The link covers the row from inside it, rather than being the row.**
+ * EXPERIENCE.md makes the full 46 px row the pointer target, which is what
+ * satisfies SC 2.5.8 and the `target-size` rule `axe-core` begins applying the
+ * moment a control exists. Three shapes could deliver that, and two of them are
+ * wrong here:
+ *
+ * - Wrapping the whole record in an anchor would put Story 1.6's checkbox
+ *   *inside* a link — invalid HTML, and exactly the split this story must not
+ *   foreclose.
+ * - Putting the anchor around the sentence and stretching a pseudo-element over
+ *   the row would be clickable everywhere but would still *measure* 13 px:
+ *   `axe-core` reads an element's own client rects, and a pseudo-element does
+ *   not extend them. AD-17 asks for targets that are 24 px, not for targets
+ *   that pass by claiming the spacing exception — which it explicitly denies to
+ *   rows stacked against each other.
+ *
+ * So the anchor is an empty overlay the size of the row, named by the sentence
+ * through `aria-labelledby`. The target is the full 46 px, the name is exactly
+ * the user's own words, the checkbox is not inside it, and neither is the due
+ * pill — so a date is still read as a date and not as part of a link's name.
+ * Story 1.6 raises the checkbox above this overlay; nothing here has to move.
+ *
+ * The row's height is unchanged at 46 px: the overlay is out of flow, and the
+ * focus ring is an `outline`, which paints outside the box without resizing it.
  *
  * **The start triangle is always absent here.** It marks a Task with a course
  * being set or a control still open, and both of its sources arrive in Epic 2
@@ -81,8 +99,9 @@ function DuePill({ dueDate }: { dueDate: LocalDate | null }) {
     // frame is explicit about how it is drawn — an em-dash, no pill — and
     // UX-DR12 is equally explicit that it is still named: the glyph is
     // decorative and the word is the accessible content, the same mark-plus-word
-    // split `PriorityLadder` and the checkbox glyph already use. Neither span is
-    // a control; nothing in the record is focusable (AD-17).
+    // split `PriorityLadder` and the checkbox glyph already use. Neither span
+    // is a control: the sentence link is the record's one focusable element,
+    // and the pill is not nested inside it (AD-17).
     return (
       <span data-slot="due-pill" data-due="none" className={`${DUE_SLOT} text-ink-secondary`}>
         <span aria-hidden="true">{labels.record.noDueDate}</span>
@@ -107,14 +126,42 @@ export interface RecordProps {
 }
 
 export function Record({ task }: RecordProps) {
+  // The sentence's id, so the overlay can borrow it as its accessible name.
+  // Derived from the Task's own id, which is unique per document by
+  // construction — no counter, and no second render producing a different one.
+  //
+  // Percent-encoded, because `aria-labelledby` is a **space-separated token
+  // list**: `validateTask` admits any non-empty string as an id, so a stored id
+  // containing a space would split into two tokens, neither of which resolves,
+  // and the link would lose its accessible name entirely. Encoding also leaves
+  // the attribute free of the characters a CSS id selector would have to escape.
+  const sentenceId = `sentence-${encodeURIComponent(task.id)}`;
+
   return (
     <li
       data-record={task.id}
       // 46 px on the phone, and 46 px on the desktop too in this story: the
       // dense 24 px table row and the two-column mosaic arrive with the bands
       // in Epic 3. One hairline `rule` separator beneath, never a card edge.
-      className="flex h-record-height-mobile items-start gap-group-gap-min border-b border-rule pt-[2px]"
+      //
+      // `relative` is what the overlay anchor below is positioned against: it
+      // makes the whole row the pointer target without the row itself becoming
+      // the link. Absolute positioning takes the overlay out of flow, so the
+      // 46 px is unchanged by it.
+      className="relative flex h-record-height-mobile items-start gap-group-gap-min border-b border-rule pt-[2px]"
     >
+      {/*
+        The row-sized target that opens Task detail, named by the sentence.
+        First in source order so it is also first in tab order: a reader reaches
+        the Task before its parts, which is the order the row is read in.
+      */}
+      <a
+        data-slot="open"
+        href={formatRoute({ kind: 'task', id: task.id })}
+        aria-labelledby={sentenceId}
+        className="absolute inset-0 outline-offset-[-2px] outline-ink focus-visible:outline-2"
+      />
+
       <CheckboxGlyph />
 
       <div className="flex min-w-0 flex-1 flex-col gap-[4px]">
@@ -122,10 +169,13 @@ export function Record({ task }: RecordProps) {
           The sentence, in Archivo — the user's own words, so body type and
           terrain ink. Truncated rather than wrapped: the record is a fixed
           46 px pitch, and a second line would either break the pitch or
-          overflow it. The full text stays in the document for Task detail,
-          which is where a long sentence is meant to be read (Story 1.4).
+          overflow it. Truncating costs the reader nothing now that the whole
+          sentence is one tap away: the overlay above is what opens Task detail,
+          which renders the text in full and is where a long one is meant to be
+          read.
         */}
         <p
+          id={sentenceId}
           data-slot="sentence"
           className="truncate font-family-body font-body text-body leading-[13px] text-ink"
         >

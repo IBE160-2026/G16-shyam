@@ -1,4 +1,5 @@
 import { Component, Fragment, type ReactNode } from 'react';
+import { TODAY_ROUTE, formatRoute } from '../../app/router';
 import { labels } from '../labels';
 
 /**
@@ -14,9 +15,12 @@ import { labels } from '../labels';
  * (AD-11), and a crash reporter would be the first third party in a product
  * whose whole claim is that there are none.
  *
- * Story 1.4 wraps each routed surface in its own boundary, so a crash in one
- * destination leaves the others reachable. Here there is one surface, so there
- * is one boundary.
+ * **Story 1.4 wraps each routed surface in its own boundary**, so a crash in
+ * one destination leaves the others reachable (AD-20). There are two mount
+ * points now: one per surface inside the shell, keyed by route, and one outside
+ * the composition root that stands under `App` itself. The first keeps a failed
+ * Task detail from taking the chrome down with it; the second is still what
+ * catches a failure in the composition, where no route exists to recover to.
  */
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -41,12 +45,28 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   // go that is not logging (AD-11).
 
   private readonly recover = (): void => {
-    // The attempt counter is the subtree's key, so recovering **rebuilds** the
-    // surface rather than resuming it. Clearing the flag alone would re-render
-    // the same mounted components with the same state that just threw, and a
+    // The panel says BACK TO TODAY, so it goes to Today. Before routes existed
+    // there was only one surface and rebuilding it *was* going back; from this
+    // story a boundary can be standing over Task detail, where rebuilding would
+    // re-render the surface that just failed and the label would be a lie.
+    //
+    // Setting the hash is enough for a per-surface boundary: the route changes,
+    // and `main.tsx` keys each boundary by route, so Today arrives inside a
+    // boundary that has not failed. It is deliberately not `replaceState` — the
+    // user is going somewhere, and Back should return them to the address that
+    // broke rather than skipping past it.
+    if (window.location.hash !== formatRoute(TODAY_ROUTE)) {
+      window.location.hash = formatRoute(TODAY_ROUTE);
+    }
+
+    // And the attempt counter is the subtree's key, so recovering **rebuilds**
+    // rather than resuming. Clearing the flag alone would re-render the same
+    // mounted components with the same state that just threw, and a
     // deterministic error would throw again before the user saw anything — the
     // recovery panel would flicker and come straight back, which is a blank
-    // page with extra steps (AD-20).
+    // page with extra steps (AD-20). It is also the only thing that can help
+    // the outer boundary, where the whole composition is what failed and no
+    // route change would be read by anything.
     this.setState((previous) => ({ failed: false, attempt: previous.attempt + 1 }));
   };
 

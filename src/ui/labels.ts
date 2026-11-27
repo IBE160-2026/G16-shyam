@@ -42,6 +42,17 @@ export const labels = {
       /** The destination title above the work area at 1280 px. */
       title: 'TODAY',
     },
+    /**
+     * Task detail's title, and the one thing the chrome says about it.
+     *
+     * It has a `title` and no `tab` or `rail` because it is **not a
+     * destination** (UX-DR16): it is entered from a record, so there is nothing
+     * for the tab bar or the rail to offer. `m6` and `d5` both draw this word
+     * in the title position, which is the whole of its presence in the chrome.
+     */
+    task: {
+      title: 'TASK',
+    },
   },
 
   /**
@@ -173,6 +184,73 @@ export const labels = {
   },
 
   /**
+   * Task detail — every field PRD §3 defines, read and not acted on
+   * (UX-DR6, AC 2).
+   *
+   * **Seven rows, and the frames draw more than seven.** `m6` additionally
+   * draws `PROJECT` (Tier 3, Epic 8), `CREATED` (the Task has no creation
+   * field — AD-2 keeps instants out of the domain, so the row is not
+   * buildable), a course table and three controls; `d5` draws the same course
+   * table and an annotation under each value. Epic 2 and Epic 8 own all of it.
+   * What is here is AC 2's list exactly.
+   *
+   * **The two frames disagree, and each supplies what the other lacks.** `m6`
+   * is the only one that draws all seven as plain field rows, so **its order is
+   * the order** — `d5`'s field block is four rows, with Tags, Priority and
+   * Summary appearing only inside the Epic 2 course table, and it carries no
+   * `COMPLETED` label at all. The wordings come from `d5` where it has one:
+   * `TASK TEXT` rather than `m6`'s `THE TASK`, because it reads as a field name
+   * instead of a sentence fragment, and `Not completed` rather than `m6`'s
+   * `No`, because it says what `No` only implies once you have read the label.
+   * `COMPLETED` itself is `m6`'s, there being no alternative.
+   *
+   * Every absence is **named**, never left as a gap for the reader to
+   * interpret (UX-DR21) — the same rule the record's `NO TAG` already follows.
+   */
+  taskDetail: {
+    /**
+     * The section heading `d5` draws above the rows.
+     *
+     * Rendered at 1280 px only, because `m6` draws no such line: the mobile
+     * header band already says `TASK` directly above the first row, and a
+     * second heading in a 360 px column is chrome the frame does not have.
+     */
+    heading: 'THE TASK, FIELD BY FIELD',
+    /** One label per field, in the order `m6` and `d5` both stack them. */
+    fields: {
+      text: 'TASK TEXT',
+      dueDate: 'DUE DATE',
+      tags: 'TAGS',
+      priority: 'PRIORITY',
+      summary: 'SUMMARY',
+      notes: 'NOTES',
+      completed: 'COMPLETED',
+    },
+    /**
+     * The Priority words again, lowercase.
+     *
+     * Not a duplicate of `record.priority`: that one is uppercase because the
+     * record sets Priority in apparatus type, and `m6` and `d5` both draw it
+     * here in body type as `high`. The casing belongs to the type style, and
+     * the style differs between the two surfaces, so the strings do too. The
+     * `Priority` value itself is still exactly `high`, `medium` or `low`.
+     */
+    priority: {
+      high: 'high',
+      medium: 'medium',
+      low: 'low',
+    },
+    /** Between Tags, when there is more than one. A separator is a string too. */
+    tagSeparator: ', ',
+    /** The five absences, each a fact rather than a prompt or an error. */
+    noDueDate: 'No due date',
+    noTags: 'No tags',
+    noSummary: 'No summary',
+    noNotes: 'No notes',
+    notCompleted: 'Not completed',
+  },
+
+  /**
    * Calendar words for the header date, handed to the pure formatter in
    * `core/localdate.ts` — Monday first, January first.
    */
@@ -191,6 +269,34 @@ export const labels = {
       'OCT',
       'NOV',
       'DEC',
+    ],
+  } satisfies DateNames,
+
+  /**
+   * The same calendar words, sentence-cased, for the one place dates are set in
+   * body type: Task detail's `Fri 20 Nov 2026` (`m6`, `d5`).
+   *
+   * A second set rather than a `toLowerCase()` at the call site, for the reason
+   * `dates` exists at all — `core/localdate.ts` is handed its calendar words
+   * and knows no casing rule for any language (AD-9, AD-1). A component that
+   * recased a label would be deciding how English works in a file that is
+   * supposed to only lay it out.
+   */
+  datesProse: {
+    weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    months: [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ],
   } satisfies DateNames,
 } as const;

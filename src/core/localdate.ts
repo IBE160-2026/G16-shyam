@@ -162,6 +162,31 @@ export function addDays(date: LocalDate, days: number): LocalDate | null {
 }
 
 /**
+ * How many days `to` is **before** `from`: `from` minus `to`, in days.
+ *
+ * Positive when `to` is the earlier of the two, zero when they are the same
+ * day, negative when `to` is later. The argument order is the one `epics.md`
+ * states the Archive rule in — `dayDiff(today, completedAt) > retentionDays` —
+ * so the expression reads as the age of a completion rather than as a negative
+ * distance that has to be flipped at the call site.
+ *
+ * It lives here and not in `core/selectors.ts` for the reason the module header
+ * states: this is the one module that does calendar arithmetic (AD-1), and
+ * `selectors.ts` imports it, so the other direction would be a cycle.
+ *
+ * `null` on a date this module cannot read, like everything else here: `core` is
+ * total and hands no caller an exception. A caller decides what an unreadable
+ * date means — `isArchived` reads it as "not archived", so a Task whose stored
+ * date is unreadable stays visible rather than silently disappearing.
+ */
+export function dayDiff(from: LocalDate, to: LocalDate): number | null {
+  const fromParts = parseParts(from);
+  const toParts = parseParts(to);
+  if (fromParts === null || toParts === null) return null;
+  return daysFromCivil(fromParts) - daysFromCivil(toParts);
+}
+
+/**
  * The weekday of `date` as an index into `DateNames.weekdays`: 0 is Monday and
  * 6 is Sunday, which is the week DESIGN.md and FR-23's `next week` both use.
  * Returns `null` when `date` is not a `LocalDate`.
@@ -213,4 +238,32 @@ export function formatHeaderDate(date: LocalDate, names: DateNames): string {
   const month = names.months[parts.month - 1];
   if (weekday === undefined || month === undefined) return date;
   return `${weekday} ${twoDigits(parts.day)} ${month}`;
+}
+
+/**
+ * The same date with its year: `MON 16 NOV 2026`, or `Mon 16 Nov 2026`.
+ *
+ * **A second function rather than a parameter on `formatHeaderDate`**, which is
+ * shared with the due pill — and `d1` draws no year in any of the pill's four
+ * states, so a year added there would appear on every record (the trap recorded
+ * in `deferred-work.md` against this story). Nothing above changes.
+ *
+ * **One function for both of the frames that carry a year**, because the only
+ * difference between them is casing and casing belongs to the words: `d1` and
+ * `d5` draw the desktop title row as `MON 16 NOV 2026` and `m6` draws Task
+ * detail's due date as `Fri 20 Nov 2026`. The caller supplies the names (AD-9),
+ * so the two surfaces pass two name sets to one formatter rather than asking
+ * `core` to know an English casing rule.
+ *
+ * Unreadable in, unchanged out, like every formatter here.
+ */
+export function formatFullDate(date: LocalDate, names: DateNames): string {
+  const parts = parseParts(date);
+  if (parts === null) return date;
+  const day = formatHeaderDate(date, names);
+  // `formatHeaderDate` returns the input unchanged when it cannot name the
+  // weekday or the month, and a year appended to a raw `YYYY-MM-DD` would be
+  // worse than the date itself.
+  if (day === date) return date;
+  return `${day} ${String(parts.year)}`;
 }

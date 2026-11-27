@@ -133,7 +133,16 @@ export async function tokenColour(page: Page, token: string): Promise<string> {
   }, token);
 }
 
-/** Seeds a document under the real key before any application code runs. */
+/**
+ * Seeds a document under the real key before any application code runs.
+ *
+ * **It re-seeds on every navigation, reload included.** `addInitScript` is
+ * registered on the page, not fired once, so a `page.reload()` after a seed
+ * restores the seeded bytes and silently discards whatever the app wrote in
+ * between. A test that means to prove something *survives* a reload must
+ * therefore create its Task through capture rather than seeding it — otherwise
+ * it asserts the init script, not the product.
+ */
 export async function seed(page: Page, raw: string): Promise<void> {
   await page.addInitScript(
     ([key, document]) => {

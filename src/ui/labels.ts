@@ -242,8 +242,37 @@ export const labels = {
     },
     /** Between Tags, when there is more than one. A separator is a string too. */
     tagSeparator: ', ',
-    /** The five absences, each a fact rather than a prompt or an error. */
-    noDueDate: 'No due date',
+    /**
+     * The accessible name of each field's control (FR-3, AD-17).
+     *
+     * A control needs a name, and the row's `dt` is not one: a `dt` is not a
+     * labelling element for a form control, so pairing them with `for`/`id`
+     * would be invalid and a screen reader would announce an unnamed field.
+     * These are the names, visually hidden beside each control, which is why
+     * they read as instructions ("Task text") rather than as the row headings
+     * they sit under.
+     *
+     * They are deliberately the same words as `fields` above, in sentence
+     * case: the row says what the field is, and the control says the same
+     * thing to someone who cannot see the row.
+     */
+    edit: {
+      text: 'Task text',
+      dueDate: 'Due date',
+      tags: 'Tags, separated by commas',
+      priority: 'Priority',
+      summary: 'Summary',
+      notes: 'Notes',
+    },
+    /**
+     * The absences, each a fact rather than a prompt or an error.
+     *
+     * There is no `noDueDate` wording: a native date control takes no
+     * placeholder and presents its own empty state, so the words would have
+     * nowhere to be displayed — and AD-9 keeps displayed strings here, not
+     * strings nothing displays. `record.noDueDate` still carries the em-dash
+     * the record draws.
+     */
     noTags: 'No tags',
     noSummary: 'No summary',
     noNotes: 'No notes',

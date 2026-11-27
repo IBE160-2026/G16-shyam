@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDays,
+  dayDiff,
   dayOfWeek,
   daysInMonth,
+  formatFullDate,
   formatHeaderDate,
   isLocalDate,
   localDateParts,
@@ -246,6 +248,92 @@ describe('formatHeaderDate', () => {
   });
 });
 
+describe('dayDiff', () => {
+  it('is zero for the same day', () => {
+    expect(dayDiff('2026-11-16', '2026-11-16')).toBe(0);
+  });
+
+  it('counts how long ago the second date was', () => {
+    // The argument order the Archive rule is stated in: `dayDiff(today, then)`
+    // is the age of `then`, so a positive number reads as "days ago".
+    expect(dayDiff('2026-11-16', '2026-11-15')).toBe(1);
+    expect(dayDiff('2026-11-16', '2026-11-09')).toBe(7);
+    expect(dayDiff('2026-11-16', '2026-10-17')).toBe(30);
+    expect(dayDiff('2026-11-16', '2026-10-16')).toBe(31);
+  });
+
+  it('is negative when the second date is later', () => {
+    expect(dayDiff('2026-11-16', '2026-11-17')).toBe(-1);
+    expect(dayDiff('2026-11-16', '2026-12-16')).toBe(-30);
+  });
+
+  it('crosses a month boundary', () => {
+    expect(dayDiff('2026-12-01', '2026-11-30')).toBe(1);
+    expect(dayDiff('2026-03-01', '2026-02-28')).toBe(1);
+  });
+
+  it('crosses a year boundary', () => {
+    expect(dayDiff('2027-01-01', '2026-12-31')).toBe(1);
+    expect(dayDiff('2027-01-01', '2026-01-01')).toBe(365);
+  });
+
+  it('counts the leap day in a leap year', () => {
+    // 2028 is a leap year: 2028-03-01 is 366 days after 2027-03-01, and
+    // February has a 29th to be counted. An implementation that assumed 365
+    // would be a day out for every date after February for four years.
+    expect(dayDiff('2028-03-01', '2027-03-01')).toBe(366);
+    expect(dayDiff('2028-03-01', '2028-02-29')).toBe(1);
+    expect(dayDiff('2028-03-01', '2028-02-28')).toBe(2);
+    // And not in a common year, where the 28th is the last day.
+    expect(dayDiff('2027-03-01', '2027-02-28')).toBe(1);
+  });
+
+  it('is right across a century that is not a leap year', () => {
+    // 2100 is divisible by 4 and is *not* a leap year. The rule most
+    // hand-rolled calendars get wrong.
+    expect(dayDiff('2100-03-01', '2100-02-28')).toBe(1);
+    expect(dayDiff('2000-03-01', '2000-02-28')).toBe(2);
+  });
+
+  it('is null rather than raising on a date it cannot read', () => {
+    expect(dayDiff('2026-02-30', '2026-11-16')).toBeNull();
+    expect(dayDiff('2026-11-16', 'not a date')).toBeNull();
+    expect(dayDiff('', '')).toBeNull();
+  });
+});
+
+describe('formatFullDate', () => {
+  it('reads as d1 and d5 draw the desktop title row', () => {
+    expect(formatFullDate('2026-11-16', labels.dates)).toBe('MON 16 NOV 2026');
+  });
+
+  it('reads as m6 draws a date on Task detail, from the prose names', () => {
+    // The same formatter and a different name set: the casing belongs to the
+    // words, not to the function (AD-9).
+    expect(formatFullDate('2026-11-20', labels.datesProse)).toBe('Fri 20 Nov 2026');
+  });
+
+  it('is the header date plus the year, and changes nothing else', () => {
+    // The relationship that matters: the due pill shares `formatHeaderDate`
+    // and carries no year in any of its four states, so this must be additive
+    // rather than a second spelling of the same format.
+    for (const date of ['2026-01-05', '2026-11-16', '2027-12-31']) {
+      expect(formatFullDate(date, NAMES), date).toBe(`${formatHeaderDate(date, NAMES)} ${date.slice(0, 4)}`);
+    }
+  });
+
+  it('zero-pads the day, like the formatter it builds on', () => {
+    expect(formatFullDate('2026-01-05', NAMES)).toBe('w0 05 m1 2026');
+  });
+
+  it('returns the input unchanged rather than appending a year to a raw date', () => {
+    // `2026-02-30 2026` would be worse than the stored string itself.
+    expect(formatFullDate('2026-02-30', NAMES)).toBe('2026-02-30');
+    expect(formatFullDate('', NAMES)).toBe('');
+    expect(formatFullDate('2026-11-16', { weekdays: [], months: [] })).toBe('2026-11-16');
+  });
+});
+
 describe("the product's calendar words", () => {
   it('are seven weekdays Monday first and twelve months January first', () => {
     expect(labels.dates.weekdays).toHaveLength(7);
@@ -254,5 +342,17 @@ describe("the product's calendar words", () => {
     expect(labels.dates.months).toHaveLength(12);
     expect(labels.dates.months[0]).toBe('JAN');
     expect(labels.dates.months[11]).toBe('DEC');
+  });
+
+  it('have a prose set that agrees with the apparatus set day for day', () => {
+    // Two name sets are two chances to put Sunday in the wrong place. This is
+    // the check that they are the same calendar in two casings, rather than
+    // two calendars.
+    expect(labels.datesProse.weekdays.map((day) => day.toUpperCase())).toEqual([
+      ...labels.dates.weekdays,
+    ]);
+    expect(labels.datesProse.months.map((month) => month.toUpperCase())).toEqual([
+      ...labels.dates.months,
+    ]);
   });
 });

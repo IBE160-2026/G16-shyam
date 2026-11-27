@@ -6,11 +6,8 @@
  * on therefore has exactly one home, and this is it — so a change to one is a
  * change to one line rather than a hunt through call sites.
  *
- * This story adds only what it needs. The retention window AD-7 computes
- * Archive from belongs here too and arrives with the story that reads it
- * (Epic 3's Archive, Epic 5's settable window); putting a 30 beside the schema
- * version now would be a constant with no reader, which is how a default drifts
- * away from the code that was supposed to honour it.
+ * Each story adds only what it needs: a constant with no reader is how a
+ * default drifts away from the code that was supposed to honour it.
  */
 
 /**
@@ -27,3 +24,22 @@
  * field whose absence is indistinguishable from its default does not bump it.
  */
 export const TASK_SCHEMA_VERSION = 1;
+
+/**
+ * How many days a completed Task stays in the ordinary lists before it is
+ * archived (FR-16, AD-7).
+ *
+ * **Archive is computed, never stored** — `completedAt !== null` and more than
+ * this many days ago — so this number is read on every render and written
+ * nowhere. `core/selectors.ts`'s `isArchived` takes it as an argument rather
+ * than importing it, which is the whole of the forward compatibility that
+ * design needs: Epic 3 makes the window configurable and Epic 8 exposes it in
+ * Settings, and both supply the same parameter from the settings document
+ * instead of from here. The predicate does not change.
+ *
+ * It is a constant and not a field on the task document because AD-6's defaults
+ * factory covers the *settings* document, which does not exist until Epic 2 —
+ * and a retention window stored per task document would be a second source of
+ * truth for a value that is the same for every Task.
+ */
+export const DEFAULT_RETENTION_DAYS = 30;

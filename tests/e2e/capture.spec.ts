@@ -2,9 +2,18 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { STORAGE_KEYS } from '../../src/adapters/local-storage';
 import { TASK_SCHEMA_VERSION } from '../../src/core/constants';
-import type { Priority } from '../../src/core/task';
-import { DESKTOP_QUERY } from '../../src/ui/today/Capture';
 import { labels } from '../../src/ui/labels';
+import {
+  capture,
+  dueDateDocument,
+  expectNoHorizontalScroll,
+  fixtureDocument,
+  isDesktop,
+  priorityDocument,
+  seed,
+  storedItems,
+  tokenColour,
+} from './helpers';
 
 /**
  * Capture, in a real browser, at both bound widths.
@@ -25,19 +34,6 @@ import { labels } from '../../src/ui/labels';
 
 const SENTENCE = 'Submit assignment in IBE160';
 
-/**
- * Which side of the breakpoint the page is on — **asked of the page**, using
- * the component's own query.
- *
- * Not `viewportSize().width >= 1280`. The breakpoint is `80rem` in both the
- * stylesheet and `Capture.tsx`, so a pixel comparison here would be a third
- * spelling of it, right only at a 16 px root font size, and would disagree with
- * the app exactly where the app is hardest to check by eye.
- */
-async function isDesktop(page: Page): Promise<boolean> {
-  return page.evaluate((query) => window.matchMedia(query).matches, DESKTOP_QUERY);
-}
-
 async function submitLabel(page: Page): Promise<string> {
   return (await isDesktop(page)) ? labels.capture.submitDesktop : labels.capture.submitMobile;
 }
@@ -55,116 +51,6 @@ async function expectWordingForWidth(page: Page): Promise<void> {
     await placeholder(page),
   );
   await expect(page.locator('[data-capture="submit"]')).toHaveText(await submitLabel(page));
-}
-
-/**
- * A Fixture-sized document — the 10–15 example Tasks PRD §3 defines a Fixture
- * as, at the top of that range.
- *
- * AC 2 measures against this rather than against an empty list because AD-6's
- * accepted cost is that the **whole** document is re-serialized per mutation.
- * Timing a one-Task write would measure nothing and would not notice the day
- * the cost became linear in something it should not be.
- */
-function fixtureTask(index: number, priority: Priority = 'medium'): Record<string, unknown> {
-  return {
-    id: `fixture-${String(index)}`,
-    text: `Fixture task number ${String(index)}`,
-    dueDate: null,
-    notes: null,
-    tags: [],
-    priority,
-    summary: null,
-    completedAt: null,
-  };
-}
-
-function fixtureDocument(count = 15): string {
-  return JSON.stringify({
-    schemaVersion: TASK_SCHEMA_VERSION,
-    tasks: Array.from({ length: count }, (_, index) => fixtureTask(index)),
-  });
-}
-
-/** A document of exactly these Priorities, newest first, for the ladder. */
-function priorityDocument(priorities: readonly Priority[]): string {
-  return JSON.stringify({
-    schemaVersion: TASK_SCHEMA_VERSION,
-    tasks: priorities.map((priority, index) => fixtureTask(index, priority)),
-  });
-}
-
-/**
- * A document whose Tasks carry exactly these due dates, newest first.
- *
- * Seeding rather than capturing is the only way to assert a pill's *text*: the
- * browser runs against the real clock, so a captured `Friday` lands on whatever
- * Friday follows the day the gate happens to run. A stored date is a fixed one,
- * which is the same reason every unit test here passes a literal (NFR-10).
- */
-function dueDateDocument(dueDates: readonly (string | null)[]): string {
-  return JSON.stringify({
-    schemaVersion: TASK_SCHEMA_VERSION,
-    tasks: dueDates.map((dueDate, index) => ({ ...fixtureTask(index), dueDate })),
-  });
-}
-
-/**
- * A colour token's value, as the browser serializes a colour.
- *
- * Read off `:root` rather than spelled here. A literal would put the palette in
- * a second place, outside `theme.css` where `scripts/check-hex.mjs` cannot see
- * it — and would keep passing after the token changed, which is the one thing
- * these assertions exist to notice.
- */
-async function tokenColour(page: Page, token: string): Promise<string> {
-  return page.evaluate((name) => {
-    const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    const digits = raw.replace('#', '');
-    // The build's CSS minifier shortens a six-digit hex whose pairs repeat to
-    // the three-digit form, so both lengths have to be read — three digits is
-    // the same colour with each digit doubled. (Spelling either form out here
-    // would be a raw colour outside theme.css, which lint forbids.)
-    const hex =
-      digits.length === 3
-        ? [...digits].map((digit) => `${digit}${digit}`).join('')
-        : digits;
-    if (hex.length !== 6) throw new Error(`${name} is not a hex colour: "${raw}"`);
-    const channel = (at: number): number => Number.parseInt(hex.slice(at, at + 2), 16);
-    // The serialization a browser reports a colour in.
-    return `rgb(${String(channel(0))}, ${String(channel(2))}, ${String(channel(4))})`;
-  }, token);
-}
-
-/** Seeds a document under the real key before any application code runs. */
-async function seed(page: Page, raw: string): Promise<void> {
-  await page.addInitScript(
-    ([key, document]) => {
-      window.localStorage.setItem(key as string, document as string);
-    },
-    [STORAGE_KEYS.tasks, raw],
-  );
-}
-
-/** Everything the page has stored under this origin. */
-async function storedItems(page: Page): Promise<Record<string, string>> {
-  return page.evaluate(() => {
-    const items: Record<string, string> = {};
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index);
-      if (key !== null) items[key] = window.localStorage.getItem(key) ?? '';
-    }
-    return items;
-  });
-}
-
-/**
- * Types a sentence and submits it the way a person does: the button, not a
- * synthetic form event.
- */
-async function capture(page: Page, text: string): Promise<void> {
-  await page.locator('[data-capture="field"]').fill(text);
-  await page.locator('[data-capture="submit"]').click();
 }
 
 test.describe('capture', () => {
@@ -813,10 +699,15 @@ test.describe('the record', () => {
     expect(box?.height ?? 99).toBeLessThanOrEqual(2);
 
     // And the proof in the tree the assistive technology actually reads: the
-    // word is there, the decorative glyph is not.
+    // word is there, the decorative glyph is not, and the sentence is a link —
+    // which is how the record's one action is announced now that it has one
+    // (Story 1.4). The snapshot is read for what it contains rather than
+    // compared whole: the row grows controls in Stories 1.6 and 1.7, and this
+    // assertion is about the due date's wording, not about the record's shape.
     const tree = await records.nth(1).ariaSnapshot();
     expect(tree).toContain(labels.record.noDueDateSpoken);
     expect(tree).not.toContain(EM_DASH);
+    expect(tree).toContain('link');
 
     // The two window inks are Epic 3's: nothing here is yellow or olive yet,
     // which is what `deferred-work.md` records as knowingly incomplete.
@@ -825,9 +716,16 @@ test.describe('the record', () => {
       await expect(dated, token).not.toHaveCSS('background-color', ink);
     }
 
-    // The pill is a `span`, not a control: the record still contains nothing
-    // focusable, and the scan is clean with a date on screen (NFR-4).
-    await expect(records.locator('input, button, a, [tabindex]')).toHaveCount(0);
+    // The pill is a `span`, not a control. The record has exactly one
+    // focusable element — the sentence link — and the pill is not inside it, so
+    // a date is still read as a date rather than as part of a link's name
+    // (AD-17). Two records are seeded, hence two links and no more.
+    await expect(records.locator('a')).toHaveCount(2);
+    await expect(records.locator('a[data-slot="open"]')).toHaveCount(2);
+    await expect(records.locator('[data-slot="due-pill"] a, [data-slot="due-pill"] button')).toHaveCount(
+      0,
+    );
+    await expect(records.locator('input, button, [tabindex]')).toHaveCount(0);
     const results = await new AxeBuilder({ page }).analyze();
     expect(
       results.violations.map((violation) => `${violation.id}: ${violation.help}`),
@@ -835,11 +733,7 @@ test.describe('the record', () => {
     ).toEqual([]);
 
     // And neither treatment pushes the row wide at either bound width.
-    const overflow = await page.evaluate(() => ({
-      scrollWidth: document.documentElement.scrollWidth,
-      clientWidth: document.documentElement.clientWidth,
-    }));
-    expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth);
+    await expectNoHorizontalScroll(page);
   });
 
   test('puts the date word the user typed into the pill, and leaves the sentence alone', async ({
@@ -899,19 +793,72 @@ test.describe('the record', () => {
     expect(document.tasks[0]?.dueDate).toBeNull();
   });
 
-  test('renders no native control that does nothing', async ({ page }) => {
+  test('renders exactly one real control, and no dead ones', async ({ page }) => {
     await page.goto('/');
     await capture(page, SENTENCE);
     await expect(page.locator('[data-record]')).toHaveCount(1);
 
-    // AD-17 asks for native focusable controls, and a dead checkbox is worse
-    // than a drawn one — it is announced, tabbed to, and lies about being
-    // operable. Completion is Story 1.6 and Task detail is Story 1.4.
     const record = page.locator('[data-record]');
-    await expect(record.locator('input, button, a, [role="checkbox"], [role="button"]')).toHaveCount(
-      0,
+
+    // The one action the record has: the row opens Task detail (AC 2). It is a
+    // native anchor with a real `href`, not a `div` with a click handler —
+    // AD-17's rule, and what makes it work with a keyboard, a middle click and
+    // the browser's own Back.
+    const open = record.locator('[data-slot="open"]');
+    await expect(open).toHaveCount(1);
+    expect(await open.evaluate((node) => node.tagName)).toBe('A');
+    await expect(open).toHaveAttribute('href', /^#\/task\/.+/);
+
+    // Its accessible name is the sentence, borrowed rather than repeated: the
+    // user's own words name the link, and the due pill and the Priority word
+    // stay outside it so a date is read as a date (AD-9, AD-17).
+    await expect(open).toHaveAccessibleName(SENTENCE);
+    const labelledBy = await open.getAttribute('aria-labelledby');
+    await expect(record.locator(`#${String(labelledBy)}`)).toHaveAttribute(
+      'data-slot',
+      'sentence',
     );
+
+    // And nothing else. The checkbox is still a drawn glyph: AD-17 asks for
+    // native focusable controls, and a dead checkbox is worse than a drawn one
+    // — it is announced, tabbed to, and lies about being operable. Completion
+    // is Story 1.6's, and this is the assertion that it has not been
+    // half-built here.
+    await expect(record.locator('input, button, [role="checkbox"], [role="button"]')).toHaveCount(0);
     await expect(record.locator('[tabindex]')).toHaveCount(0);
+    await expect(record.locator('a')).toHaveCount(1);
+
+    // The target is the whole row, not the width of the text (SC 2.5.8,
+    // EXPERIENCE.md, AD-17) — and `axe-core` measures the element's own box, so
+    // the anchor has to *be* that size rather than merely cover it. The 13 px
+    // of the sentence is the regression this notices.
+    const target = await open.boundingBox();
+    const row = await record.boundingBox();
+    expect(row?.height).toBe(46);
+    expect(target?.height ?? 0).toBeGreaterThanOrEqual(24);
+    expect(target?.width).toBe(row?.width);
+    // It covers the row apart from the hairline separator: `inset-0` spans the
+    // padding box, and the 1 px `border-b` is the rule between records rather
+    // than part of the row's reachable area.
+    expect(row?.height ?? 0).toBeLessThanOrEqual((target?.height ?? 0) + 1);
+
+    // And it is the element a press anywhere in the row actually reaches,
+    // bottom-right corner included.
+    const hit = await page.evaluate(
+      ([x, y]) => {
+        const element = document.elementFromPoint(x as number, y as number);
+        return element?.closest('a')?.getAttribute('data-slot') ?? null;
+      },
+      [(row?.x ?? 0) + (row?.width ?? 0) - 4, (row?.y ?? 0) + 42],
+    );
+    expect(hit, 'the bottom-right of the row does not open the Task').toBe('open');
+
+    // Keyboard-reachable, and the focus ring does not resize the row — it is an
+    // `outline`, which paints outside the box. A ring that changed the box
+    // would break the 46 px pitch the moment anyone pressed Tab.
+    await open.focus();
+    await expect(open).toBeFocused();
+    await expect(record).toHaveCSS('height', '46px');
   });
 
   test('renders nothing purple', async ({ page }) => {
@@ -984,11 +931,7 @@ test.describe('the accessibility floor', () => {
     );
     await expect(page.locator('[data-record]')).toHaveCount(16);
 
-    const overflow = await page.evaluate(() => ({
-      scrollWidth: document.documentElement.scrollWidth,
-      clientWidth: document.documentElement.clientWidth,
-    }));
-    expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth);
+    await expectNoHorizontalScroll(page);
   });
 
   test('reports no axe-core violations on a populated Today', async ({ page }) => {

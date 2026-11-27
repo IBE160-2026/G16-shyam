@@ -283,13 +283,22 @@ describe('the capture path is synchronous', () => {
    * persisted `dueDate` one render behind the record it belongs to. The whole
    * chain is listed rather than its entry point, because that is where such a
    * thing would be added.
+   *
+   * Story 1.4 adds two. `app/router.ts` is here because the record's sentence
+   * link asks it for an href, so the router now renders on every capture; it
+   * holds the one `hashchange` subscription in the product, and a timer or a
+   * deferred navigation added beside it would land on this path. `core/
+   * constants.ts` is here because Today reads the retention window from it to
+   * decide what the list contains.
    */
   const CAPTURE_PATH = [
     join('app', 'store.tsx'),
+    join('app', 'router.ts'),
     join('core', 'date-words.ts'),
     join('core', 'tokenize.ts'),
     join('core', 'selectors.ts'),
     join('core', 'localdate.ts'),
+    join('core', 'constants.ts'),
     join('core', 'task.ts'),
     join('adapters', 'local-storage.ts'),
     join('adapters', 'id.ts'),

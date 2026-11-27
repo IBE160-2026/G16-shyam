@@ -1,21 +1,28 @@
 import type { ReactNode } from 'react';
-import { formatHeaderDate, type LocalDate } from '../../core/localdate';
+import { formatRoute, TODAY_ROUTE, type Route } from '../../app/router';
+import { formatFullDate, formatHeaderDate, type LocalDate } from '../../core/localdate';
 import { labels } from '../labels';
 
 /**
- * The app chrome at both bound widths (UX-DR15).
+ * The app chrome at both bound widths (UX-DR15, AD-16, AD-17).
  *
  * 360 px: one column, 14 px gutters, a 40 px header and a 46 px bottom tab bar.
  * 1280 px: a 196 px nav rail in `chrome`, 26 px gutters, and the destination
  * title above the work area. The `xl` breakpoint is 1280 px exactly, so the
- * desktop composition turns on at the width AC 7 measures.
+ * desktop composition turns on at the width AC 4 measures.
  *
- * Today is the one destination here, and it is current and inert: there is
- * nowhere else to go yet, so it is marked `aria-current` rather than dressed as
- * a control that does nothing (AD-17). Story 1.4 adds hash routing and the
- * remaining destinations **to this component** rather than replacing it, which
- * is why the geometry is built now — the rail and the desktop gutters are the
- * only reason the surface has a desktop composition at all.
+ * **Today is still the only destination, and now it is a real link.** Story 1.1
+ * drew it as an inert `aria-current` marker because there was nowhere else to
+ * go and AD-17 forbids a control that does nothing. There is somewhere else to
+ * go now — Task detail — so the destination becomes a native anchor carrying
+ * the route's own hash (AD-16, AD-17), and it is what returns a reader to
+ * Today from a Task.
+ *
+ * **Extended, never replaced** (AC 5). `DESTINATIONS` is a list of one, so
+ * Lists, Archive and Settings arrive in Epic 3 and Epic 8 as entries in it
+ * rather than as a second shell. Nothing here is written for one destination:
+ * the current-destination mark, the title and the `aria-current` all derive
+ * from `route`.
  *
  * The wordmark appears twice in the markup, once per composition, because at
  * 360 px it sits in the header and at 1280 px it sits at the top of the rail.
@@ -48,14 +55,73 @@ function TodayGlyph() {
   );
 }
 
+/**
+ * A place the chrome offers to go, and the words it offers it in.
+ *
+ * Only destinations are listed. Task detail is deliberately absent: UX-DR16
+ * enters it from a record rather than from the chrome, so there is nothing for
+ * the tab bar or the rail to offer, and m6 and d5 draw neither a tab nor a rail
+ * row for it. It has a title and nothing else.
+ */
+interface Destination {
+  readonly route: Route;
+  readonly tab: string;
+  readonly rail: string;
+  readonly glyph: () => ReactNode;
+}
+
+/**
+ * Every destination that exists at this point in the build — one (AC 5).
+ *
+ * The epics file slices the other three to the stories that build what they
+ * lead to: Lists and Archive in Epic 3, Settings in Epic 8. A tab for a surface
+ * that does not exist is the control-that-does-nothing AD-17 rules out.
+ */
+const DESTINATIONS: readonly Destination[] = [
+  {
+    route: TODAY_ROUTE,
+    tab: labels.shell.today.tab,
+    rail: labels.shell.today.rail,
+    glyph: TodayGlyph,
+  },
+];
+
+/** Whether `route` is the destination this entry leads to. */
+function isCurrent(route: Route, destination: Destination): boolean {
+  return route.kind === destination.route.kind;
+}
+
+/**
+ * The title for `route`, as the frames draw it.
+ *
+ * An exhaustive switch rather than a lookup with a fallback: a route added to
+ * the union without a title is then a type error here, instead of a surface
+ * that silently inherits Today's heading.
+ */
+function surfaceTitle(route: Route): string {
+  switch (route.kind) {
+    case 'today':
+      return labels.shell.today.title;
+    case 'task':
+      return labels.shell.task.title;
+  }
+}
+
 export interface ShellProps {
   /** Today, from the Clock port — the composition root reads it (AD-2). */
   today: LocalDate;
+  /** Where the user is, from the URL hash and nowhere else (AD-16). */
+  route: Route;
   children: ReactNode;
 }
 
-export function Shell({ today, children }: ShellProps) {
-  const headerDate = formatHeaderDate(today, labels.dates);
+export function Shell({ today, route, children }: ShellProps) {
+  const title = surfaceTitle(route);
+  // At 360 px the header leads with the wordmark on a destination and with the
+  // surface's own title on a surface entered from a record: m1 draws
+  // TO-DO-LIST and m6 draws TASK, in the same slot. At 1280 px the wordmark has
+  // moved to the rail, so the title is always what the header carries (d1, d5).
+  const isDestination = DESTINATIONS.some((destination) => isCurrent(route, destination));
 
   return (
     <div className="flex min-h-screen flex-col bg-ground xl:flex-row">
@@ -76,26 +142,50 @@ export function Shell({ today, children }: ShellProps) {
           {labels.shell.railGroupHeading}
         </h2>
         <ul className="mt-group-gap-min">
-          <li
-            aria-current="page"
-            className="flex h-row-height-desktop items-center gap-group-gap-min bg-ground"
-          >
-            {/* The current destination carries a mark as well as its ink and
-                its word, so no state rides on colour alone (UX-DR20). */}
-            <span className="h-full w-[2.6px] shrink-0 bg-ink" aria-hidden="true" />
-            <span className="font-family-body font-body-strong text-body text-ink">
-              {labels.shell.today.rail}
-            </span>
-          </li>
+          {DESTINATIONS.map((destination) => {
+            const current = isCurrent(route, destination);
+            return (
+              <li key={formatRoute(destination.route)} className="flex">
+                {/*
+                  A 24 px row is the floor SC 2.5.8 sets for a pointer target,
+                  and row-height-desktop is that token — the rail row is the
+                  target, not the word inside it.
+                */}
+                <a
+                  href={formatRoute(destination.route)}
+                  aria-current={current ? 'page' : undefined}
+                  className={`flex h-row-height-desktop flex-1 items-center gap-group-gap-min outline-offset-2 outline-ink focus-visible:outline-2 ${
+                    current ? 'bg-ground' : ''
+                  }`}
+                >
+                  {/* The current destination carries a mark as well as its ink
+                      and its word, so no state rides on colour alone
+                      (UX-DR20). An inactive row reserves the same width, so the
+                      word does not shift when the mark appears. */}
+                  <span
+                    className={`h-full w-[2.6px] shrink-0 ${current ? 'bg-ink' : ''}`}
+                    aria-hidden="true"
+                  />
+                  <span
+                    className={`font-family-body text-body ${
+                      current ? 'font-body-strong text-ink' : 'font-body text-ink-secondary'
+                    }`}
+                  >
+                    {destination.rail}
+                  </span>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </nav>
 
       <div className="flex min-h-screen flex-1 flex-col">
         {/*
           One header, two roles. At 360 px it is the 40 px chrome bar carrying
-          the wordmark and the date. At 1280 px the wordmark has moved to the
-          rail, so it carries the destination title and the date instead, on
-          ground rather than paper and inset to the 26 px gutters.
+          the wordmark — or the surface title — and the date. At 1280 px the
+          wordmark has moved to the rail, so it carries the title and the date
+          instead, on ground rather than paper and inset to the 26 px gutters.
         */}
         <header
           data-shell="header"
@@ -105,18 +195,28 @@ export function Shell({ today, children }: ShellProps) {
             <h1
               className={`${APPARATUS} text-title tracking-apparatus-max text-ink tabular-nums xl:hidden`}
             >
-              {labels.wordmark}
+              {isDestination ? labels.wordmark : title}
             </h1>
             <p
+              data-shell="title"
               className={`${APPARATUS} hidden text-title tracking-apparatus-max text-ink xl:block`}
             >
-              {labels.shell.today.title}
+              {title}
             </p>
+            {/*
+              One `time` element, two renderings of the same day: m1 and m6 draw
+              the mobile header date as MON 16 NOV, and d1 and d5 draw the
+              desktop title row as MON 16 NOV 2026. The year is a desktop
+              composition rather than a format change, which is why
+              `formatHeaderDate` is untouched — the record's due pill shares it
+              and carries no year in any of its four states.
+            */}
             <time
               dateTime={today}
               className={`${APPARATUS} text-apparatus tracking-apparatus-min text-ink-secondary tabular-nums`}
             >
-              {headerDate}
+              <span className="xl:hidden">{formatHeaderDate(today, labels.dates)}</span>
+              <span className="hidden xl:inline">{formatFullDate(today, labels.dates)}</span>
             </time>
           </div>
         </header>
@@ -132,16 +232,34 @@ export function Shell({ today, children }: ShellProps) {
           className="shrink-0 border-t-[1.2px] border-rule-strong bg-chrome xl:hidden"
         >
           <ul className="flex h-tabbar-height items-stretch">
-            <li
-              aria-current="page"
-              className="relative flex min-w-[76px] flex-col items-center justify-center gap-[3px] px-gutter-mobile text-ink"
-            >
-              <span className="absolute inset-x-0 top-0 h-[2.2px] bg-ink" aria-hidden="true" />
-              <TodayGlyph />
-              <span className={`${APPARATUS} text-apparatus tracking-apparatus-min`}>
-                {labels.shell.today.tab}
-              </span>
-            </li>
+            {DESTINATIONS.map((destination) => {
+              const current = isCurrent(route, destination);
+              const Glyph = destination.glyph;
+              return (
+                <li key={formatRoute(destination.route)} className="flex">
+                  {/*
+                    The whole 76 x 46 px cell is the target, which is well clear
+                    of SC 2.5.8's 24 px floor (AD-17).
+                  */}
+                  <a
+                    href={formatRoute(destination.route)}
+                    aria-current={current ? 'page' : undefined}
+                    className={`relative flex min-w-[76px] flex-col items-center justify-center gap-[3px] px-gutter-mobile outline-offset-[-2px] outline-ink focus-visible:outline-2 ${
+                      current ? 'text-ink' : 'text-ink-secondary'
+                    }`}
+                  >
+                    <span
+                      className={`absolute inset-x-0 top-0 h-[2.2px] ${current ? 'bg-ink' : ''}`}
+                      aria-hidden="true"
+                    />
+                    <Glyph />
+                    <span className={`${APPARATUS} text-apparatus tracking-apparatus-min`}>
+                      {destination.tab}
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </div>

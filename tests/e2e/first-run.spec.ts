@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { labels } from '../../src/ui/labels';
+import { isDesktop } from './helpers';
 
 /**
  * The first run surface, in a real browser, at both bound widths.
@@ -55,8 +56,32 @@ const EXPECTED_CSP = {
   'form-action': ["'none'"],
 };
 
-/** `MON 16 NOV` — the shape, never the value: the clock is the real clock. */
-const HEADER_DATE = /^[A-Z]{3} \d{2} [A-Z]{3}$/;
+/**
+ * The header date's shape, never its value: the clock is the real clock.
+ *
+ * Two shapes, one per width, because the year is a **desktop composition**
+ * rather than a date format: `m1` and `m6` draw `MON 16 NOV` and `d1` and `d5`
+ * draw `MON 16 NOV 2026`. The same `time` element carries both renderings and
+ * `display: none` hides the one for the other width, so `innerText` reports
+ * exactly the one on screen. Asserting the mobile shape at 1280 px would be
+ * asserting that the desktop frame was not built.
+ */
+const HEADER_DATE = {
+  mobile: /^[A-Z]{3} \d{2} [A-Z]{3}$/,
+  desktop: /^[A-Z]{3} \d{2} [A-Z]{3} \d{4}$/,
+};
+
+/**
+ * The shape this project's width must produce.
+ *
+ * Asked of the page through `isDesktop`, not compared against a literal 1280:
+ * the breakpoint is `80rem` in the stylesheet, so a pixel comparison here would
+ * be a third spelling of it — right only at a 16 px root font size, and silently
+ * classifying a missing viewport as mobile.
+ */
+async function headerDateFor(page: Page): Promise<RegExp> {
+  return (await isDesktop(page)) ? HEADER_DATE.desktop : HEADER_DATE.mobile;
+}
 
 async function visibleText(page: Page): Promise<string> {
   // `innerText` reports only what is rendered, so the composition for the other
@@ -101,7 +126,7 @@ test.describe('first run', () => {
     expect(text).toContain(labels.wordmark);
     const date = page.locator('time');
     await expect(date).toBeVisible();
-    expect((await date.innerText()).trim()).toMatch(HEADER_DATE);
+    expect((await date.innerText()).trim()).toMatch(await headerDateFor(page));
 
     // The state of the file, and its count. Zero is a number, not an absence.
     await expect(page.getByText(labels.firstRun.state)).toBeVisible();

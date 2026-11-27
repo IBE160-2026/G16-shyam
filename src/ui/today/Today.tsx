@@ -1,4 +1,6 @@
-import { formatHeaderDate, localDateParts, type LocalDate } from '../../core/localdate';
+import { DEFAULT_RETENTION_DAYS } from '../../core/constants';
+import { formatFullDate, type LocalDate } from '../../core/localdate';
+import { isArchived } from '../../core/selectors';
 import type { Task } from '../../core/task';
 import { useTasks } from '../../app/store';
 import { Record } from '../components/Record';
@@ -9,19 +11,30 @@ import { Capture } from './Capture';
 /**
  * Today — the default destination, and `m1`'s work area (UX-DR15).
  *
- * **One flat list this story.** No bands, no Smart List predicates, no counts
- * per window: the three derived lists and their 22 px band headers are Epic 3.
- * `core/selectors.ts` exists as of Story 1.3 but holds only the week
- * definition; Story 1.4 adds the completed and archived predicates to it and
- * Epic 3 the Smart List and due-window ones. What is here is the spine the
- * bands will group — capture, the meta line, and records.
+ * **One flat list, filtered by one predicate.** No bands, no Smart List
+ * predicates, no counts per window: the three derived lists and their 22 px
+ * band headers are Epic 3. What this story adds is the only membership rule
+ * FR-2 names — everything not archived, which includes a completed Task for the
+ * whole retention window. The decision lives in `core/selectors.ts` and is
+ * merely *applied* here (AD-9): the list this surface renders is a predicate's
+ * answer, never a condition spelled inline where a second surface could spell
+ * it differently.
  *
- * **First run is count-based.** Zero Tasks renders the first run surface; one or
- * more renders this one. There is no persisted flag, so `schemaVersion` is not
- * shaped around one. The accepted consequence — deleting the last Task brings
- * first run back, which sits in tension with UX-DR22's claim that first run is
- * the product's only empty state — surfaces in Story 1.7, which owns deletion
- * and is the first story that can reach the condition.
+ * **Nothing can reach the archived branch yet, and it is built anyway.**
+ * Completion arrives in Story 1.6, so until then no Task this app creates has a
+ * `completedAt` at all and the filter removes nothing. It is built now because
+ * FR-2 is this story's AC and because a seeded document can already contain
+ * one — which is exactly how the gate proves it.
+ *
+ * **First run is count-based, and counts what is listed.** An empty list
+ * renders the first run surface whether the document is empty or holds nothing
+ * but archived Tasks: the surface's own claim is about what is on file *here*,
+ * and a bare list under a `15 ON FILE` meta line would be the worse of the two
+ * readings. There is no persisted flag, so `schemaVersion` is not shaped around
+ * one. The accepted consequence — deleting the last Task brings first run back,
+ * which sits in tension with UX-DR22's claim that first run is the product's
+ * only empty state — surfaces in Story 1.7, which owns deletion and is the
+ * first story that can reach the condition.
  *
  * The two surfaces word the same idea differently: this one says
  * `REFERENCE DATE …` / `n ON FILE` where first run says `NOTHING ON FILE YET` /
@@ -34,23 +47,12 @@ export interface TodayProps {
   today: LocalDate;
 }
 
-/**
- * `MON 16 NOV 2026` — the header's date with its year, as `m1` draws the meta
- * line.
- *
- * The year is in the meta line and not in the 360 px header because this line
- * is the one that has to be unambiguous: it is the date every derived list in
- * the product is computed against. Composed from the two pure formatters rather
- * than by adding a third, so `core/localdate.ts` is reused unchanged.
- */
-function referenceDate(today: LocalDate): string {
-  const parts = localDateParts(today);
-  const day = formatHeaderDate(today, labels.dates);
-  return parts === null ? day : `${day} ${String(parts.year)}`;
-}
-
 export function Today({ today }: TodayProps) {
-  const tasks = useTasks();
+  // What the list contains, decided by the predicate that owns the question and
+  // handed the reference date and the window as arguments — `core` reads no
+  // clock and no settings (AD-1, AD-7). `DEFAULT_RETENTION_DAYS` is Tier 1's
+  // answer; Epic 3 and Epic 8 pass a configured one to the same call.
+  const listed = useTasks().filter((task) => !isArchived(task, today, DEFAULT_RETENTION_DAYS));
 
   // `Capture` is rendered **once**, above the branch, and never inside either
   // arm of it. Both frames draw the field in the same place on both surfaces,
@@ -63,10 +65,10 @@ export function Today({ today }: TodayProps) {
     <section className="flex flex-1 flex-col">
       <Capture />
 
-      {tasks.length === 0 ? (
+      {listed.length === 0 ? (
         <FirstRun />
       ) : (
-        <TodayWorkArea today={today} tasks={tasks} />
+        <TodayWorkArea today={today} tasks={listed} />
       )}
     </section>
   );
@@ -90,7 +92,7 @@ function TodayWorkArea({ today, tasks }: TodayWorkAreaProps) {
           data-today="reference-date"
           className="font-family-apparatus font-apparatus text-apparatus uppercase tracking-apparatus-min text-ink-secondary tabular-nums"
         >
-          {`${labels.today.referenceDate} ${referenceDate(today)}`}
+          {`${labels.today.referenceDate} ${formatFullDate(today, labels.dates)}`}
         </p>
         <p
           data-today="count"

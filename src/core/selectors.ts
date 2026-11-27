@@ -1,13 +1,14 @@
 /**
- * The week, defined once (FR-12, FR-23).
+ * Membership, and the week it is measured in (FR-2, FR-12, FR-23, AD-9).
  *
- * **This file holds the week definition and nothing else yet.** It is the home
- * `epics.md` names for membership — Story 1.4 adds `isCompleted` and
- * `isArchived`, and Epic 3 adds the Smart List and due-window predicates — but
- * a predicate written before there is a list to put it in is a predicate with
- * no reader, free to disagree with the surface it was meant to drive. What is
- * here is only what two separate stories already need to agree on: where a week
- * starts and where it ends.
+ * **Every list in this product is a predicate here, named for its condition.**
+ * A label has no vote on membership (AD-9): changing what a list contains means
+ * changing a function in this file. Story 1.4 adds `isCompleted` and
+ * `isArchived`, the two FR-2 needs to decide what Today shows; Epic 3 adds the
+ * Smart List and due-window predicates to the same file.
+ *
+ * The other half is the week definition, which two separate stories have to
+ * agree on: where a week starts and where it ends.
  *
  * **The current week is Monday through Sunday inclusive, in the device's local
  * calendar.** Story 3.1's AC 2 requires that to be declared in exactly one
@@ -21,7 +22,8 @@
  * containing a date the caller supplies, never the week containing "now".
  */
 
-import { DAYS_PER_WEEK, addDays, dayOfWeek, type LocalDate } from './localdate';
+import { DAYS_PER_WEEK, addDays, dayDiff, dayOfWeek, type LocalDate } from './localdate';
+import type { Task } from './task';
 
 /**
  * The number of days in a week, re-exported from the module that owns the
@@ -64,4 +66,55 @@ export function endOfWeek(date: LocalDate): LocalDate | null {
   const start = startOfWeek(date);
   if (start === null) return null;
   return addDays(start, DAYS_PER_WEEK - 1);
+}
+
+/**
+ * Whether `task` is completed (FR-5, AD-7).
+ *
+ * **Derived, never stored.** The Task persists `completedAt` and nothing else:
+ * there is no `completed` boolean anywhere in the document, because a stored
+ * flag is a second source of truth free to disagree with the date it came from.
+ * This is that rule written once, so "completed" cannot come to mean two
+ * slightly different things on two surfaces.
+ *
+ * **Its first behavioural reader is Story 1.6**, which completes and
+ * un-completes a Task; Epic 3's Archive is the second. It is here now because
+ * `isArchived` below is defined in terms of it and AC 1 needs both. A surface
+ * that renders the completion *date* — Task detail — reads `completedAt`
+ * directly rather than calling this, because it needs the value and not the
+ * boolean, and narrowing `LocalDate | null` is what makes the date safe to
+ * pass on.
+ */
+export function isCompleted(task: Task): boolean {
+  return task.completedAt !== null;
+}
+
+/**
+ * Whether `task` has left the ordinary lists for the Archive (FR-2, FR-16,
+ * AD-7).
+ *
+ * Completed, and completed **more than** `retentionDays` ago measured against
+ * `today`. Strictly greater: a Task completed exactly `retentionDays` ago is
+ * still listed, and archives the following day. That boundary is the one thing
+ * about this predicate worth testing twice.
+ *
+ * Computed on every render and stored nowhere — there is no `archived` flag and
+ * no sweep that writes one, which is what keeps Archive honest in a tab left
+ * open across midnight: the reference date moves and the answer moves with it.
+ *
+ * `today` is an argument because `core` reads no clock (AD-1, AD-2), and
+ * `retentionDays` is an argument because Epic 3 makes the window configurable
+ * and Epic 8 puts it in Settings — both supply it from the settings document
+ * where Epic 1 supplies `DEFAULT_RETENTION_DAYS`, and this function does not
+ * change when they do.
+ *
+ * An unreadable date reads as **not archived**: a Task whose stored
+ * `completedAt` cannot be parsed stays visible rather than vanishing from every
+ * list at once, which is the failure a user could neither see nor explain.
+ */
+export function isArchived(task: Task, today: LocalDate, retentionDays: number): boolean {
+  if (task.completedAt === null) return false;
+  const age = dayDiff(today, task.completedAt);
+  if (age === null) return false;
+  return age > retentionDays;
 }

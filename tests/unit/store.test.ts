@@ -273,6 +273,116 @@ describe('the single writer', () => {
   });
 });
 
+describe('task/field-edited', () => {
+  /**
+   * FR-3's whole promise, as a state transition: one field of one Task moves
+   * and nothing else does.
+   *
+   * The action carries an **id and a one-key patch**, never a whole `Task`. A
+   * surface that sent back a Task it captured when it rendered would also send
+   * back the five fields as they were then, silently undoing anything that had
+   * changed in between — which is the single-writer defect AD-6 exists to
+   * prevent, and the reason this reducer merges rather than replaces.
+   */
+  const first = createTask('id-1', 'Submit assignment in IBE160');
+  const second = createTask('id-2', 'Pay rent');
+  const both: StoreState = { tasks: [first, second], readFailure: null, writeFailure: null };
+
+  it('writes one field and leaves the other seven alone', () => {
+    const next = reduce(both, {
+      type: 'task/field-edited',
+      id: 'id-1',
+      edit: { priority: 'high' },
+    });
+    const edited = next.tasks[0];
+    expect(edited?.priority).toBe('high');
+    // Every other field of that Task, unchanged.
+    expect(edited).toEqual({ ...first, priority: 'high' });
+  });
+
+  it('leaves every other Task identical, by reference', () => {
+    const next = reduce(both, {
+      type: 'task/field-edited',
+      id: 'id-1',
+      edit: { notes: 'Hand in the PDF' },
+    });
+    // Not merely equal: the same object. A reducer that rebuilt every Task
+    // would make React re-render every record for one field's edit.
+    expect(next.tasks[1]).toBe(second);
+  });
+
+  it('keeps the order, because editing is not capturing', () => {
+    const next = reduce(both, { type: 'task/field-edited', id: 'id-2', edit: { tags: ['school'] } });
+    expect(next.tasks.map((task) => task.id)).toEqual(['id-1', 'id-2']);
+  });
+
+  it('writes each of the six editable fields', () => {
+    const edits = [
+      { text: 'Submit the lab report' },
+      { dueDate: '2026-11-20' },
+      { notes: 'Hand in the PDF, not the .docx' },
+      { tags: ['school', 'group'] },
+      { priority: 'low' },
+      { summary: 'Submit assignment' },
+    ] as const;
+    for (const edit of edits) {
+      const next = reduce(both, { type: 'task/field-edited', id: 'id-1', edit });
+      expect(next.tasks[0], JSON.stringify(edit)).toEqual({ ...first, ...edit });
+    }
+  });
+
+  it('clears a nullable field rather than dropping it', () => {
+    const dated: Task = { ...first, dueDate: '2026-11-20', notes: 'something', summary: 'a summary' };
+    const state: StoreState = { tasks: [dated], readFailure: null, writeFailure: null };
+    for (const edit of [{ dueDate: null }, { notes: null }, { summary: null }] as const) {
+      const next = reduce(state, { type: 'task/field-edited', id: 'id-1', edit });
+      expect(next.tasks[0], JSON.stringify(edit)).toEqual({ ...dated, ...edit });
+    }
+    // Tags clear to the empty list, which is their absence (there is no null).
+    const cleared = reduce(
+      { tasks: [{ ...first, tags: ['school'] }], readFailure: null, writeFailure: null },
+      { type: 'task/field-edited', id: 'id-1', edit: { tags: [] } },
+    );
+    expect(cleared.tasks[0]?.tags).toEqual([]);
+  });
+
+  it('is a no-op for an id no Task carries, down to the state object', () => {
+    // A surface outliving its Task — a link kept after a deletion. Returning
+    // the identical state is what stops the persisting wrapper writing a
+    // document that did not move.
+    const next = reduce(both, { type: 'task/field-edited', id: 'missing', edit: { priority: 'low' } });
+    expect(next).toBe(both);
+  });
+
+  it('persists through the reducer, like every other mutation', () => {
+    const storage = recordingStorage([first, second]);
+    const reducer = createPersistingReducer(storage);
+    const next = reducer(both, {
+      type: 'task/field-edited',
+      id: 'id-2',
+      edit: { summary: 'Rent for December' },
+    });
+
+    expect(storage.writes).toHaveLength(1);
+    expect(storage.writes[0]?.[1]?.summary).toBe('Rent for December');
+    expect(next.writeFailure).toBeNull();
+  });
+
+  it('keeps the Task in state when the write is refused', () => {
+    const storage = recordingStorage([first]);
+    const reducer = createPersistingReducer(storage);
+    storage.failWrite = 'quota-exceeded';
+    const next = reducer(
+      { tasks: [first], readFailure: null, writeFailure: null },
+      { type: 'task/field-edited', id: 'id-1', edit: { priority: 'high' } },
+    );
+    // An edit that could not be stored still happened, exactly as a capture
+    // that could not be stored still happened (AC 5 of Story 1.2).
+    expect(next.tasks[0]?.priority).toBe('high');
+    expect(next.writeFailure).toBe('quota-exceeded');
+  });
+});
+
 describe('the capture path is synchronous', () => {
   /**
    * Submit to render: the store, the field, the surface, the adapters — and,

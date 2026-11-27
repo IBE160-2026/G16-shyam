@@ -53,14 +53,38 @@ export interface StoreState {
 }
 
 /**
+ * The fields a user may edit by hand (FR-3).
+ *
+ * Exactly the six Tier 1 fields of PRD §3, so `id` cannot be edited and
+ * `completedAt` cannot be set this way — completion is an act with its own
+ * meaning and Story 1.6 gives it its own action. Derived from `Task` rather
+ * than listed again, so a field added to the domain is either editable by name
+ * here or deliberately absent, never silently both.
+ */
+export type EditableField = Exclude<keyof Task, 'id' | 'completedAt'>;
+
+/**
+ * One field's new value, carried as a one-key patch.
+ *
+ * `Pick` keeps the field and its type together, so `{ priority: '2026-11-20' }`
+ * does not compile. It does **not** make one key a type guarantee: TypeScript
+ * checks excess properties against the union of every constituent's keys, so
+ * `{ text: 'a', notes: 'b' }` compiles and the reducer would merge both. One
+ * field per action is therefore a convention the call sites keep, and the
+ * reducer is written to merge whatever it is given rather than to assume.
+ */
+export type FieldEdit = { [K in EditableField]: Pick<Task, K> }[EditableField];
+
+/**
  * Every mutation, named.
  *
- * One action this story, because this story can do one thing. Completion
- * (1.6), editing (1.5) and deletion (1.7) each add their own rather than
- * widening this one into a generic `task/changed` that would make the reducer's
- * history unreadable.
+ * Two actions now. Completion (1.6) and deletion (1.7) each add their own
+ * rather than widening either of these into a generic `task/changed` that would
+ * make the reducer's history unreadable.
  */
-export type Action = { readonly type: 'task/created'; readonly task: Task };
+export type Action =
+  | { readonly type: 'task/created'; readonly task: Task }
+  | { readonly type: 'task/field-edited'; readonly id: string; readonly edit: FieldEdit };
 
 /**
  * The pure reducer: state in, state out, no storage.
@@ -76,6 +100,29 @@ export function reduce(state: StoreState, action: Action): StoreState {
       // for, and at 360 px it is the difference between seeing it and scrolling
       // for it. Band ordering arrives with the bands in Epic 3.
       return { ...state, tasks: [action.task, ...state.tasks] };
+    case 'task/field-edited': {
+      // The patch is merged into the Task **as it is now**, not into a copy the
+      // surface captured when it rendered. That is the whole of AC 1's "that
+      // field changes alone": a component that sent back a whole `Task` would
+      // also send back the five fields as they were before, undoing anything
+      // that changed in between (AD-6).
+      let changed = false;
+      const tasks = state.tasks.map((task) => {
+        if (task.id !== action.id) return task;
+        changed = true;
+        return { ...task, ...action.edit };
+      });
+      // An edit naming no Task — a surface outliving its Task — changes
+      // nothing, and returning the identical array is what keeps the persisting
+      // wrapper from writing a document that did not move. The same holds for
+      // an edit whose value is already the stored one: the array is new but the
+      // bytes are not, which costs one `JSON.stringify` and is the honest price
+      // of not comparing field values here.
+      if (!changed) return state;
+      // Order is untouched: newest-first is a capture order, not a modified
+      // order, so editing a Task does not move its record.
+      return { ...state, tasks };
+    }
     default:
       // Unreachable while the union has one member, and the thing that keeps it
       // unreachable when it has five: an action this reducer does not know is a
@@ -164,6 +211,8 @@ interface StoreValue {
   readonly state: StoreState;
   /** Creates a Task from text, or returns `null` when there is nothing to create. */
   readonly createTaskFromText: (text: string) => Task | null;
+  /** Writes one field of one Task, by id (FR-3). */
+  readonly editTaskField: (id: string, edit: FieldEdit) => void;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
@@ -197,9 +246,17 @@ export function StoreProvider({ storage, ids, today, children }: StoreProviderPr
     [ids, today],
   );
 
+  // No `today` and no `ids` in the dependencies: an edit needs neither. The
+  // user supplies the value, so nothing is parsed, nothing is generated, and
+  // no date word is re-read — which is also why editing the task text cannot
+  // re-resolve a date the way capture does (FR-3, AD-15).
+  const editTaskField = useCallback((id: string, edit: FieldEdit): void => {
+    dispatch({ type: 'task/field-edited', id, edit });
+  }, []);
+
   const value = useMemo<StoreValue>(
-    () => ({ state, createTaskFromText }),
-    [state, createTaskFromText],
+    () => ({ state, createTaskFromText, editTaskField }),
+    [state, createTaskFromText, editTaskField],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
@@ -226,4 +283,14 @@ export function useTasks(): readonly Task[] {
 /** The capture path: text in, a Task created and persisted, or `null`. */
 export function useCreateTask(): (text: string) => Task | null {
   return useStore().createTaskFromText;
+}
+
+/**
+ * Writes one field of one Task (FR-3).
+ *
+ * The id and a one-key patch, never a whole Task: the surface says what
+ * changed, and the reducer decides what the Task becomes.
+ */
+export function useEditTaskField(): (id: string, edit: FieldEdit) => void {
+  return useStore().editTaskField;
 }

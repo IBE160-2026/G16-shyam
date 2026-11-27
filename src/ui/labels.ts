@@ -263,6 +263,22 @@ export const labels = {
       priority: 'Priority',
       summary: 'Summary',
       notes: 'Notes',
+      /**
+       * The one way to remove a due date (FR-3).
+       *
+       * A date control cannot express "no date" without ambiguity: an empty
+       * value is also what a half-typed date and an abandoned edit look like,
+       * so emptying the control can no longer mean deletion. Deleting is a
+       * deliberate act and gets a deliberate control — apparatus type, because
+       * it is the app speaking rather than the user's own words.
+       *
+       * It carries no separate spoken wording. The visible text *is* the
+       * accessible name, as it is on the recovery panel's `BACK TO TODAY`: an
+       * `aria-label` that did not contain the visible text would fail
+       * `axe-core`'s `label-content-name-mismatch`, and anyone operating by
+       * voice would be naming a control the app does not answer to.
+       */
+      clearDueDate: 'CLEAR DATE',
     },
     /**
      * The absences, each a fact rather than a prompt or an error.

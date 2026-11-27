@@ -171,7 +171,12 @@ test.describe('opening a Task', () => {
     // be the review idiom leaking in, or a Complete/Delete arriving before
     // Stories 1.6 and 1.7 own them.
     await expect(page.locator('[data-surface="task-detail"] table')).toHaveCount(0);
-    await expect(page.locator('[data-surface="task-detail"] button')).toHaveCount(0);
+    // One button, and exactly one: the due date's clear control. No Apply, no
+    // Cancel, no Complete and no Delete — the review idiom belongs to Epic 2
+    // and completion and deletion to Stories 1.6 and 1.7.
+    const buttons = page.locator('[data-surface="task-detail"] button');
+    await expect(buttons).toHaveCount(1);
+    await expect(buttons).toHaveAttribute('data-action', 'clear-due-date');
 
     // Exactly the six editable fields, no more: `completed` stays read-only.
     const controls = page.locator('[data-surface="task-detail"] [data-edit]');
@@ -858,8 +863,9 @@ test.describe('editing a field', () => {
     await expect(page.locator('[data-record] [data-slot="due-pill"]').first()).toHaveText('THU 24 DEC');
 
     await page.goto(`/#/task/${String(FULL_TASK.id)}`);
-    await fieldControl(page, 'due-date').fill('');
-    await fieldControl(page, 'due-date').blur();
+    // Clearing is its own act now: emptying the control is an incomplete edit,
+    // not an instruction to delete the date.
+    await page.locator('[data-action="clear-due-date"]').click();
     expect((await storedTask(page, 'task-full')).dueDate).toBeNull();
 
     await page.goto('/#/today');
@@ -1007,6 +1013,100 @@ test.describe('editing a field', () => {
     // Still stored while the field is open: a half-cleared control is not a
     // decision to clear the date.
     expect((await storedTask(page, 'task-full')).dueDate).toBe('2026-11-20');
+
+    // And still stored after leaving the field, which is the case that used to
+    // destroy it. The control recovers the stored date rather than sitting
+    // empty over a document that still holds one.
+    await due.blur();
+    expect((await storedTask(page, 'task-full')).dueDate).toBe('2026-11-20');
+    await expect(due).toHaveValue('2026-11-20');
+  });
+
+  test('keeps the stored date when an edit is abandoned by leaving the surface', async ({
+    page,
+  }) => {
+    // The blur case is covered by the Backspace test above; this is the other
+    // way an entry is abandoned — walking away from it. Leaving commits the
+    // pending draft of every *other* field, so the date needs its own answer:
+    // an incomplete value is refused and the stored date stands.
+    await openFull(page);
+    const due = fieldControl(page, 'due-date');
+    await expect(due).toHaveValue('2026-11-20');
+
+    await due.focus();
+    // One segment deleted empties the whole composed value in Chromium, which
+    // is exactly what a half-finished entry looks like.
+    await page.keyboard.press('Backspace');
+    await expect(due).toHaveValue('');
+
+    await page.goto('/#/today');
+    await expect(page.locator('[data-record]')).toHaveCount(2);
+    expect((await storedTask(page, 'task-full')).dueDate).toBe('2026-11-20');
+
+    // And the record still shows it, so nothing was lost on the way out.
+    await expect(page.locator('[data-record] [data-slot="due-pill"]').first()).toHaveText(
+      'FRI 20 NOV',
+    );
+  });
+
+  test('saves a complete date typed from the keyboard', async ({ page }) => {
+    // The rule is "only complete and valid", not "never from the keyboard":
+    // the digits that make a whole date are still saved, once, on blur.
+    await openFull(page);
+    const due = fieldControl(page, 'due-date');
+
+    await due.focus();
+    await due.pressSequentially('12242027', { delay: 20 });
+    await due.blur();
+
+    expect((await storedTask(page, 'task-full')).dueDate).toBe('2027-12-24');
+    await expect(due).toHaveValue('2027-12-24');
+  });
+
+  test('clears the date only through the clear control', async ({ page }) => {
+    await openFull(page);
+    const clear = page.locator('[data-action="clear-due-date"]');
+
+    // Accessible, named, and a real target (AD-17, SC 2.5.8).
+    await expect(clear).toBeVisible();
+    // The visible text is the accessible name — no `aria-label` that could
+    // drift from it, which is what `label-content-name-mismatch` catches.
+    await expect(clear).toHaveAccessibleName(labels.taskDetail.edit.clearDueDate);
+    await expect(clear).toHaveText(labels.taskDetail.edit.clearDueDate);
+    const box = await clear.boundingBox();
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(24);
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(24);
+    // Keyboard-reachable, like every control here.
+    await clear.focus();
+    await expect(clear).toBeFocused();
+
+    await clear.click();
+    expect((await storedTask(page, 'task-full')).dueDate).toBeNull();
+    await expect(fieldControl(page, 'due-date')).toHaveValue('');
+
+    // It is gone once there is nothing to clear: a control that does nothing is
+    // what AD-17 rules out.
+    await expect(clear).toHaveCount(0);
+
+    // The record follows, back to the em-dash treatment.
+    await page.goto('/#/today');
+    const pill = page.locator('[data-record] [data-slot="due-pill"]').first();
+    await expect(pill).toHaveAttribute('data-due', 'none');
+  });
+
+  test('offers no clear control on a Task that has no due date', async ({ page }) => {
+    await seed(page, taskDocument([BARE_TASK]));
+    await page.goto(`/#/task/${String(BARE_TASK.id)}`);
+    await expect(page.locator('[data-surface="task-detail"]')).toBeVisible();
+
+    await expect(page.locator('[data-action="clear-due-date"]')).toHaveCount(0);
+    await expect(page.locator('[data-surface="task-detail"] button')).toHaveCount(0);
+
+    // And a date set from empty brings the control with it.
+    await fieldControl(page, 'due-date').fill('2027-03-01');
+    await fieldControl(page, 'due-date').blur();
+    expect((await storedTask(page, 'task-bare')).dueDate).toBe('2027-03-01');
+    await expect(page.locator('[data-action="clear-due-date"]')).toBeVisible();
   });
 
   test('gives every control a pointer target of at least 24 px', async ({ page }) => {

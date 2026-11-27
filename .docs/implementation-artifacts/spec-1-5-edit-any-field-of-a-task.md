@@ -170,6 +170,44 @@ asserted on the built artifact — a React controlled-input warning fails the ga
 
 **Acceptance Criteria:** the six above, verbatim from `epics.md`.
 
+### Addendum, 2026-11-27 — the due date is preserved unless replaced
+
+Requested after the review pass, and a decision rather than a defect fix: the
+residual risk recorded above said an abandoned date entry was indistinguishable
+from a deliberate clear, and that it needed a human call. It got one.
+
+**Only a complete, valid date is saved.** An empty value is refused and the
+stored date stands, because empty is also what a half-typed date, an abandoned
+edit and a single Backspace all look like — Chromium empties the whole composed
+value when one segment is cleared. The control reverts to the stored date.
+
+**Deleting a date is its own act**, through a `CLEAR DATE` control beside the
+field. It is rendered only when there is a date to remove, since a control that
+does nothing is what AD-17 rules out — the same reason Story 1.1's Today
+destination and Story 1.2's checkbox were drawn rather than built. Its visible
+text is its accessible name, as on the recovery panel's `BACK TO TODAY`: an
+`aria-label` that did not contain the visible text failed `axe-core`'s
+`label-content-name-mismatch` when first written that way.
+
+**No locked UX changed, so no approval was sought.** DESIGN.md and
+EXPERIENCE.md do not cover Task-detail editing at all, and neither draws or
+forbids a clear affordance; this story's own Never list forbids `Apply`,
+`Cancel` and per-field undo, and a clear control is none of the three. The one
+assertion that had to move is this story's own "no buttons on Task detail",
+which now permits exactly this control and still forbids Apply, Cancel,
+Complete and Delete.
+
+**One thing the review had removed came back.** The draft hook's resync from
+`stored` was deleted as dead in the review pass, on the reasoning that the
+keyed-per-route boundary makes every change to `stored` one the hook itself
+made. The clear control is the counter-example — it writes `null` straight to
+the store — so the resync is restored, and the clear test is now the reader it
+previously lacked.
+
+Gate after the change: typecheck, lint, 287 unit tests, build, **181** e2e tests,
+`check-bundle-key`. The two date-preservation tests were checked for teeth by
+making an empty value mean deletion again; both failed, then passed.
+
 ## Spec Change Log
 
 ## Review Triage Log
@@ -292,11 +330,10 @@ and each failed before passing again.
 
 ### Residual risks
 
-- **A date typed and abandoned still commits on blur.** Leaving a half-typed
-  date blurs an empty control, which stores `null`. That is indistinguishable
-  from a deliberate clear, and with no per-field undo the previous date is gone.
-  The alternative — refusing an empty value — would make clearing a date
-  impossible. Worth a human decision if it bites.
+- **Resolved 2026-11-27, after the review pass.** The abandoned-date risk below
+  was decided rather than carried: an empty date control is now never a
+  deletion, and deleting has its own control. See the addendum in the
+  Implementation Notes.
 - **No `min`/`max` on the date control**, so a year like `0002` is still
   storable deliberately. The per-keystroke path that produced them by accident
   is closed; bounding the range is a product decision this story does not own.

@@ -123,10 +123,13 @@ function Field({ slot, label, children }: { slot: string; label: string; childre
  * hold, every later blur re-commits it, and `flush`'s own "unchanged in,
  * nothing out" rule is false for exactly the values most likely to be typed.
  *
- * It does not resync from the `stored` prop. With one error boundary per route
- * keyed by Task id (`src/main.tsx`), a move from one Task to another unmounts
- * this surface, so a draft cannot survive into another Task's row — and every
- * change to `stored` while mounted is one this hook just made.
+ * **Why it resyncs from `stored`.** Not for a change of Task — one error
+ * boundary per route keyed by Task id (`src/main.tsx`) unmounts this surface on
+ * a move from one Task to another, so a draft cannot survive into another row.
+ * It is for a change to the same Task's field made by something that is not
+ * this hook: the due date's clear control writes `null` straight to the store,
+ * and without the resync the input would go on showing the date the document no
+ * longer holds. React's documented adjust-state-on-render pattern.
  */
 function useCommittedDraft(
   stored: string,
@@ -137,6 +140,7 @@ function useCommittedDraft(
   onBlur: () => void;
 } {
   const [draft, setDraft] = useState(stored);
+  const [seen, setSeen] = useState(stored);
 
   // Refs, so the unmount cleanup below needs no dependencies and can never run
   // against a stale closure: a cleanup that fired with last render's `stored`
@@ -147,6 +151,12 @@ function useCommittedDraft(
 
   storedRef.current = stored;
   commitRef.current = commit;
+
+  if (stored !== seen) {
+    setSeen(stored);
+    setDraft(stored);
+    draftRef.current = stored;
+  }
 
   // **The ref is written here, in the event, and not during render.** A blur
   // can be delivered before React has re-rendered with the keystroke that
@@ -390,37 +400,43 @@ export function TaskDetail({ task }: TaskDetailProps) {
  * date". DESIGN.md sanctions the shape outright: the world "never overrides a
  * standard control's shape".
  *
- * **It commits on blur, like every other field here, and deliberately not on
- * change.** A date input looks like one deliberate act and is not: typing a
- * year fires `change` once per digit, so committing there wrote the document
- * four times for one date and left `0002-12-24`, `0020-12-24` and `0202-12-24`
- * in it on the way to `2027-12-24` — every one of them a real date
- * `isLocalDate` accepts and the due pill then shows. A keyboard entry
- * abandoned half-way stored a due date in year 2. Worse, Chromium empties the
- * whole value when one segment is deleted, so a single Backspace committed
- * `null` and destroyed a stored date with no undo. Blur is what AC 2 asks for
- * and what makes both of those one act again.
+ * **It commits on blur, and only a complete, valid date.** A date input looks
+ * like one deliberate act and is not: typing a year fires `change` once per
+ * digit, so committing there wrote the document four times for one date and
+ * left `0002-12-24`, `0020-12-24` and `0202-12-24` in it on the way to
+ * `2027-12-24` — every one of them a real date `isLocalDate` accepts and the
+ * due pill then shows.
  *
- * `isLocalDate` still guards the value: a refusal leaves the stored date
- * standing.
+ * **An empty value is never a deletion.** It is what a half-typed date, an
+ * abandoned edit and a single Backspace all look like — Chromium empties the
+ * whole control when one segment is deleted — so treating it as "no date"
+ * destroyed stored dates with no undo. The stored date now stands and the
+ * control reverts to it, which is the behaviour an incomplete edit should have
+ * in a product with no per-field undo.
+ *
+ * Deleting therefore needs its own act, and gets one: the clear control beside
+ * the field. That is the only way a due date is removed.
  */
 function DueDateField({ task }: { task: Task }) {
   const editField = useEditTaskField();
   const commit = useCallback(
     (value: string): string | null => {
-      if (value === '') {
-        editField(task.id, { dueDate: null });
-        return '';
-      }
-      if (!isLocalDate(value)) return null;
+      // Refused — the stored date stands and the control shows it again. An
+      // empty control is an incomplete edit, not an instruction; `isLocalDate`
+      // catches anything else a browser could hand back.
+      if (value === '' || !isLocalDate(value)) return null;
       editField(task.id, { dueDate: value });
       return value;
     },
     [editField, task.id],
   );
   const draft = useCommittedDraft(task.dueDate ?? '', commit);
+  const clear = useCallback((): void => {
+    editField(task.id, { dueDate: null });
+  }, [editField, task.id]);
+
   return (
-    <>
+    <div className="flex flex-wrap items-center gap-group-gap-min">
       <ControlLabel id="edit-due-date">{labels.taskDetail.edit.dueDate}</ControlLabel>
       <input
         id="edit-due-date"
@@ -431,9 +447,25 @@ function DueDateField({ task }: { task: Task }) {
           draft.onChange(event.target.value);
         }}
         onBlur={draft.onBlur}
-        className={`${CONTROL} ${SINGLE_LINE} w-full tabular-nums`}
+        className={`${CONTROL} ${SINGLE_LINE} min-w-[9rem] flex-1 tabular-nums`}
       />
-    </>
+      {/*
+        Rendered only when there is a date to remove. A clear control on a Task
+        with no due date would be a native control that does nothing, which is
+        what AD-17 rules out and what the inert Today destination and the drawn
+        checkbox were both avoided for.
+      */}
+      {task.dueDate !== null && (
+        <button
+          type="button"
+          data-action="clear-due-date"
+          onClick={clear}
+          className={`${SINGLE_LINE} shrink-0 cursor-pointer border border-ink bg-surface px-group-gap-min ${APPARATUS} text-apparatus tracking-apparatus-min text-ink outline-offset-2 outline-ink focus-visible:outline-2`}
+        >
+          {labels.taskDetail.edit.clearDueDate}
+        </button>
+      )}
+    </div>
   );
 }
 

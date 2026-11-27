@@ -1,10 +1,11 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { STORAGE_KEYS } from '../../src/adapters/local-storage';
 import { TASK_SCHEMA_VERSION } from '../../src/core/constants';
 import { labels } from '../../src/ui/labels';
 import {
+  accessibilityViolations,
   capture,
+  expectTargetFloor,
   dueDateDocument,
   expectNoHorizontalScroll,
   fixtureDocument,
@@ -726,9 +727,8 @@ test.describe('the record', () => {
       0,
     );
     await expect(records.locator('input, button, [tabindex]')).toHaveCount(0);
-    const results = await new AxeBuilder({ page }).analyze();
     expect(
-      results.violations.map((violation) => `${violation.id}: ${violation.help}`),
+      await accessibilityViolations(page),
       'axe-core is evidence, never a conformance claim',
     ).toEqual([]);
 
@@ -934,15 +934,24 @@ test.describe('the accessibility floor', () => {
     await expectNoHorizontalScroll(page);
   });
 
+  test('holds AD-17 pointer-target floor on a populated Today', async ({ page }) => {
+    // The record's row-sized overlay is the target here, and the tab bar's and
+    // rail's destination links. Measured rather than left to `axe-core`, which
+    // grants a spacing exception AD-17 denies.
+    await seed(page, fixtureDocument());
+    await page.goto('/');
+    await expect(page.locator('[data-record]')).toHaveCount(15);
+    await expectTargetFloor(page);
+  });
+
   test('reports no axe-core violations on a populated Today', async ({ page }) => {
     await seed(page, fixtureDocument());
     await page.goto('/');
     await capture(page, SENTENCE);
     await expect(page.locator('[data-record]')).toHaveCount(16);
 
-    const results = await new AxeBuilder({ page }).analyze();
     expect(
-      results.violations.map((violation) => `${violation.id}: ${violation.help}`),
+      await accessibilityViolations(page),
       'axe-core is evidence, never a conformance claim',
     ).toEqual([]);
   });
@@ -951,8 +960,10 @@ test.describe('the accessibility floor', () => {
     await page.goto('/');
     await expect(page.locator('[data-capture="field"]')).toBeVisible();
 
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations.map((violation) => violation.id)).toEqual([]);
+    expect(
+      await accessibilityViolations(page),
+      'axe-core is evidence, never a conformance claim',
+    ).toEqual([]);
   });
 
   test('submits on Enter, because the field is in a real form', async ({ page }) => {

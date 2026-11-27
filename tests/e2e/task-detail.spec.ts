@@ -1,10 +1,11 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { STORAGE_KEYS } from '../../src/adapters/local-storage';
 import { DEFAULT_RETENTION_DAYS, TASK_SCHEMA_VERSION } from '../../src/core/constants';
 import { labels } from '../../src/ui/labels';
 import {
+  accessibilityViolations,
   capture,
+  expectTargetFloor,
   completedDocument,
   expectNoHorizontalScroll,
   fixtureTask,
@@ -1109,6 +1110,15 @@ test.describe('editing a field', () => {
     await expect(page.locator('[data-action="clear-due-date"]')).toBeVisible();
   });
 
+  test('holds the AD-17 pointer-target floor across the whole surface', async ({ page }) => {
+    // Every interactive element, not only the six fields: the chrome's links
+    // and the clear control are on this surface too, and the next epic's
+    // controls will be. `axe-core` passes a 21 px control that has clearance,
+    // so this is measured.
+    await openFull(page);
+    await expectTargetFloor(page);
+  });
+
   test('gives every control a pointer target of at least 24 px', async ({ page }) => {
     // SC 2.5.8 and AD-17, which states the floor with no spacing exception for
     // rows stacked against each other. `axe-core` cannot stand in for this:
@@ -1139,9 +1149,8 @@ test.describe('editing a field', () => {
 
   test('reports no axe-core violations with every field editable', async ({ page }) => {
     await openFull(page);
-    const results = await new AxeBuilder({ page }).analyze();
     expect(
-      results.violations.map((violation) => `${violation.id}: ${violation.help}`),
+      await accessibilityViolations(page),
       'axe-core is evidence, never a conformance claim',
     ).toEqual([]);
     await expectNoHorizontalScroll(page);
@@ -1154,9 +1163,8 @@ test.describe('the accessibility floor on Task detail', () => {
     await page.goto(`/#/task/${String(FULL_TASK.id)}`);
     await expect(page.locator('[data-surface="task-detail"]')).toBeVisible();
 
-    const results = await new AxeBuilder({ page }).analyze();
     expect(
-      results.violations.map((violation) => `${violation.id}: ${violation.help}`),
+      await accessibilityViolations(page),
       'axe-core is evidence, never a conformance claim',
     ).toEqual([]);
   });

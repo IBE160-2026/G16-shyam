@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
 import { STORAGE_KEYS } from '../../src/adapters/local-storage';
 import { TASK_SCHEMA_VERSION } from '../../src/core/constants';
@@ -171,6 +172,109 @@ export async function storedItems(page: Page): Promise<Record<string, string>> {
 export async function capture(page: Page, text: string): Promise<void> {
   await page.locator('[data-capture="field"]').fill(text);
   await page.locator('[data-capture="submit"]').click();
+}
+
+/**
+ * The WCAG A/AA rules `axe-core` ships **disabled**, which the gate must not.
+ *
+ * AD-17 declares WCAG 2.2 AA as the floor and names `axe-core` through
+ * Playwright at both bound viewports as the mechanical check on it. Seven rules
+ * tagged `wcag2a`, `wcag21aa` or `wcag22aa` are off by default in axe-core
+ * 4.14, so an un-configured `analyze()` quietly covers less than the floor it
+ * is standing in for — and says nothing about the difference.
+ *
+ * This is not hypothetical. `target-size` is in this list, and Story 1.5
+ * shipped three controls at 21–23 px past a green accessibility run; only a
+ * hand-written measurement caught them. The rest are aimed squarely at what
+ * later epics build: `td-has-header` and `table-fake-caption` at Epic 2's
+ * course table and Epic 3's desktop rows, `p-as-heading` at a design system
+ * with four type sizes where a styled `p` is the easy mistake.
+ *
+ * Listed by name rather than enabled wholesale, so adding one is a decision
+ * with a reason beside it rather than a default that moved.
+ */
+const DISABLED_WCAG_RULES = [
+  'aria-roledescription',
+  'audio-caption',
+  'css-orientation-lock',
+  'p-as-heading',
+  'table-fake-caption',
+  'target-size',
+  'td-has-header',
+] as const;
+
+/**
+ * Runs `axe-core` over the current page with the floor's full rule set, and
+ * returns each violation as `id: help`.
+ *
+ * **Evidence, never a conformance claim** — it covers a subset of WCAG 2.2 AA,
+ * so an empty result says the mechanical checks found nothing. It does not say
+ * the app conforms, and nothing in this repository may say that (AD-17).
+ */
+export async function accessibilityViolations(page: Page): Promise<string[]> {
+  const results = await new AxeBuilder({ page })
+    .options({
+      rules: Object.fromEntries(DISABLED_WCAG_RULES.map((rule) => [rule, { enabled: true }])),
+    })
+    .analyze();
+  return results.violations.map((violation) => `${violation.id}: ${violation.help}`);
+}
+
+/**
+ * AD-17's pointer-target floor, measured — because `axe-core` cannot enforce it.
+ *
+ * **`target-size` is not a substitute, even enabled.** It implements SC 2.5.8
+ * faithfully, spacing exception included, so it *passes* a 21 px control that
+ * has clearance around it. AD-17 deliberately takes the stricter line — "every
+ * pointer target is >=24x24 CSS px", with the exception denied to rows stacked
+ * against each other — and names two token changes the standard forced on this
+ * product because of it. A rule that allows what the architecture forbids can
+ * never be the gate for it.
+ *
+ * Measured, verified: Story 1.5 shipped three controls at 21-23 px past a green
+ * `axe-core` run with every disabled WCAG rule switched on. Only a measurement
+ * catches that, and only a measurement over *every* interactive element catches
+ * it on the next surface — Epic 2's three controls per record, Epic 3's bands
+ * and legend, Epic 8's settings toggle.
+ *
+ * Hidden elements are skipped rather than failed: both width compositions are
+ * in the markup at once and the other one is `display: none`, so it has no box
+ * to measure and no pointer to receive.
+ */
+export async function expectTargetFloor(page: Page): Promise<void> {
+  const FLOOR = 24;
+  const undersized = await page.evaluate((floor) => {
+    const interactive = [
+      'a[href]',
+      'button',
+      'input',
+      'select',
+      'textarea',
+      '[tabindex]:not([tabindex="-1"])',
+      '[role="button"]',
+      '[role="link"]',
+      '[role="checkbox"]',
+      '[role="switch"]',
+    ].join(', ');
+    const found: string[] = [];
+    for (const element of document.querySelectorAll(interactive)) {
+      const box = element.getBoundingClientRect();
+      // No box at all: the other width's composition, hidden by CSS.
+      if (box.width === 0 && box.height === 0) continue;
+      if (box.width >= floor && box.height >= floor) continue;
+      const name =
+        element.getAttribute('data-edit') ??
+        element.getAttribute('data-slot') ??
+        element.getAttribute('data-action') ??
+        element.getAttribute('data-capture') ??
+        element.id ??
+        element.tagName.toLowerCase();
+      found.push(`${name} is ${String(Math.round(box.width))}x${String(Math.round(box.height))}`);
+    }
+    return found;
+  }, FLOOR);
+
+  expect(undersized, `pointer targets under AD-17's ${String(FLOOR)} px floor`).toEqual([]);
 }
 
 /**

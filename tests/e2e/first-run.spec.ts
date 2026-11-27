@@ -1,7 +1,6 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { labels } from '../../src/ui/labels';
-import { isDesktop } from './helpers';
+import { accessibilityViolations, expectTargetFloor, isDesktop } from './helpers';
 
 /**
  * The first run surface, in a real browser, at both bound widths.
@@ -247,11 +246,14 @@ test.describe('first run', () => {
 
   test('reports no axe-core violations', async ({ page }) => {
     await page.goto('/');
-    const results = await new AxeBuilder({ page }).analyze();
     expect(
-      results.violations.map((violation) => `${violation.id}: ${violation.help}`),
+      await accessibilityViolations(page),
       'axe-core is evidence, never a conformance claim',
     ).toEqual([]);
+
+    // And the floor `axe-core` cannot enforce: it grants SC 2.5.8's spacing
+    // exception, which AD-17 denies, so every target is measured instead.
+    await expectTargetFloor(page);
   });
 
   test('logs nothing to the console', async ({ page }) => {
